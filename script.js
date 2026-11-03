@@ -1,16 +1,13 @@
-// Navigare SPA (Single Page Application)
+// Navigare SPA
 const navLinks = document.querySelectorAll('.nav-links a');
 const pages = document.querySelectorAll('.page');
 
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
-        
-        // Remove active class from all
         navLinks.forEach(l => l.classList.remove('active'));
         pages.forEach(p => p.classList.remove('active'));
         
-        // Add active class to clicked link and corresponding section
         link.classList.add('active');
         const targetId = link.getAttribute('data-target');
         document.getElementById(targetId).classList.add('active');
@@ -29,7 +26,7 @@ toggleChat.addEventListener('click', () => {
 });
 
 // Integrare Gemini API
-const API_KEY = 'AQ.Ab8RN6IPBZGqd9qJ7_iUsd_LV1kD7JeO0GbGcnoBFmOrygPlJg'; 
+const API_KEY = 'AICI_PUI_CHEIA'; // Pune cheia exact între aceste apostrofuri
 const sendBtn = document.getElementById('send-btn');
 const userInput = document.getElementById('user-input');
 const chatMessages = document.getElementById('chat-messages');
@@ -43,7 +40,6 @@ async function getGeminiResponse(message) {
                 contents: [{ parts: [{ text: "Ești asistentul Pizzeriei Di'vino. Răspunde concis și politicos. " + message }] }]
             })
         });
-        
         const data = await response.json();
         return data.candidates[0].content.parts[0].text;
     } catch (error) {
