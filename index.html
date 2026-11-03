@@ -1,76 +1,65 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizzeria Di'vino | Autentic Italian</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Fonturi Premium -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="logo">Di'vino</div>
-        <ul class="nav-links">
-            <li><a href="#" data-target="acasa" class="active">Acasă</a></li>
-            <li><a href="#" data-target="meniu">Meniu</a></li>
-            <li><a href="#" data-target="livrare">Livrare</a></li>
-            <li><a href="#" data-target="reduceri">Oferte</a></li>
-        </ul>
-    </nav>
+<script>
+        // Navigare SPA
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const pages = document.querySelectorAll('.page');
 
-    <main id="content">
-        <!-- Secțiunea Acasă -->
-        <section id="acasa" class="page active hero-section">
-            <div class="hero-overlay">
-                <div class="hero-content">
-                    <h1>Tradiție Italiană.<br>Pasiune în Fiecare Felie.</h1>
-                    <p>Descoperă gustul adevărat al pizzei coapte pe vatră cu lemne, fix în inima Bucureștiului.</p>
-                    <div class="location-card">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <strong>Pizzeria Di'vino</strong>
-                            <p>Prelungirea Ghencea 83, 061702 București</p>
-                        </div>
-                        <a href="https://maps.google.com/?q=Prelungirea+Ghencea+83,+061702+București" target="_blank" class="btn-primary">Vezi pe hartă</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault(); // Oprește apariția # în link
+                
+                // Șterge clasa active de peste tot
+                navLinks.forEach(l => l.classList.remove('active'));
+                pages.forEach(p => p.classList.remove('active'));
+                
+                // Adaugă clasa active doar pe pagina corectă
+                link.classList.add('active');
+                const targetId = link.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+                
+                // Derulează sus dacă ești mai jos pe pagină
+                window.scrollTo(0, 0);
+            });
+        });
 
-        <!-- Secțiunea Meniu -->
-        <section id="meniu" class="page container">
-            <div class="section-header">
-                <h2>Meniul Nostru</h2>
-                <p>Ingrediente proaspete, rețete autentice.</p>
-            </div>
-            <div class="menu-grid">
-                <div class="menu-item card">
-                    <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=80" alt="Pizza Margherita" class="menu-img">
-                    <div class="menu-info">
-                        <h3>Margherita</h3>
-                        <p>Sos de roșii San Marzano, mozzarella fior di latte, busuioc proaspăt, ulei de măsline extravirgin.</p>
-                        <span class="price">35 LEI</span>
-                    </div>
-                </div>
-                <div class="menu-item card">
-                    <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80" alt="Pizza Diavola" class="menu-img">
-                    <div class="menu-info">
-                        <h3>Diavola</h3>
-                        <p>Sos de roșii, mozzarella, salam picant italian, peperoncino, măsline negre.</p>
-                        <span class="price">42 LEI</span>
-                    </div>
-                </div>
-                <div class="menu-item card">
-                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80" alt="Pizza Quattro Formaggi" class="menu-img">
-                    <div class="menu-info">
-                        <h3>Quattro Formaggi</h3>
-                        <p>Mozzarella, gorgonzola dulce, parmezan maturat, emmental (pizza albă, fără sos de roșii).</p>
-                        <span class="price">46 LEI</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+        // Chatbot UI Toggle
+        const toggleChat = document.getElementById('toggle-chat');
+        const chatWindow = document.getElementById('chat-window');
 
-        <!-- Sec
+        toggleChat.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+            toggleChat.innerHTML = chatWindow.classList.contains('hidden') 
+                ? '<i class="fas fa-chevron-up"></i>' 
+                : '<i class="fas fa-chevron-down"></i>';
+        });
+
+        // Chatbot Simplificat 
+        const sendBtn = document.getElementById('send-btn');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('message', sender);
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', () => {
+            const text = userInput.value.trim();
+            if (!text) return;
+            
+            addMessage(text, 'user');
+            userInput.value = '';
+            
+            setTimeout(() => {
+                addMessage("Salut! Momentan preluăm comenzi și răspundem la întrebări doar telefonic la 0700 000 000. Te așteptăm cu drag!", 'bot');
+            }, 800);
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+    </script>
+</body>
+</html>
