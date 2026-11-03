@@ -25,27 +25,10 @@ toggleChat.addEventListener('click', () => {
         : '<i class="fas fa-chevron-down"></i>';
 });
 
-// Integrare Gemini API
-const API_KEY = 'AICI_PUI_CHEIA'; // Pune cheia exact între aceste apostrofuri
+// Chatbot Simplificat (Fără API)
 const sendBtn = document.getElementById('send-btn');
 const userInput = document.getElementById('user-input');
 const chatMessages = document.getElementById('chat-messages');
-
-async function getGeminiResponse(message) {
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "Ești asistentul Pizzeriei Di'vino. Răspunde concis și politicos. " + message }] }]
-            })
-        });
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    } catch (error) {
-        return "Ne cerem scuze, întâmpinăm o problemă tehnică de conectare.";
-    }
-}
 
 function addMessage(text, sender) {
     const div = document.createElement('div');
@@ -55,15 +38,17 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-sendBtn.addEventListener('click', async () => {
+sendBtn.addEventListener('click', () => {
     const text = userInput.value.trim();
     if (!text) return;
     
     addMessage(text, 'user');
     userInput.value = '';
     
-    const response = await getGeminiResponse(text);
-    addMessage(response, 'bot');
+    // Răspuns automat instantaneu, fără erori de rețea
+    setTimeout(() => {
+        addMessage("Salut! Momentan preluăm comenzi și răspundem la întrebări doar telefonic la 0700 000 000. Te așteptăm cu drag!", 'bot');
+    }, 800);
 });
 
 userInput.addEventListener('keypress', (e) => {
