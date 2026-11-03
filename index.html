@@ -3,96 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizzeria Di'vino</title>
+    <title>Pizzeria Di'vino | Autentic Italian</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Fonturi Premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">Di'vino</div>
         <ul class="nav-links">
             <li><a href="#" data-target="acasa" class="active">Acasă</a></li>
-            <li><a href="#" data-target="meniu">Meniu Complet</a></li>
-            <li><a href="#" data-target="livrare">Livrare & Comandă</a></li>
-            <li><a href="#" data-target="reduceri">Reduceri</a></li>
+            <li><a href="#" data-target="meniu">Meniu</a></li>
+            <li><a href="#" data-target="livrare">Livrare</a></li>
+            <li><a href="#" data-target="reduceri">Oferte</a></li>
         </ul>
     </nav>
 
     <main id="content">
         <!-- Secțiunea Acasă -->
-        <section id="acasa" class="page active">
-            <div class="hero">
-                <h1>Autentic Italian. <br>Direct la tine.</h1>
-                <p>Descoperă gustul adevărat al pizzei pe cuptor cu lemne la Pizzeria Di'vino.</p>
-                <div class="location-card">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <p>Prelungirea Ghencea 83, 061702 București</p>
-                    <a href="https://maps.google.com/?q=Prelungirea+Ghencea+83,+061702+București" target="_blank" class="btn-map">Vezi pe hartă</a>
+        <section id="acasa" class="page active hero-section">
+            <div class="hero-overlay">
+                <div class="hero-content">
+                    <h1>Tradiție Italiană.<br>Pasiune în Fiecare Felie.</h1>
+                    <p>Descoperă gustul adevărat al pizzei coapte pe vatră cu lemne, fix în inima Bucureștiului.</p>
+                    <div class="location-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Pizzeria Di'vino</strong>
+                            <p>Prelungirea Ghencea 83, 061702 București</p>
+                        </div>
+                        <a href="https://maps.google.com/?q=Prelungirea+Ghencea+83,+061702+București" target="_blank" class="btn-primary">Vezi pe hartă</a>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Secțiunea Meniu -->
-        <section id="meniu" class="page">
-            <h2>Meniul Nostru</h2>
+        <section id="meniu" class="page container">
+            <div class="section-header">
+                <h2>Meniul Nostru</h2>
+                <p>Ingrediente proaspete, rețete autentice.</p>
+            </div>
             <div class="menu-grid">
-                <div class="menu-item">
-                    <h3>Margherita</h3>
-                    <p>Sos de roșii, mozzarella fior di latte, busuioc proaspăt, ulei de măsline.</p>
-                    <span class="price">35 LEI</span>
+                <div class="menu-item card">
+                    <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=80" alt="Pizza Margherita" class="menu-img">
+                    <div class="menu-info">
+                        <h3>Margherita</h3>
+                        <p>Sos de roșii San Marzano, mozzarella fior di latte, busuioc proaspăt, ulei de măsline extravirgin.</p>
+                        <span class="price">35 LEI</span>
+                    </div>
                 </div>
-                <div class="menu-item">
-                    <h3>Diavola</h3>
-                    <p>Sos de roșii, mozzarella, salam picant, peperoncino.</p>
-                    <span class="price">42 LEI</span>
+                <div class="menu-item card">
+                    <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80" alt="Pizza Diavola" class="menu-img">
+                    <div class="menu-info">
+                        <h3>Diavola</h3>
+                        <p>Sos de roșii, mozzarella, salam picant italian, peperoncino, măsline negre.</p>
+                        <span class="price">42 LEI</span>
+                    </div>
                 </div>
-                <div class="menu-item">
-                    <h3>Quattro Formaggi</h3>
-                    <p>Mozzarella, gorgonzola, parmezan, emmental (fără sos de roșii).</p>
-                    <span class="price">46 LEI</span>
+                <div class="menu-item card">
+                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80" alt="Pizza Quattro Formaggi" class="menu-img">
+                    <div class="menu-info">
+                        <h3>Quattro Formaggi</h3>
+                        <p>Mozzarella, gorgonzola dulce, parmezan maturat, emmental (pizza albă, fără sos de roșii).</p>
+                        <span class="price">46 LEI</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Secțiunea Livrare -->
-        <section id="livrare" class="page">
-            <h2>Alege platforma preferată</h2>
-            <p>Comandă rapid prin partenerii noștri de livrare sau plătește direct prin PayU pentru ridicare.</p>
-            <div class="delivery-links">
-                <a href="https://glovoapp.com/ro/" target="_blank" class="btn-delivery glovo">Comandă pe Glovo</a>
-                <a href="https://wolt.com/ro/" target="_blank" class="btn-delivery wolt">Comandă pe Wolt</a>
-                <a href="https://food.bolt.eu/" target="_blank" class="btn-delivery bolt">Comandă pe Bolt Food</a>
-                <a href="#" target="_blank" class="btn-delivery payu">Plătește prin PayU (Ridicare)</a>
-            </div>
-        </section>
-
-        <!-- Secțiunea Reduceri -->
-        <section id="reduceri" class="page">
-            <h2>Oferte Speciale</h2>
-            <div class="discount-banner">
-                <h3>Campanie 40% + 5% Prime</h3>
-                <p>Comandă acum prin platformele partenere și bucură-te de reduceri masive la toată gama de pizza pentru întreaga lună!</p>
-            </div>
-        </section>
-    </main>
-
-    <!-- AI Chatbot -->
-    <div id="chatbot-container">
-        <div id="chat-header">
-            <span>Asistent Di'vino AI</span>
-            <button id="toggle-chat"><i class="fas fa-chevron-down"></i></button>
-        </div>
-        <div id="chat-window">
-            <div id="chat-messages">
-                <div class="message bot">Salut! Sunt asistentul virtual Di'vino. Cu ce te pot ajuta? (Pentru suport WhatsApp/Tel: 0700 000 000)</div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="Scrie un mesaj...">
-                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+        <!-- Sec
