@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzeria Di'vino | Prelungirea Ghencea 83</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hero-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+        .chat-bubble-user { background: #dc2626; color: white; border-radius: 1rem 1rem 0 1rem; }
+        .chat-bubble-ai { background: #334155; color: white; border-radius: 1rem 1rem 1rem 0; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#dc2626', 600: '#b91c1c' }, // Red accents
+                        glovo: '#fec928',
+                        wolt: '#00c8ff',
+                        bolt: '#34d186',
+                        payu: '#a5d62b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="document.getElementById('acasa').scrollIntoView()">
+                    <i class="fa-solid fa-pizza-slice text-brand-500 text-3xl"></i>
+                    <span class="font-bold text-2xl tracking-tight text-white">Di'vino</span>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-6">
+                        <a href="#acasa" class="text-gray-300 hover:text-brand-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Acasă</a>
+                        <a href="#meniu" class="text-gray-300 hover:text-brand-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Meniu</a>
+                        <a href="#reduceri" class="text-gray-300 hover:text-brand-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Reduceri</a>
+                        <a href="#informatii" class="text-gray-300 hover:text-brand-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Informații</a>
+                        <a href="#comanda" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg transition-transform transform hover:scale-105">Comandă Acum</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Panel -->
+        <div class="md:hidden hidden bg-gray-900 border-b border-gray-800" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#acasa" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Acasă</a>
+                <a href="#meniu" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Meniu</a>
+                <a href="#reduceri" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Reduceri</a>
+                <a href="#informatii" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Informații</a>
+                <a href="#comanda" onclick="toggleMobileMenu()" class="bg-brand-500 text-white block px-3 py-2 rounded-md text-base font-bold text-center mt-4">Comandă Acum</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        
+        <!-- ACASA (Hero Section) -->
+        <section id="acasa" class="hero-pattern min-h-screen flex items-center pt-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 flex flex-col items-start text-left animate-fade-in">
+                    <span class="text-brand-500 font-semibold tracking-wider uppercase text-sm mb-4">Prelungirea Ghencea 83, București</span>
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
+                        Pasiune <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">Italiană</span> în fiecare felie.
+                    </h1>
+                    <p class="text-gray-400 text-lg mb-8 max-w-lg">
+                        Descoperă gustul autentic Di'vino. Ingrediente proaspete, rețete tradiționale și livrare rapidă direct la tine acasă prin platformele tale preferate.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#comanda" class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-4 rounded-full font-bold shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all">
+                            Comandă Online <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="#meniu" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-8 py-4 rounded-full font-bold transition-all">
+                            Vezi Meniul
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 animate-fade-in" style="animation-delay: 0.2s;">
+                    <!-- Placeholder using placehold.co for a vibrant food image representation -->
+                    <img src="https://placehold.co/600x600/1e293b/dc2626?text=Pizza+Di'vino+Art" alt="Pizza Hero" class="rounded-full w-full max-w-md mx-auto shadow-[0_0_50px_rgba(220,38,38,0.2)] border-4 border-gray-800 object-cover aspect-square">
+                </div>
+            </div>
+        </section>
+
+        <!-- MENIU -->
+        <section id="meniu" class="py-24 bg-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-white mb-4">Meniul Nostru</h2>
+                    <div class="w-24 h-1 bg-brand-500 mx-auto rounded-full"></div>
+                    <p class="mt-4 text-gray-400">Cele mai apreciate preparate, coapte la perfecțiune.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Pizza Item 1 -->
+                    <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-brand-500 transition-colors group">
+                        <img src="https://placehold.co/400x300/2a3b4c/ffffff?text=Margherita" alt="Margherita" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-white">Margherita</h3>
+                                <span class="text-brand-500 font-bold">35 RON</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">Sos de roșii San Marzano, mozzarella fior di latte, busuioc proaspăt, ulei de măsline.</p>
+                            <a href="#comanda" class="block w-full text-center bg-gray-700 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition-colors">Adaugă în coș</a>
+                        </div>
+                    </div>
+                    <!-- Pizza Item 2 -->
+                    <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-brand-500 transition-colors group">
+                        <img src="https://placehold.co/400x300/2a3b4c/ffffff?text=Diavola" alt="Diavola" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-white">Diavola</h3>
+                                <span class="text-brand-500 font-bold">40 RON</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">Sos de roșii, mozzarella, salam picant italian, ardei iute, oregano.</p>
+                            <a href="#comanda" class="block w-full text-center bg-gray-700 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition-colors">Adaugă în coș</a>
+                        </div>
+                    </div>
+                    <!-- Pizza Item 3 -->
+                    <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-brand-500 transition-colors group">
+                        <img src="https://placehold.co/400x300/2a3b4c/ffffff?text=Quattro+Formaggi" alt="Quattro Formaggi" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-white">Q. Formaggi</h3>
+                                <span class="text-brand-500 font-bold">45 RON</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">Mozzarella, gorgonzola, parmezan, emmental, smântână de gătit.</p>
+                            <a href="#comanda" class="block w-full text-center bg-gray-700 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition-colors">Adaugă în coș</a>
+                        </div>
+                    </div>
+                    <!-- Pizza Item 4 -->
+                    <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-brand-500 transition-colors group">
+                        <img src="https://placehold.co/400x300/2a3b4c/ffffff?text=Capricciosa" alt="Capricciosa" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-white">Capricciosa</h3>
+                                <span class="text-brand-500 font-bold">42 RON</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">Sos de roșii, mozzarella, prosciutto cotto, ciuperci champignon, anghinare, măsline.</p>
+                            <a href="#comanda" class="block w-full text-center bg-gray-700 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition-colors">Adaugă în coș</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REDUCERI -->
+        <section id="reduceri" class="py-24 bg-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-white mb-4">Reduceri și Promoții Active</h2>
+                    <div class="w-24 h-1 bg-brand-500 mx-auto rounded-full"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <!-- Promo 1 -->
+                    <div class="relative bg-gradient-to-br from-brand-600 to-orange-600 rounded-3xl p-8 overflow-hidden shadow-2xl">
+                        <div class="absolute -right-10 -top-10 text-9xl opacity-20"><i class="fa-solid fa-tags"></i></div>
+                        <h3 class="text-3xl font-extrabold text-white mb-2">20% Reducere</h3>
+                        <p class="text-white/90 text-lg mb-6">Pentru toți utilizatorii Prime. Oferta se aplică la tot meniul!</p>
+                        <a href="#comanda" class="inline-block bg-white text-brand-600 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition">Profită Acum</a>
+                    </div>
+                    <!-- Promo 2 -->
+                    <div class="relative bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 overflow-hidden shadow-2xl">
+                        <div class="absolute -right-10 -top-10 text-9xl opacity-20"><i class="fa-solid fa-gift"></i></div>
+                        <h3 class="text-3xl font-extrabold text-white mb-2">1 + 1 GRATIS</h3>
+                        <p class="text-white/90 text-lg mb-6">Comanzi o pizza medie și o primești pe a doua din partea casei.</p>
+                        <a href="#comanda" class="inline-block bg-white text-blue-600 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition">Comandă 1+1</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMANDA -->
+        <section id="comanda" class="py-24 bg-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl font-bold text-white mb-4">Plasează Comanda</h2>
+                <div class="w-24 h-1 bg-brand-500 mx-auto rounded-full mb-12"></div>
+                <p class="text-gray-400 max-w-2xl mx-auto mb-16 text-lg">Alege platforma preferată pentru a ne trimite comanda. Ridicare personală sau livrare rapidă direct la ușă.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                    <!-- Glovo -->
+                    <a href="#" class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-2xl border-2 border-transparent hover:border-glovo transition-all group shadow-lg">
+                        <div class="w-20 h-20 rounded-full bg-glovo flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-bicycle text-gray-900 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-1">Glovo</h3>
+                        <p class="text-sm text-gray-400">Livrare rapidă</p>
+                    </a>
+                    <!-- Wolt -->
+                    <a href="#" class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-2xl border-2 border-transparent hover:border-wolt transition-all group shadow-lg">
+                        <div class="w-20 h-20 rounded-full bg-wolt flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-motorcycle text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-1">Wolt</h3>
+                        <p class="text-sm text-gray-400">Urmărire live</p>
+                    </a>
+                    <!-- Bolt -->
+                    <a href="#" class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-2xl border-2 border-transparent hover:border-bolt transition-all group shadow-lg">
+                        <div class="w-20 h-20 rounded-full bg-bolt flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-car text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-1">Bolt Food</h3>
+                        <p class="text-sm text-gray-400">Comandă simplă</p>
+                    </a>
+                    <!-- PayU / Pick-up -->
+                    <a href="#" class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-2xl border-2 border-transparent hover:border-payu transition-all group shadow-lg">
+                        <div class="w-20 h-20 rounded-full bg-payu flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-credit-card text-gray-900 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-1">PayU Direct</h3>
+                        <p class="text-sm text-gray-400">Plată online / Ridicare</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- INFORMATII -->
+        <section id="informatii" class="py-24 bg-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    
+                    <div>
+                        <h2 class="text-4xl font-bold text-white mb-4">Unde ne găsești?</h2>
+                        <div class="w-16 h-1 bg-brand-500 rounded-full mb-8"></div>
+                        
+                        <div class="flex items-start gap-4 mb-8">
+                            <div class="bg-gray-700 p-3 rounded-full text-brand-500">
+                                <i class="fa-solid fa-location-dot text-xl w-6 text-center"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Adresă Pizzerie</h4>
+                                <p class="text-gray-400 mt-1">Prelungirea Ghencea 83,<br>Sector 6, 061702, București</p>
+                                <a href="https://maps.google.com/?q=Prelungirea+Ghencea+83,+București" target="_blank" class="text-brand-500 hover:text-brand-400 text-sm font-semibold mt-2 inline-block">
+                                    Deschide în Google Maps <i class="fa-solid fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 mb-8">
+                            <div class="bg-gray-700 p-3 rounded-full text-brand-500">
+                                <i class="fa-regular fa-clock text-xl w-6 text-center"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Program</h4>
+                                <p class="text-gray-400 mt-1">Luni - Duminică: 10:00 - 23:00</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 p-6 bg-gray-900 rounded-2xl border border-gray-700 shadow-inner">
+                            <h4 class="text-xl font-bold text-white mb-4">Tehnologie de ultimă oră pentru tine</h4>
+                            <p class="text-gray-400 text-sm mb-6">Am implementat Asistenți AI inteligenți pentru a-ți prelua rapid comenzile și a-ți oferi informații 24/7.</p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <button onclick="triggerAIModal('WhatsApp')" class="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-brands fa-whatsapp text-xl"></i> AI pe WhatsApp
+                                </button>
+                                <button onclick="triggerAIModal('Telefonic')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-phone-volume text-xl"></i> AI Telefonic
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map iframe -->
+                    <div class="h-[500px] w-full bg-gray-700 rounded-3xl overflow-hidden shadow-xl border-4 border-gray-700">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2850.147119153351!2d26.0125439!3d44.4093952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b201103c83b8b1%3A0x6b7bd4d180bf803!2sPrelungirea%20Ghencea%2083%2C%20Bucure%C8%99ti%20061702!5e0!3m2!1sen!2sro!4v1700000000000!5m2!1sen!2sro" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-2 mb-4 md:mb-0">
+                <i class="fa-solid fa-pizza-slice text-brand-500 text-xl"></i>
+                <span class="font-bold text-xl text-white">Di'vino</span>
+            </div>
+            <p class="text-gray-500 text-sm">© 2026 Pizzeria Di'vino. Toate drepturile rezervate.</p>
+            <div class="flex gap-4 mt-4 md:mt-0 text-gray-400">
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-facebook text-xl"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-tiktok text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- AI CHATBOT WIDGET (Gemini API Integration) -->
+    <!-- ========================================== -->
+    
+    <!-- Floating Button -->
+    <button id="chatbot-toggle" class="fixed bottom-6 right-6 w-16 h-16 bg-brand-500 hover:bg-brand-600 rounded-full shadow-2xl flex items-center justify-center text-white z-50 transition-transform transform hover:scale-110">
+        <i class="fa-solid fa-robot text-2xl"></i>
+        <!-- Notification dot -->
+        <span class="absolute top-0 right-0 flex h-4 w-4">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-4 w-4 bg-red-400 border-2 border-brand-500"></span>
+        </span>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chatbot-window" class="fixed bottom-28 right-6 w-80 sm:w-96 bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 flex flex-col z-50 transform transition-all duration-300 scale-0 origin-bottom-right opacity-0 pointer-events-none overflow-hidden">
+        
+        <!-- Chat Header -->
+        <div class="bg-gray-900 px-5 py-4 border-b border-gray-700 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-pizza-slice text-white text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-sm">Di'vino AI Assistant</h4>
+                    <p class="text-green-400 text-xs flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> Online</p>
+                </div>
+            </div>
+            <button id="chatbot-close" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div id="chat-messages" class="flex-grow h-80 p-4 overflow-y-auto flex flex-col space-y-4 bg-gray-800">
+            <!-- Initial Greeting -->
+            <div class="flex justify-start">
+                <div class="chat-bubble-ai px-4 py-2 text-sm shadow-md max-w-[85%]">
+                    Salut! Sunt asistentul virtual Di'vino. Te pot ajuta cu detalii despre meniu, oferte (avem 1+1 Gratis și 20% reducere) sau adresa noastră. Cu ce îți pot fi de folos azi?
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="p-3 bg-gray-900 border-t border-gray-700 flex items-center gap-2">
+            <input type="text" id="chat-input" placeholder="Scrie un mesaj..." class="flex-grow bg-gray-800 text-white border border-gray-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors" onkeypress="handleChatEnter(event)">
+            <button id="chat-send" class="w-10 h-10 bg-brand-500 hover:bg-brand-600 rounded-full text-white flex items-center justify-center flex-shrink-0 transition-colors">
+                <i class="fa-solid fa-paper-plane text-sm -ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- UI Message Modal (Replaces alerts) -->
+    <div id="ui-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="ui-modal-content">
+            <h3 class="text-xl font-bold text-white mb-2" id="ui-modal-title">Informație</h3>
+            <p class="text-gray-300 mb-6" id="ui-modal-text">Mesaj</p>
+            <button onclick="closeUIModal()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 rounded-lg transition-colors">Am înțeles</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Mobile Menu Toggle ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- Custom UI Modal (No alert/confirm) ---
+        const modal = document.getElementById('ui-modal');
+        const modalContent = document.getElementById('ui-modal-content');
+        
+        function showUIModal(title, text) {
+            document.getElementById('ui-modal-title').innerText = title;
+            document.getElementById('ui-modal-text').innerText = text;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeUIModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function triggerAIModal(type) {
+            showUIModal(
+                `Funcție ${type} AI`,
+                `Sistemul nostru ${type} AI este în prezent în modul Demo. Această funcționalitate va prelua automat apelurile sau mesajele text pentru a plasa comenzi folosind inteligența artificială.`
+            );
+        }
+
+        // --- Chatbot Logic (Gemini API) ---
+        const chatToggle = document.getElementById('chatbot-toggle');
+        const chatClose = document.getElementById('chatbot-close');
+        const chatWindow = document.getElementById('chatbot-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        let isChatOpen = false;
+        
+        // System prompt defining persona
+        const systemPrompt = "Ești asistentul virtual prietenos al restaurantului 'Pizzeria Di'vino' situat pe Prelungirea Ghencea 83, Sector 6, București. Meniul include pizza: Margherita (35 RON), Diavola (40 RON), Quattro Formaggi (45 RON), Capricciosa (42 RON). Avem oferte: 20% reducere pentru comenzi Prime și 1+1 Gratis la orice pizza medie. Răspunde concis, prietenos și exclusiv legat de restaurant. Nu folosi markdown complicat. Dacă ești întrebat de comenzi externe, menționează că se poate comanda via Glovo, Wolt, Bolt Food sau PayU Direct.";
+        
+        // Chat history state
+        let conversationHistory = [];
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) {
+                chatWindow.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                chatWindow.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
+                chatInput.focus();
+            } else {
+                chatWindow.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
+                chatWindow.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+            }
+        }
+
+        chatToggle.addEventListener('click', toggleChat);
+        chatClose.addEventListener('click', toggleChat);
+
+        function handleChatEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+        chatSend.addEventListener('click', sendMessage);
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
+            
+            const bubble = document.createElement('div');
+            bubble.className = sender === 'user' 
+                ? 'chat-bubble-user px-4 py-2 text-sm shadow-md max-w-[85%]' 
+                : 'chat-bubble-ai px-4 py-2 text-sm shadow-md max-w-[85%]';
+            
+            bubble.textContent = text;
+            msgDiv.appendChild(bubble);
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const msgDiv = document.createElement('div');
+            msgDiv.id = 'typing-indicator';
+            msgDiv.className = 'flex justify-start';
+            msgDiv.innerHTML = `
+                <div class="chat-bubble-ai px-4 py-3 shadow-md max-w-[85%] flex gap-1 items-center">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                </div>`;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const ind = document.getElementById('typing-indicator');
+            if (ind) ind.remove();
+        }
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Update UI
+            appendMessage(text, 'user');
+            chatInput.value = '';
+            chatInput.disabled = true;
+            
+            // Add to history
+            conversationHistory.push({ role: "user", parts: [{ text: text }] });
+            
+            showTypingIndicator();
+
+            try {
+                // Call Gemini API
+                const apiKey = ""; // Implicit from environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: conversationHistory,
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                removeTypingIndicator();
+
+                if (result.candidates && result.candidates[0].content) {
+                    const aiText = result.candidates[0].content.parts[0].text;
+                    appendMessage(aiText, 'ai');
+                    conversationHistory.push({ role: "model", parts: [{ text: aiText }] });
+                } else {
+                    throw new Error("Invalid response format");
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                console.error("AI Chatbot Error:", error);
+                appendMessage("Scuze, am întâmpinat o eroare de rețea. Te rog încearcă din nou.", 'ai');
+                // Remove failed user msg from history to not corrupt context
+                conversationHistory.pop();
+            } finally {
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+    </script>
+</body>
+</html>
