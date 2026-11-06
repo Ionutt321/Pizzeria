@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-    // Permite conexiuni CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,7 +12,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 1. Parsare sigură a mesajelor trimise din chat
         let body = req.body;
         if (typeof body === 'string') {
             try { body = JSON.parse(body); } catch (e) { body = {}; }
@@ -22,13 +20,10 @@ export default async function handler(req, res) {
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
-        // 2. Verificare cheie API în Vercel
+        // Curăță automat cheia în caz de dubluri sau spații
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
         if (!apiKey) {
-            console.error("Lipsește OPENROUTER_API_KEY în Vercel Environment Variables!");
-            return res.status(500).json({ 
-                error: "Cheia OPENROUTER_API_KEY lipsește sau nu a fost salvată în Vercel." 
-            });
+            return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
         }
 
         const systemPrompt = {
@@ -56,27 +51,24 @@ REGULI IMPORTANTE:
 - Răspunde concis, cald și la obiect în limba română.`
         };
 
-        // 3. Apel către modelul gratuit OpenRouter
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey.trim()}`,
+                "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://vercel.app",
                 "X-Title": "Divino Assistant"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.3-70b-instruct:free",
+                model: "meta-llama/llama-3.1-8b-instruct:free",
                 messages: [systemPrompt, ...userMessages]
             })
         });
 
         const data = await response.json();
-        console.log("Status OpenRouter:", response.status, data);
 
         if (!response.ok || data.error) {
             const errDetail = data.error?.message || `Eroare OpenRouter status ${response.status}`;
-            console.error("OpenRouter a respins cererea:", errDetail);
             return res.status(500).json({ error: errDetail });
         }
 
@@ -84,7 +76,6 @@ REGULI IMPORTANTE:
         return res.status(200).json({ reply });
 
     } catch (error) {
-        console.error("Eroare funcție serverless:", error);
         return res.status(500).json({ error: `Eroare internă server: ${error.message}` });
     }
 }
