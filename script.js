@@ -115,17 +115,20 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
-            const replyText = data.reply || data.error || "Nu am primit un răspuns.";
+            const replyText = data.reply || data.error || (data.choices ? "Răspuns gol" : JSON.stringify(data));
             
-            // Formatare newline și bold în HTML + suport pentru butonul de WhatsApp
-            let formattedHtml = replyText
-                .replace(/\n/g, '<br>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-            loadingMsg.innerHTML = formattedHtml;
+            loadingMsg.textContent = replyText;
             conversationHistory.push({ role: "assistant", content: replyText });
         } catch (err) {
             loadingMsg.textContent = "A apărut o eroare de conexiune cu serverul AI.";
         }
         chatLogs.scrollTop = chatLogs.scrollHeight;
     }
+
+    if (chatSend && chatInput) {
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+});
