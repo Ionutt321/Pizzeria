@@ -111,3 +111,83 @@ body { font-family: var(--font-body); background-color: var(--light); color: var
 .chat-input-area input:focus { border-color: var(--primary); }
 .chat-input-area button { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; cursor: pointer; transition: transform 0.3s; }
 .chat-input-area button:hover { transform: scale(1.1); }
+/* =========================================
+   ADAPTARE PENTRU TELEFOANE MOBIL (RESPONSIVE)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Navigare - centrată și redimensionată */
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 15px;
+    }
+    .navbar.scrolled {
+        padding: 0.8rem;
+    }
+    .nav-links {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .nav-links a {
+        font-size: 0.8rem;
+    }
+    .nav-btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    /* 2. Textul principal (Hero) făcut să încapă */
+    .hero h1 {
+        font-size: 2.8rem;
+        margin-top: 50px; /* spațiu pentru meniul de sus */
+    }
+    .hero p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    /* 3. Spațieri secțiuni reduse */
+    .menu-section {
+        padding: 4rem 5% 5rem;
+    }
+    .section-title h2 {
+        font-size: 2.2rem;
+    }
+    .delivery-section {
+        padding: 0 5% 4rem;
+    }
+
+    /* 4. Butoanele de Tab-uri */
+    .tab-btn {
+        padding: 0.8rem 1.2rem;
+        font-size: 0.9rem;
+        width: 100%; /* butoane mari, ușor de apăsat pe touch */
+        justify-content: center;
+    }
+
+    /* 5. Căsuța de Livrare */
+    .delivery-box {
+        padding: 3rem 1.5rem;
+    }
+    .delivery-box h2 {
+        font-size: 2rem;
+    }
+    .delivery-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .del-btn {
+        width: 100%; /* se extind pe tot ecranul */
+    }
+
+    /* 6. Chatbot-ul adaptat la marginile telefonului */
+    #chatbot-widget {
+        width: 90%;
+        right: 5%;
+        bottom: 15px;
+    }
+    .chat-body {
+        height: 320px; /* mai scund pentru a nu acoperi ecranul complet */
+    }
+}
