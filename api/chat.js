@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+    // Permite conexiuni CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -20,12 +21,13 @@ export default async function handler(req, res) {
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
+        // Curăță cheia de eventuale spații sau dubluri
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
         if (!apiKey) {
             return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
         }
 
-        const PHONE_NUMBER = "40799582300"; // <-- Pune numărul tău real (cu 40 în față)
+        const PHONE_NUMBER = "40700000000"; // <-- Pune numărul tău real (cu 40 în față)
 
         const systemPrompt = {
             role: "system",
