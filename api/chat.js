@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
-        // Curăță automat cheia în caz de dubluri sau spații
+        // Curăță cheia de eventuale spații sau dubluri
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
         if (!apiKey) {
             return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
@@ -60,7 +60,7 @@ REGULI IMPORTANTE:
                 "X-Title": "Divino Assistant"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.1-8b-instruct:free",
+                model: "openrouter/free",
                 messages: [systemPrompt, ...userMessages]
             })
         });
