@@ -191,23 +191,3 @@ body { font-family: var(--font-body); background-color: var(--light); color: var
         height: 320px; /* mai scund pentru a nu acoperi ecranul complet */
     }
 }
-/* Butonul de trimitere comandă generat de AI în chat */
-.order-btn-wa {
-    display: inline-block;
-    background: #10b981;
-    color: #ffffff !important;
-    text-decoration: none;
-    padding: 10px 18px;
-    margin-top: 10px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-    transition: transform 0.2s ease, background 0.2s ease;
-    text-align: center;
-}
-
-.order-btn-wa:hover {
-    background: #059669;
-    transform: translateY(-2px);
-}
