@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Navigare -->
     <nav class="navbar">
         <a href="#" class="logo">Di'vino</a>
         <ul class="nav-links">
@@ -19,6 +20,7 @@
         <a href="tel:0700000000" class="nav-btn"><i class="fas fa-phone"></i> 0700 000 000</a>
     </nav>
 
+    <!-- Sectiune Acasa -->
     <section id="hero" class="hero">
         <div class="hero-bg parallax-bg"></div>
         <div class="hero-content reveal-up">
@@ -29,82 +31,116 @@
         </div>
     </section>
 
-    <section id="meniu" class="menu-section">
-        <div class="container">
-            <div class="section-title reveal-up">
-                <h2>Specialități Donner Kebab</h2>
-                <p>Preparate la superlativ, exact ca în imagini.</p>
-            </div>
-
-            <div class="menu-grid">
-                <div class="menu-card tilt-card reveal-up">
-                    <div class="card-inner">
-                        <div class="card-img">
-                            <img src="falafel.jpg" alt="Falafel la lipie">
-                        </div>
-                        <div class="card-info">
-                            <h3>Falafel la lipie <span class="weight">420g</span></h3>
-                            <p>Falafel (chifteluțe din năut), cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom">
-                                <span class="price">36,00 lei</span>
-                                <button class="btn-add"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up" style="transition-delay: 0.1s;">
-                    <div class="card-inner">
-                        <div class="card-img">
-                            <img src="vita-orez.jpg" alt="Vită cu Orez">
-                            <span class="nou-badge">NOU</span>
-                        </div>
-                        <div class="card-info">
-                            <h3>Vită cu Orez <span class="weight">600g</span></h3>
-                            <p>Carne rotisată Vită+Berbecuț, orez basmati, salată roșii, ceapă roșie, pătrunjel, sos rodie, lipie.</p>
-                            <div class="card-bottom">
-                                <span class="price">57,00 lei</span>
-                                <button class="btn-add"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up" style="transition-delay: 0.2s;">
-                    <div class="card-inner">
-                        <div class="card-img">
-                            <img src="shaorma-farfurie.jpg" alt="Shaorma la Farfurie">
-                        </div>
-                        <div class="card-info">
-                            <h3>Shaorma la Farfurie <span class="weight">800g Pui</span></h3>
-                            <p>Carne rotisată, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom">
-                                <span class="price">50,00 lei</span>
-                                <button class="btn-add"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up" style="transition-delay: 0.3s;">
-                    <div class="card-inner">
-                        <div class="card-img">
-                            <img src="doner-kebab.jpg" alt="Doner Kebab">
-                        </div>
-                        <div class="card-info">
-                            <h3>Doner Kebab <span class="weight">570g Pui</span></h3>
-                            <p>Carne rotisată, cartofi prăjiți, salate și sosuri, servite în chiflă pe vatra cuptorului Di'vino.</p>
-                            <div class="card-bottom">
-                                <span class="price">39,00 lei</span>
-                                <button class="btn-add"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- NOU: Carusel Infinit cu Produse -->
+    <section class="carousel-section">
+        <div class="carousel-track">
+            <!-- Setul 1 de produse (pentru buclă) -->
+            <a href="#meniu" class="carousel-item"><img src="falafel.jpg" alt="Falafel"><h3>Falafel</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="vita-orez.jpg" alt="Vita"><h3>Vită cu Orez</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="shaorma-farfurie.jpg" alt="Shaorma"><h3>Shaorma</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="doner-kebab.jpg" alt="Doner"><h3>Doner Kebab</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="falafel.jpg" alt="Pizza"><h3>Pizza Margherita</h3></a>
+            
+            <!-- Setul 2 (Dublură exactă pentru iluzia de mișcare la infinit) -->
+            <a href="#meniu" class="carousel-item"><img src="falafel.jpg" alt="Falafel"><h3>Falafel</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="vita-orez.jpg" alt="Vita"><h3>Vită cu Orez</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="shaorma-farfurie.jpg" alt="Shaorma"><h3>Shaorma</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="doner-kebab.jpg" alt="Doner"><h3>Doner Kebab</h3></a>
+            <a href="#meniu" class="carousel-item"><img src="falafel.jpg" alt="Pizza"><h3>Pizza Margherita</h3></a>
         </div>
     </section>
 
+    <!-- NOU: Meniu Complet cu Tab-uri -->
+    <section id="meniu" class="menu-section">
+        <div class="container">
+            <div class="section-title reveal-up">
+                <h2>Meniul Di'vino</h2>
+                <p>Navighează prin categoriile noastre pentru a descoperi toate preparatele.</p>
+            </div>
+
+            <!-- Butoane Tab-uri -->
+            <div class="tabs-header reveal-up">
+                <button class="tab-btn active" data-tab="tab-kebab"><i class="fas fa-drumstick-bite"></i> Donner Kebab</button>
+                <button class="tab-btn" data-tab="tab-pizza"><i class="fas fa-pizza-slice"></i> Pizza Artizanală</button>
+            </div>
+
+            <!-- Conținut TAB 1: Kebab (Activ by default) -->
+            <div class="tab-content active" id="tab-kebab">
+                <div class="menu-grid">
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <div class="card-img"><img src="falafel.jpg" alt="Falafel la lipie"></div>
+                            <div class="card-info">
+                                <h3>Falafel la lipie <span class="weight">420g</span></h3>
+                                <p>Falafel (chifteluțe din năut), cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
+                                <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <div class="card-img"><img src="vita-orez.jpg" alt="Vită cu Orez"><span class="nou-badge">NOU</span></div>
+                            <div class="card-info">
+                                <h3>Vită cu Orez <span class="weight">600g</span></h3>
+                                <p>Carne rotisată Vită+Berbecuț, orez basmati, salată roșii, ceapă, sos rodie.</p>
+                                <div class="card-bottom"><span class="price">57,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <div class="card-img"><img src="shaorma-farfurie.jpg" alt="Shaorma la Farfurie"></div>
+                            <div class="card-info">
+                                <h3>Shaorma Farfurie <span class="weight">800g</span></h3>
+                                <p>Carne rotisată, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
+                                <div class="card-bottom"><span class="price">50,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <div class="card-img"><img src="doner-kebab.jpg" alt="Doner Kebab"></div>
+                            <div class="card-info">
+                                <h3>Doner Kebab <span class="weight">570g</span></h3>
+                                <p>Carne rotisată, cartofi prăjiți, salate, servite în chiflă pe vatra cuptorului.</p>
+                                <div class="card-bottom"><span class="price">39,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conținut TAB 2: Pizza (Ascuns inițial) -->
+            <div class="tab-content" id="tab-pizza">
+                <div class="menu-grid">
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <!-- Aici vei pune o poza reala cu pizza cand o ai, gen pizza-diavola.jpg -->
+                            <div class="card-img"><img src="falafel.jpg" alt="Pizza Diavola"></div>
+                            <div class="card-info">
+                                <h3>Pizza Diavola <span class="weight">450g</span></h3>
+                                <p>Sos de roșii, mozzarella fior di latte, salam picant, ulei de măsline.</p>
+                                <div class="card-bottom"><span class="price">43,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-card tilt-card">
+                        <div class="card-inner">
+                            <div class="card-img"><img src="vita-orez.jpg" alt="Pizza Margherita"></div>
+                            <div class="card-info">
+                                <h3>Pizza Margherita <span class="weight">400g</span></h3>
+                                <p>Sos de roșii San Marzano, mozzarella, busuioc proaspăt, parmezan.</p>
+                                <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Livrare -->
     <section id="livrare" class="delivery-section">
         <div class="container reveal-up">
             <div class="delivery-box parallax-box">
@@ -119,6 +155,7 @@
         </div>
     </section>
 
+    <!-- Chatbot -->
     <div id="chatbot-widget" class="reveal-up">
         <div class="chat-header" id="chat-toggle">
             <div class="chat-title"><i class="fas fa-robot"></i> Asistent Di'vino</div>
