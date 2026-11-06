@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
-            const replyText = data.reply || "Nu am primit un răspuns clar de la asistent.";
+            const replyText = data.reply || data.error || (data.choices ? "Răspuns gol" : JSON.stringify(data));
             
             loadingMsg.textContent = replyText;
             conversationHistory.push({ role: "assistant", content: replyText });
