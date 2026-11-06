@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // 1. Navbar Glassmorphism la Scroll
+    // Navbar Glassmorphism la Scroll
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) navbar.classList.add('scrolled');
         else navbar.classList.remove('scrolled');
     });
 
-    // 2. Animații la Scroll (Intersection Observer)
+    // Animații la Scroll
     const revealElements = document.querySelectorAll('.reveal-up');
     const revealObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -19,14 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { threshold: 0.15 });
     revealElements.forEach(el => revealObserver.observe(el));
 
-    // 3. Efect Parallax pe Hero
+    // Efect Parallax Hero
     const parallaxBg = document.querySelector('.hero-bg');
     window.addEventListener('scroll', () => {
         let scrollY = window.scrollY;
         if (parallaxBg) parallaxBg.style.transform = `translateY(${scrollY * 0.4}px)`;
     });
 
-    // 4. Efect 3D TILT pe Cardurile Meniului
+    // Efect 3D TILT Carduri Meniu
     const tiltCards = document.querySelectorAll('.tilt-card');
     tiltCards.forEach(card => {
         const inner = card.querySelector('.card-inner');
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 5. Comutare Tab-uri (Meniu)
+    // Comutare Tab-uri (Meniu)
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 6. Asistent AI Conectat la Serverless API (Vercel + OpenRouter)
+    // Chatbot AI Setup
     const chatToggle = document.getElementById('chat-toggle');
     const chatWindow = document.getElementById('chat-window');
     const chatIcon = document.getElementById('chat-icon');
@@ -80,15 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
     const chatLogs = document.getElementById('chat-msgs');
-
-    // Istoricul conversației pentru memoria AI
     let conversationHistory = [];
 
     async function sendMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // Afișează mesajul trimis de utilizator
         const userMsg = document.createElement('div');
         userMsg.className = 'msg user';
         userMsg.textContent = text;
@@ -97,10 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         chatInput.value = '';
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
-        // Adaugă mesajul în istoric
         conversationHistory.push({ role: "user", content: text });
 
-        // Indicator de încărcare
         const loadingMsg = document.createElement('div');
         loadingMsg.className = 'msg bot';
         loadingMsg.textContent = "Se procesează...";
@@ -115,9 +110,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
-            const replyText = data.reply || data.error || (data.choices ? "Răspuns gol" : JSON.stringify(data));
+            const replyText = data.reply || data.error || "Nu am primit un răspuns.";
             
-            loadingMsg.textContent = replyText;
+            let formattedHtml = replyText
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            loadingMsg.innerHTML = formattedHtml;
             conversationHistory.push({ role: "assistant", content: replyText });
         } catch (err) {
             loadingMsg.textContent = "A apărut o eroare de conexiune cu serverul AI.";
