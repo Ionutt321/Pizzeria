@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
         // 2. Verificare cheie API în Vercel
-        const apiKey = process.env.OPENROUTER_API_KEY;
+        let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
         if (!apiKey) {
             console.error("Lipsește OPENROUTER_API_KEY în Vercel Environment Variables!");
             return res.status(500).json({ 
