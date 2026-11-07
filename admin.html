@@ -18,9 +18,9 @@
         .auth-box input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 1.2rem; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
         .auth-box input:focus { border-color: var(--primary); }
         .btn-auth { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-        
+
         .admin-container { max-width: 1100px; margin: 0 auto; display: none; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; background: var(--card); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; background: var(--card); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); }
         .header-title h1 { font-size: 1.8rem; }
         .header-title p { color: #64748b; font-size: 0.9rem; }
         .status-toggle { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; }
@@ -30,6 +30,14 @@
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Meniu de Navigare Tab-uri */
+        .admin-nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        .tab-nav-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #64748b; font-family: inherit; font-size: 0.95rem; }
+        .tab-nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
 
         .admin-grid { display: grid; grid-template-columns: 420px 1fr; gap: 25px; }
         @media (max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
@@ -41,10 +49,11 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .file-upload-box { border: 2px dashed var(--border); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; background: #fafafa; }
         .img-preview { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid var(--border); }
-        
+
         .btn-submit { width: 100%; background: var(--dark); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn-cancel { width: 100%; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; display: none; }
-        
+        .btn-export { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+
         .product-list { display: flex; flex-direction: column; gap: 12px; }
         .product-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; gap: 15px; }
         .product-row.inactive { opacity: 0.5; background: #f1f5f9; }
@@ -59,6 +68,12 @@
         .btn-action.edit:hover { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-action.delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .btn-action.toggle:hover { background: var(--success); color: white; border-color: var(--success); }
+
+        /* Tabel Abonați */
+        .subscribers-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .subscribers-table th, .subscribers-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+        .subscribers-table th { background: #f1f5f9; color: #475569; font-weight: 700; }
+        .subscribers-table tr:hover { background: #f8fafc; }
     </style>
 </head>
 <body>
@@ -77,7 +92,7 @@
         <header class="admin-header">
             <div class="header-title">
                 <h1>Di'vino Admin</h1>
-                <p>Meniu, prețuri, reduceri și setări livrare</p>
+                <p>Gestionează meniul, livrarea și baza de date cu clienți</p>
             </div>
             <div class="status-toggle">
                 <span id="store-status-text" style="font-weight: 600; font-size: 0.9rem;">Magazin Deschis</span>
@@ -88,90 +103,123 @@
             </div>
         </header>
 
-        <div class="admin-grid">
-            <div class="left-column">
-                
-                <!-- Setări Generale -->
-                <div class="card">
-                    <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Generale</h2>
-                    <div class="form-group">
-                        <label>Prag Livrare Gratuită (RON)</label>
-                        <div style="display:flex; gap:10px;">
-                            <input type="number" id="setting-free-delivery" value="100">
-                            <button class="btn-submit" style="margin:0; width:auto; padding:0 20px;" onclick="saveSettings()">Aplică</button>
+        <!-- Butoane Navigare Tab-uri -->
+        <div class="admin-nav-tabs">
+            <button class="tab-nav-btn active" onclick="switchAdminTab('menu-tab', this)"><i class="fas fa-utensils"></i> Meniu & Magazin</button>
+            <button class="tab-nav-btn" onclick="switchAdminTab('subs-tab', this)"><i class="fas fa-users"></i> Abonați (<span id="sub-badge-count">0</span>)</button>
+        </div>
+
+        <!-- TAB 1: Meniu & Setări -->
+        <div id="menu-tab" class="tab-section active">
+            <div class="admin-grid">
+                <div class="left-column">
+                    <div class="card">
+                        <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Generale</h2>
+                        <div class="form-group">
+                            <label>Prag Livrare Gratuită (RON)</label>
+                            <div style="display:flex; gap:10px;">
+                                <input type="number" id="setting-free-delivery" value="100">
+                                <button class="btn-submit" style="margin:0; width:auto; padding:0 20px;" onclick="saveSettings()">Aplică</button>
+                            </div>
                         </div>
-                        <small style="color:#64748b; font-size:0.75rem; margin-top:5px; display:block;">Dacă clientul cumpără sub această sumă, i se va cere să mai adauge produse.</small>
+                    </div>
+
+                    <div class="card">
+                        <h2 id="form-title"><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Adaugă Produs Nou</h2>
+                        <form id="add-product-form">
+                            <div class="form-group">
+                                <label>Denumire Preparat</label>
+                                <input type="text" id="p-name" placeholder="ex: Pizza Prosciutto" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Categorie</label>
+                                    <select id="p-cat">
+                                        <option value="kebab">Donner Kebab</option>
+                                        <option value="pizza">Pizza Artizanală</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gramaj</label>
+                                    <input type="text" id="p-weight" placeholder="ex: 450g" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Preț Standard (RON)</label>
+                                    <input type="number" step="0.5" id="p-price" placeholder="ex: 40" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Reducere (%)</label>
+                                    <input type="number" id="p-discount" placeholder="ex: 15" value="0" min="0" max="99">
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-bottom:16px;">
+                                <div class="form-group" style="margin:0; display:flex; align-items:center; gap:8px;">
+                                    <input type="checkbox" id="p-1plus1" style="width:22px; height:22px; accent-color:var(--danger);">
+                                    <label style="margin:0; font-size:0.95rem; color:var(--danger); font-weight:bold;">1+1 GRATIS</label>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <input type="text" id="p-badge" placeholder="Etichetă (ex: NOU)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Imagine Produs</label>
+                                <div class="file-upload-box">
+                                    <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
+                                </div>
+                                <img id="p-preview" class="img-preview" alt="Previzualizare">
+                            </div>
+                            <div class="form-group">
+                                <label>Descriere Ingrediente</label>
+                                <textarea id="p-desc" rows="3" placeholder="Ingrediente, alergeni..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
+                            <button type="button" class="btn-cancel" id="btn-cancel-edit" onclick="cancelEdit()">Anulează Editarea</button>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Formular Produs -->
                 <div class="card">
-                    <h2 id="form-title"><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Adaugă Produs Nou</h2>
-                    <form id="add-product-form">
-                        <div class="form-group">
-                            <label>Denumire Preparat</label>
-                            <input type="text" id="p-name" placeholder="ex: Pizza Prosciutto" required>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Categorie</label>
-                                <select id="p-cat">
-                                    <option value="kebab">Donner Kebab</option>
-                                    <option value="pizza">Pizza Artizanală</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Gramaj</label>
-                                <input type="text" id="p-weight" placeholder="ex: 450g" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Preț Standard (RON)</label>
-                                <input type="number" step="0.5" id="p-price" placeholder="ex: 40" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Reducere (%)</label>
-                                <input type="number" id="p-discount" placeholder="ex: 15" value="0" min="0" max="99">
-                            </div>
-                        </div>
-                        <div class="form-row" style="margin-bottom:16px;">
-                            <div class="form-group" style="margin:0; display:flex; align-items:center; gap:8px;">
-                                <input type="checkbox" id="p-1plus1" style="width:22px; height:22px; accent-color:var(--danger);">
-                                <label style="margin:0; font-size:0.95rem; color:var(--danger); font-weight:bold;">Ofertă 1+1 GRATIS</label>
-                            </div>
-                            <div class="form-group" style="margin:0;">
-                                <input type="text" id="p-badge" placeholder="Altă etichetă (ex: NOU)">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Imagine Produs</label>
-                            <div class="file-upload-box">
-                                <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
-                            </div>
-                            <img id="p-preview" class="img-preview" alt="Previzualizare">
-                        </div>
-                        <div class="form-group">
-                            <label>Descriere Ingrediente</label>
-                            <textarea id="p-desc" rows="3" placeholder="Ingrediente, alergeni..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
-                        <button type="button" class="btn-cancel" id="btn-cancel-edit" onclick="cancelEdit()">Anulează Editarea</button>
-                    </form>
+                    <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Meniu Curent (<span id="count-items">0</span>)</h2>
+                    <div class="product-list" id="products-container">
+                        <p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă...</p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Listă Produse Active -->
+        <!-- TAB 2: Abonați Newsletter & Lead-uri -->
+        <div id="subs-tab" class="tab-section">
             <div class="card">
-                <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Meniu Curent (<span id="count-items">0</span>)</h2>
-                <div class="product-list" id="products-container">
-                    <p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă...</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri</h2>
+                        <p style="color:#64748b; font-size:0.85rem;">Clienții care s-au înscris prin pop-up-ul site-ului</p>
+                    </div>
+                    <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel (CSV)</button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="subscribers-table">
+                        <thead>
+                            <tr>
+                                <th>Nume</th>
+                                <th>Telefon</th>
+                                <th>Email</th>
+                                <th>Data Înscrierii</th>
+                                <th>Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subs-table-body">
+                            <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Se încarcă abonații...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -194,6 +242,7 @@
                 document.getElementById('admin-dashboard').style.display = 'block';
                 loadSettings();
                 listenProducts();
+                listenSubscribers();
             } else {
                 document.getElementById('auth-err').style.display = 'block';
                 document.getElementById('pin-input').value = '';
@@ -202,7 +251,15 @@
         document.getElementById('btn-login').addEventListener('click', checkPin);
         document.getElementById('pin-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPin(); });
 
-        // Procesare poză
+        // Schimbare Tab-uri Admin
+        window.switchAdminTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-section').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        // Procesare imagine
         let currentBase64Image = "falafel.jpg";
         document.getElementById('p-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -245,9 +302,9 @@
             const val = Number(document.getElementById('setting-free-delivery').value);
             db.collection('settings').doc('general').set({ freeDeliveryThreshold: val }, { merge: true });
             alert("Pragul de livrare gratuită a fost salvat!");
-        }
+        };
 
-        // Logică Salvare / Editare
+        // Salvare / Editare Produse
         let editingProductId = null;
         const addForm = document.getElementById('add-product-form');
         const submitBtn = document.getElementById('btn-submit-form');
@@ -264,20 +321,18 @@
                 document.getElementById('p-1plus1').checked = p.onePlusOne || false;
                 document.getElementById('p-badge').value = p.badge || '';
                 document.getElementById('p-desc').value = p.description;
-                
                 currentBase64Image = p.image;
                 if(p.image && p.image !== 'falafel.jpg') {
                     document.getElementById('p-preview').src = p.image;
                     document.getElementById('p-preview').style.display = 'block';
                 }
-                
                 editingProductId = id;
                 document.getElementById('form-title').innerHTML = '<i class="fas fa-edit" style="color:var(--primary);"></i> Editează Produsul';
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizează Produs';
                 cancelBtn.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-        }
+        };
 
         window.cancelEdit = function() {
             editingProductId = null;
@@ -287,12 +342,11 @@
             document.getElementById('form-title').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--primary);"></i> Adaugă Produs Nou';
             submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
             cancelBtn.style.display = 'none';
-        }
+        };
 
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
-            
             const basePrice = parseFloat(document.getElementById('p-price').value);
             const discount = parseFloat(document.getElementById('p-discount').value) || 0;
             const finalPrice = basePrice - (basePrice * discount / 100);
@@ -321,7 +375,7 @@
             cancelEdit();
         });
 
-        // Randare Listă
+        // Randare Produse
         function listenProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('products-container');
@@ -344,7 +398,7 @@
                                 ${p.discountPercent > 0 ? `<s style="font-size:0.75rem;">${p.originalPrice.toFixed(2)} lei</s>` : ''}</p>
                             </div>
                             <div class="product-actions">
-                                <button class="btn-action edit" title="Editează" onclick="editProduct('${doc.id}')"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="btn-action edit" onclick="editProduct('${doc.id}')"><i class="fas fa-pencil-alt"></i></button>
                                 <button class="btn-action toggle" onclick="db.collection('products').doc('${doc.id}').update({active: ${!p.active}})"><i class="fas fa-${p.active ? 'eye' : 'eye-slash'}"></i></button>
                                 <button class="btn-action delete" onclick="if(confirm('Ștergi produsul?')) db.collection('products').doc('${doc.id}').delete()"><i class="fas fa-trash"></i></button>
                             </div>
@@ -353,6 +407,56 @@
                 });
             });
         }
+
+        // Randare Abonați & Export CSV
+        let subscribersList = [];
+        function listenSubscribers() {
+            db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
+                const tbody = document.getElementById('subs-table-body');
+                document.getElementById('sub-badge-count').textContent = snapshot.size;
+                subscribersList = [];
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const sub = doc.data();
+                    const id = doc.id;
+                    const date = sub.subscribedAt ? sub.subscribedAt.toDate().toLocaleDateString('ro-RO') : 'N/A';
+                    subscribersList.push({ Nume: sub.name, Telefon: sub.phone, Email: sub.email, Data: date });
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${sub.name || 'Anonim'}</strong></td>
+                            <td><a href="tel:${sub.phone}" style="color:var(--primary); text-decoration:none;"><i class="fas fa-phone-alt"></i> ${sub.phone}</a></td>
+                            <td><a href="mailto:${sub.email}" style="color:#0284c7; text-decoration:none;"><i class="fas fa-envelope"></i> ${sub.email}</a></td>
+                            <td>${date}</td>
+                            <td>
+                                <button class="btn-action delete" title="Șterge" onclick="if(confirm('Ștergi acest abonat?')) db.collection('subscribers').doc('${id}').delete()">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        window.exportSubscribersCSV = function() {
+            if (subscribersList.length === 0) return alert("Nu există date de exportat!");
+            let csv = "Nume,Telefon,Email,Data Inscriere\n";
+            subscribersList.forEach(row => {
+                csv += `"${row.Nume}","${row.Telefon}","${row.Email}","${row.Data}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `abonati_divino_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        };
     </script>
 </body>
 </html>
