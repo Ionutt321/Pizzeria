@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toate Produsele | Di'vino</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Di'vino | Meniu Complet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#c2410c">
-    <style>
-        .all-products-section { padding-top: 120px; padding-bottom: 5rem; }
-    </style>
 </head>
-<body>
-    <!-- Navigare -->
-    <nav class="navbar scrolled">
+<body style="padding-top: 80px;">
+    
+    <nav class="navbar scrolled" id="main-nav" style="background: rgba(15, 23, 42, 1);">
         <a href="index.html" class="logo">Di'vino</a>
         <ul class="nav-links">
-            <li><a href="index.html#hero">Acasă</a></li>
-            <li><a href="index.html#meniu">Meniu Principal</a></li>
+            <li><a href="index.html">Acasă</a></li>
+            <li><a href="produse.html" class="active">Meniu</a></li>
             <li><a href="index.html#livrare">Livrare</a></li>
         </ul>
         <div class="nav-actions">
@@ -28,170 +23,124 @@
         </div>
     </nav>
 
-    <!-- Galerie Completă de Produse -->
-    <section class="menu-section all-products-section">
-        <div class="container">
-            <div class="section-title reveal-up active">
-                <h2>Toate Produsele Noastre</h2>
-                <p>Descoperă întreaga noastră selecție de gusturi autentice.</p>
-            </div>
-
-            <div class="menu-grid">
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="falafel.jpg" alt="Falafel la lipie"></div>
-                        <div class="card-info">
-                            <h3>Falafel la lipie <span class="weight">420g</span></h3>
-                            <p>Falafel, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add" data-name="Falafel la lipie" data-price="36"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="vita-orez.jpg" alt="Vită cu Orez"><span class="nou-badge">NOU</span></div>
-                        <div class="card-info">
-                            <h3>Vită cu Orez <span class="weight">600g</span></h3>
-                            <p>Carne rotisată Vită+Berbecuț, orez basmati, salată roșii, ceapă, sos rodie.</p>
-                            <div class="card-bottom"><span class="price">57,00 lei</span><button class="btn-add" data-name="Vită cu Orez" data-price="57"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="shaorma-farfurie.jpg" alt="Shaorma la Farfurie"></div>
-                        <div class="card-info">
-                            <h3>Shaorma Farfurie <span class="weight">800g</span></h3>
-                            <p>Carne rotisată, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom"><span class="price">50,00 lei</span><button class="btn-add" data-name="Shaorma Farfurie" data-price="50"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="doner-kebab.jpg" alt="Doner Kebab"></div>
-                        <div class="card-info">
-                            <h3>Doner Kebab <span class="weight">570g</span></h3>
-                            <p>Carne rotisată, cartofi prăjiți, salate, în chiflă pe vatra cuptorului.</p>
-                            <div class="card-bottom"><span class="price">39,00 lei</span><button class="btn-add" data-name="Doner Kebab" data-price="39"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="falafel.jpg" alt="Pizza Diavola"></div>
-                        <div class="card-info">
-                            <h3>Pizza Diavola <span class="weight">450g</span></h3>
-                            <p>Sos de roșii, mozzarella fior di latte, salam picant, ulei de măsline.</p>
-                            <div class="card-bottom"><span class="price">43,00 lei</span><button class="btn-add" data-name="Pizza Diavola" data-price="43"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="vita-orez.jpg" alt="Pizza Margherita"></div>
-                        <div class="card-info">
-                            <h3>Pizza Margherita <span class="weight">400g</span></h3>
-                            <p>Sos de roșii San Marzano, mozzarella, busuioc proaspăt, parmezan.</p>
-                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add" data-name="Pizza Margherita" data-price="36"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section class="menu-section">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('tab-kebab', this)"><i class="fas fa-drumstick-bite"></i> Donner Kebab</button>
+            <button class="tab-btn" onclick="switchTab('tab-pizza', this)"><i class="fas fa-pizza-slice"></i> Pizza Artizanală</button>
+        </div>
+        <div class="tab-content active" id="tab-kebab">
+            <div class="menu-grid" id="menu-grid-kebab"><p style="text-align:center;">Se încarcă meniul...</p></div>
+        </div>
+        <div class="tab-content" id="tab-pizza">
+            <div class="menu-grid" id="menu-grid-pizza"></div>
         </div>
     </section>
 
-    <!-- Footer (Subsol) -->
-    <footer class="site-footer">
-        <div class="footer-container">
-            <div class="footer-col">
-                <a href="#" class="logo footer-logo">Di'vino</a>
-                <p>Pizza napoletană artizanală cu maia naturală în Brașov. Aluat dospit fără drojdie comercială, copt la peste 400°C.</p>
-                <div class="social-links">
-                    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h3>Contact</h3>
-                <p>Strada Plevnei 1, Brașov</p>
-                <p>Tel: <a href="tel:0700000000">0700 000 000</a></p>
-                <p>Email: <a href="mailto:contact@divino.ro">contact@divino.ro</a></p>
-            </div>
-            <div class="footer-col">
-                <h3>Program</h3>
-                <p>Luni - Joi: 9:00 - 19:30</p>
-                <p>Vineri: 9:00 - 21:00</p>
-                <p>Sâmbătă: 10:00 - 21:00</p>
-                <p>Duminică: 10:00 - 16:00</p>
-            </div>
-            <div class="footer-col newsletter-col">
-                <h3>Abonează-te pentru oferte!</h3>
-                <form class="footer-newsletter">
-                    <input type="email" placeholder="E-mail" required>
-                    <button type="submit"><i class="fas fa-arrow-right"></i></button>
-                </form>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Pop-up Newsletter (Apare o singură dată) -->
-    <div class="popup-overlay" id="newsletter-popup">
-        <div class="popup-box">
-            <button class="close-popup" id="close-popup"><i class="fas fa-times"></i></button>
-            <h2>O surpriză dulce!</h2>
-            <p>Abonează-te și primești un <strong>CANNOLI</strong> gratuit la prima comandă.</p>
-            <form id="popup-form">
-                <input type="text" placeholder="Nume" required>
-                <input type="email" placeholder="Email" required>
-                <button type="submit" class="btn-primary" style="width: 100%; border-radius: 5px;">Vreau cannoli gratuit!</button>
-            </form>
-            <small>Prin înscriere, sunteți de acord să primiți e-mailuri de marketing. Consultați politica noastră de confidențialitate.</small>
-        </div>
-    </div>
-
-    <!-- Coșul de Cumpărături -->
+    <!-- Sidebar Coș -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
-            <h2>Coșul dvs.</h2>
-            <button id="close-cart"><i class="fas fa-times"></i></button>
+            <h2 style="color:var(--dark);">Coșul dvs.</h2>
+            <button id="close-cart" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;"><i class="fas fa-times"></i></button>
         </div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-footer">
-            <div class="cart-total">Total estimat: <span id="cart-total-price">0,00 lei</span></div>
-            <button id="checkout-btn" class="btn-primary">Finalizați comanda</button>
-        </div>
-    </div>
-
-    <!-- Chatbot Widget -->
-    <div id="chatbot-widget" class="reveal-up active">
-        <div class="chat-header" id="chat-toggle">
-            <div class="chat-title"><i class="fas fa-robot"></i> Asistent Di'vino</div>
-            <i class="fas fa-chevron-down" id="chat-icon"></i>
-        </div>
-        <div class="chat-body" id="chat-window">
-            <div class="chat-logs" id="chat-msgs">
-                <div class="msg bot">Ai ajuns pe pagina cu toate produsele! Te ajut cu o comandă?</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--dark);">
+                <span style="font-weight:600;">Total:</span>
+                <span id="cart-total-price" style="font-size:1.5rem; font-weight:800;">0,00 lei</span>
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Scrie aici...">
-                <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
-            </div>
+            <button class="btn-primary" style="width: 100%;">Finalizați comanda</button>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
+        const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        window.dbProductsList = [];
+        window.storeIsOpen = true;
+
+        window.switchTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        };
+
+        db.collection('settings').doc('general').onSnapshot(doc => {
+            if(doc.exists) window.storeIsOpen = doc.data().isOpen ?? true;
+        });
+
+        db.collection('products').where('active', '==', true).onSnapshot(snapshot => {
+            window.dbProductsList = [];
+            snapshot.forEach(doc => { let data = doc.data(); data.id = doc.id; window.dbProductsList.push(data); });
+            renderMenu();
+        });
+
+        window.renderMenu = function() {
+            const gridKebab = document.getElementById('menu-grid-kebab');
+            const gridPizza = document.getElementById('menu-grid-pizza');
+            if(!gridKebab || !gridPizza) return;
+
+            gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
+            let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+
+            window.dbProductsList.forEach(p => {
+                const itemInCart = cart.find(i => i.id === p.id);
+                
+                const priceDisplay = (p.discountPercent > 0) 
+                    ? `<s style="color:#94a3b8; font-size:1rem;">${p.originalPrice.toFixed(2)}</s> <span style="color:var(--danger); font-size: 1.3rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` 
+                    : `<span style="font-size: 1.3rem; font-weight: 800; color: var(--dark);">${p.price.toFixed(2)} lei</span>`;
+                
+                let badgesArr = [];
+                if (p.onePlusOne) badgesArr.push(`<span style="background:var(--danger); color:white; padding: 4px 10px; border-radius: 12px; font-size:0.75rem; font-weight:800;">1+1 Gratis</span>`);
+                if (p.badge) badgesArr.push(`<span style="background:white; color:var(--dark); padding: 4px 10px; border-radius: 12px; font-size:0.75rem; font-weight:800; box-shadow:0 2px 5px rgba(0,0,0,0.1);">${p.badge}</span>`);
+                const badgeHTML = badgesArr.length > 0 ? `<div style="position:absolute; top:10px; right:10px; display:flex; flex-direction:column; gap:6px;">${badgesArr.join('')}</div>` : '';
+
+                // AICI E INIMA LOGICII: Daca e in cos, arata [-] [cantitate] [+]. Daca nu, arata doar [+] care se roteste
+                let actionButtons;
+                if (itemInCart) {
+                    actionButtons = `
+                        <div class="cart-controls-inline">
+                            <button onclick="decreaseQtyDB('${p.id}')" class="btn-qty">-</button>
+                            <span style="font-weight:800; width:20px; text-align:center; color:var(--dark);">${itemInCart.quantity}</span>
+                            <button onclick="addToCartDB('${p.id}', this)" class="btn-add"><i class="fas fa-plus"></i></button>
+                        </div>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button onclick="addToCartDB('${p.id}', this)" class="btn-add"><i class="fas fa-plus"></i></button>
+                    `;
+                }
+
+                const cardHTML = `
+                    <div class="menu-card">
+                        <div class="card-img">
+                            <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
+                            ${badgeHTML}
+                        </div>
+                        <div class="card-info">
+                            <div>
+                                <h3>${p.name} <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">${p.weight || ''}</span></h3>
+                                <p>${p.description}</p>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 15px;">
+                                <div>${priceDisplay}</div>
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
+                else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        };
     </script>
 </body>
 </html>
