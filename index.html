@@ -32,12 +32,23 @@
     </nav>
     <style>@media(max-width: 768px){ .hide-mobile { display:none; } .nav-links { display:none; } }</style>
 
-    <!-- Hero Original Dark -->
+    <!-- Hero Original Dark (Titlu Stivuit) -->
     <section id="hero" class="hero">
         <span class="hero-badge">Tradiție & Inovație</span>
-        <h1>O NOUĂ <span>DIMENSIUNE</span> A GUSTULUI</h1>
+        <h1>O NOUĂ<br><span>DIMENSIUNE</span><br>A GUSTULUI</h1>
         <p>Descoperă preparate artizanale, ingrediente premium și o atmosferă inconfundabilă.</p>
         <a href="#meniu" class="btn-primary">Explorează Meniul</a>
+    </section>
+
+    <!-- Rollercoaster Produse Firebase -->
+    <section class="rollercoaster-section">
+        <h2 class="rollercoaster-title">Specialitățile Noastre</h2>
+        <div class="marquee-container">
+            <div class="marquee-content" id="rollercoaster-track">
+                <!-- Aici se încarcă dinamc mini-cardurile din Firebase -->
+                <p style="color:white; text-align:center; width:100%;">Se încarcă deliciile...</p>
+            </div>
+        </div>
     </section>
 
     <!-- Meniu cu Tab-uri -->
@@ -53,7 +64,7 @@
         
         <div class="tab-content active" id="tab-kebab">
             <div class="menu-grid" id="menu-grid-kebab">
-                <p style="text-align:center; color:#64748b; grid-column:1/-1; font-family:'Plus Jakarta Sans', sans-serif;">Se încarcă deliciile...</p>
+                <p style="text-align:center; color:#64748b; grid-column:1/-1; font-family:'Plus Jakarta Sans', sans-serif;">Se încarcă...</p>
             </div>
         </div>
         <div class="tab-content" id="tab-pizza">
@@ -61,7 +72,7 @@
         </div>
     </section>
 
-    <!-- Parteneri Livrare (Design Corectat - Doar Banner Dark) -->
+    <!-- Parteneri Livrare -->
     <section id="livrare" class="delivery-section">
         <div class="delivery-banner">
             <h2>Comandă Rapid la Tine Acasă</h2>
@@ -101,19 +112,19 @@
         </div>
     </footer>
 
-    <!-- Chatbot Widget Original -->
+    <!-- Chatbot Widget (Cu ID-uri pt Script) -->
     <div class="chatbot-widget" id="chatbot-widget">
         <div class="chat-header" id="chat-toggle">
             <span><i class="fas fa-robot"></i> Asistent Di'vino</span>
             <i class="fas fa-chevron-up" id="chat-icon"></i>
         </div>
         <div class="chat-body">
-            <div class="chat-logs">
+            <div class="chat-logs" id="chat-logs">
                 <div class="msg bot">Salut! Cu ce te pot ajuta astăzi? Putem plasa o comandă rapidă.</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" placeholder="Scrie aici...">
-                <button><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="chat-input" placeholder="Scrie aici mesajul tău...">
+                <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
@@ -158,7 +169,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Loader & Popup Timer
+        // Loader
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('intro-loader').classList.add('hidden');
@@ -176,15 +187,16 @@
             document.getElementById(tabId).classList.add('active');
         };
 
-        // Firebase Connection
+        // Firebase Setup
         const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         window.FREE_DELIVERY_THRESHOLD = 100;
         window.storeIsOpen = true;
+        window.dbProductsList = []; // Centralizeaza lista de produse pt toate functiile
 
-        // Status Magazin și Prag Livrare
+        // Status Magazin
         db.collection('settings').doc('general').onSnapshot(doc => {
             if (doc.exists) {
                 window.FREE_DELIVERY_THRESHOLD = doc.data().freeDeliveryThreshold || 100;
@@ -200,18 +212,35 @@
             }
         });
 
-        // Incarcare Produse Meniu (Randeaza o singura data)
+        // Incarcare Produse Meniu & Rollercoaster (O SINGURA DATA la inceput)
         db.collection('products').where('active', '==', true).onSnapshot(snapshot => {
             const gridKebab = document.getElementById('menu-grid-kebab');
             const gridPizza = document.getElementById('menu-grid-pizza');
+            const track = document.getElementById('rollercoaster-track');
+            
             if(!gridKebab || !gridPizza) return;
 
             gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
+            let rcHTML = '';
+            window.dbProductsList = [];
 
             snapshot.forEach(doc => {
                 const p = doc.data();
-                const id = doc.id;
+                p.id = doc.id;
+                window.dbProductsList.push(p); // Salveaza global
                 
+                // Construire Mini-Card pentru Rollercoaster
+                rcHTML += `
+                    <div class="mini-card" onclick="document.getElementById('meniu').scrollIntoView({behavior: 'smooth'})">
+                        <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
+                        <div class="mini-card-info">
+                            <h3>${p.name}</h3>
+                            <span>${p.price.toFixed(2)} lei</span>
+                        </div>
+                    </div>
+                `;
+
+                // Construire Card Meniu Normal
                 const priceDisplay = (p.discountPercent > 0) 
                     ? `<s style="color:#94a3b8; font-size:1rem; font-family:'Plus Jakarta Sans', sans-serif;">${p.originalPrice.toFixed(2)}</s> <span class="price" style="color:var(--danger);">${p.price.toFixed(2)} lei</span>` 
                     : `<span class="price">${p.price.toFixed(2)} lei</span>`;
@@ -234,9 +263,8 @@
                             </div>
                             <div class="card-bottom">
                                 <div>${priceDisplay}</div>
-                                <button onclick="addToCartDB('${id}', '${p.name}', ${p.price}, '${p.onePlusOne}', this)" class="btn-add">
-                                    <i class="fas fa-plus"></i>
-                                </button>
+                                <!-- Zona speciala pt injectare butoane + / - fara a atinge poza -->
+                                <div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div>
                             </div>
                         </div>
                     </div>
@@ -245,9 +273,15 @@
                 if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
                 else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
+
+            // Afiseaza Rollercoaster (Dublam continutul pentru animatia infinita)
+            if (track) track.innerHTML = rcHTML + rcHTML;
+
+            // Dupa ce am generat tot HTML-ul, inseram butoanele [+ / -] corect
+            if (typeof syncMenuButtons === 'function') syncMenuButtons();
         });
 
-        // Trimitere Formulare Newsletter (Footer + Pop-up)
+        // Trimitere Formulare Newsletter
         async function submitNewsletter(form, nume, phone, email) {
             const btn = form.querySelector('button');
             btn.disabled = true; btn.innerHTML = 'Se trimite...';
