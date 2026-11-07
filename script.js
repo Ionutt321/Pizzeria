@@ -96,14 +96,14 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem('divino_cart', JSON.stringify(cart));
     }
 
-    // Facem funcția globală ca să meargă din HTML generat
+    // Funcție pentru butoanele de + și - din coș
     window.changeQuantity = function(index, change) {
         cart[index].quantity += change;
         if (cart[index].quantity <= 0) cart.splice(index, 1);
         updateCartUI();
     };
 
-    // Adaugă produs în coș
+    // Adaugă produs în coș (FĂRĂ să mai deschidă meniul lateral)
     document.querySelectorAll('.btn-add').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const name = btn.getAttribute('data-name');
@@ -115,21 +115,16 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 cart.push({ name, price, quantity: 1 });
             }
+            
             updateCartUI();
             
-            // Efect de confirmare (deschide coșul scurt)
-            cartSidebar.classList.add('active');
-            cartOverlay.classList.add('active');
-            setTimeout(() => {
-                if(!cartSidebar.matches(':hover')) {
-                    cartSidebar.classList.remove('active');
-                    cartOverlay.classList.remove('active');
-                }
-            }, 1500);
+            // Opțional: un mic efect pe iconița de coș ca să știe clientul că s-a adăugat
+            cartIconBtn.style.transform = 'scale(1.2)';
+            setTimeout(() => { cartIconBtn.style.transform = 'scale(1)'; }, 200);
         });
     });
 
-    // Toggle Sidebar
+    // Deschidere/Închidere Sidebar strict la apăsarea butonului de coș
     cartIconBtn.addEventListener('click', () => {
         cartSidebar.classList.add('active');
         cartOverlay.classList.add('active');
