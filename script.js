@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             updateCartUI();
             
-            // Opțional: un mic efect pe iconița de coș ca să știe clientul că s-a adăugat
+            // Efect vizual pe iconița de coș
             cartIconBtn.style.transform = 'scale(1.2)';
             setTimeout(() => { cartIconBtn.style.transform = 'scale(1)'; }, 200);
         });
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Checkout
     checkoutBtn.addEventListener('click', () => {
         if (cart.length === 0) return alert("Coșul este gol!");
-        alert("Aici se va deschide pagina albă securizată Stripe Checkout. Pentru asta, trebuie să adăugăm cheile API de pe contul tău Stripe în Vercel.");
+        alert("Aici se va deschide pagina albă securizată Stripe Checkout.");
     });
 
     // Inițializare coș la încărcarea paginii
@@ -212,4 +212,25 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === 'Enter') sendMessage();
         });
     }
+
+    // --- Logica pentru Pop-up Newsletter ---
+    const popup = document.getElementById('newsletter-popup');
+    const closePopupBtn = document.getElementById('close-popup');
+    const popupForm = document.getElementById('popup-form');
+
+    if (popup && !localStorage.getItem('newsletter_shown')) {
+        setTimeout(() => {
+            popup.classList.add('show');
+        }, 4000); // Apare după 4 secunde
+    }
+
+    function hideAndRememberPopup(e) {
+        if (e) e.preventDefault();
+        popup.classList.remove('show');
+        localStorage.setItem('newsletter_shown', 'true');
+    }
+
+    if (closePopupBtn) closePopupBtn.addEventListener('click', hideAndRememberPopup);
+    if (popupForm) popupForm.addEventListener('submit', hideAndRememberPopup);
+
 });
