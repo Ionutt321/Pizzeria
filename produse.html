@@ -10,12 +10,11 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#c2410c">
     <style>
-        /* Ajustare spațiu sus pentru navbar */
         .all-products-section { padding-top: 120px; padding-bottom: 5rem; }
     </style>
 </head>
 <body>
-    <!-- Navigare (Linkurile trimit înapoi la pagina principală) -->
+    <!-- Navigare -->
     <nav class="navbar scrolled">
         <a href="index.html" class="logo">Di'vino</a>
         <ul class="nav-links">
@@ -23,7 +22,10 @@
             <li><a href="index.html#meniu">Meniu Principal</a></li>
             <li><a href="index.html#livrare">Livrare</a></li>
         </ul>
-        <a href="tel:0700000000" class="nav-btn"><i class="fas fa-phone"></i> 0700 000 000</a>
+        <div class="nav-actions">
+            <a href="tel:0700000000" class="nav-btn call-btn"><i class="fas fa-phone"></i> 0700 000 000</a>
+            <button id="cart-icon-btn" class="nav-btn cart-btn"><i class="fas fa-shopping-bag"></i> <span id="cart-count">0</span></button>
+        </div>
     </nav>
 
     <!-- Galerie Completă de Produse -->
@@ -34,16 +36,14 @@
                 <p>Descoperă întreaga noastră selecție de gusturi autentice.</p>
             </div>
 
-            <!-- Grilă masivă cu produse -->
             <div class="menu-grid">
-                
                 <div class="menu-card tilt-card reveal-up active">
                     <div class="card-inner">
                         <div class="card-img"><img src="falafel.jpg" alt="Falafel la lipie"></div>
                         <div class="card-info">
                             <h3>Falafel la lipie <span class="weight">420g</span></h3>
-                            <p>Falafel (chifteluțe din năut), cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <p>Falafel, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
+                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add" data-name="Falafel la lipie" data-price="36"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                         <div class="card-info">
                             <h3>Vită cu Orez <span class="weight">600g</span></h3>
                             <p>Carne rotisată Vită+Berbecuț, orez basmati, salată roșii, ceapă, sos rodie.</p>
-                            <div class="card-bottom"><span class="price">57,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <div class="card-bottom"><span class="price">57,00 lei</span><button class="btn-add" data-name="Vită cu Orez" data-price="57"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         <div class="card-info">
                             <h3>Shaorma Farfurie <span class="weight">800g</span></h3>
                             <p>Carne rotisată, cartofi prăjiți, salate și sosuri la alegere, lipie.</p>
-                            <div class="card-bottom"><span class="price">50,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <div class="card-bottom"><span class="price">50,00 lei</span><button class="btn-add" data-name="Shaorma Farfurie" data-price="50"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -75,8 +75,8 @@
                         <div class="card-img"><img src="doner-kebab.jpg" alt="Doner Kebab"></div>
                         <div class="card-info">
                             <h3>Doner Kebab <span class="weight">570g</span></h3>
-                            <p>Carne rotisată, cartofi prăjiți, salate, servite în chiflă pe vatra cuptorului.</p>
-                            <div class="card-bottom"><span class="price">39,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <p>Carne rotisată, cartofi prăjiți, salate, în chiflă pe vatra cuptorului.</p>
+                            <div class="card-bottom"><span class="price">39,00 lei</span><button class="btn-add" data-name="Doner Kebab" data-price="39"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                         <div class="card-info">
                             <h3>Pizza Diavola <span class="weight">450g</span></h3>
                             <p>Sos de roșii, mozzarella fior di latte, salam picant, ulei de măsline.</p>
-                            <div class="card-bottom"><span class="price">43,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <div class="card-bottom"><span class="price">43,00 lei</span><button class="btn-add" data-name="Pizza Diavola" data-price="43"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
@@ -98,36 +98,27 @@
                         <div class="card-info">
                             <h3>Pizza Margherita <span class="weight">400g</span></h3>
                             <p>Sos de roșii San Marzano, mozzarella, busuioc proaspăt, parmezan.</p>
-                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
+                            <div class="card-bottom"><span class="price">36,00 lei</span><button class="btn-add" data-name="Pizza Margherita" data-price="36"><i class="fas fa-plus"></i></button></div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="shaorma-farfurie.jpg" alt="Pizza Quattro Formaggi"></div>
-                        <div class="card-info">
-                            <h3>Pizza 4 Formaggi <span class="weight">420g</span></h3>
-                            <p>Mozzarella, gorgonzola, parmezan, brânză brie, smântână de gătit.</p>
-                            <div class="card-bottom"><span class="price">45,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-card tilt-card reveal-up active">
-                    <div class="card-inner">
-                        <div class="card-img"><img src="doner-kebab.jpg" alt="Meniu Crispy"></div>
-                        <div class="card-info">
-                            <h3>Meniu Crispy Pui <span class="weight">500g</span></h3>
-                            <p>Fâșii de pui crocante, cartofi prăjiți, sos de usturoi, salată coleslaw.</p>
-                            <div class="card-bottom"><span class="price">41,00 lei</span><button class="btn-add"><i class="fas fa-plus"></i></button></div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>
+
+    <!-- Coșul de Cumpărături -->
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h2>Coșul dvs.</h2>
+            <button id="close-cart"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total">Total estimat: <span id="cart-total-price">0,00 lei</span></div>
+            <button id="checkout-btn" class="btn-primary">Finalizați comanda</button>
+        </div>
+    </div>
 
     <!-- Chatbot Widget -->
     <div id="chatbot-widget" class="reveal-up active">
@@ -137,7 +128,7 @@
         </div>
         <div class="chat-body" id="chat-window">
             <div class="chat-logs" id="chat-msgs">
-                <div class="msg bot">Ai ajuns pe pagina cu toate produsele! Te ajut cu detalii sau cu o comandă?</div>
+                <div class="msg bot">Ai ajuns pe pagina cu toate produsele! Te ajut cu o comandă?</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Scrie aici...">
@@ -146,12 +137,6 @@
         </div>
     </div>
 
-    <!-- Script -->
     <script src="script.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
 </body>
 </html>
