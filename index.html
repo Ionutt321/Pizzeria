@@ -237,10 +237,79 @@
         </div>
     </div>
 
+   <!-- Scripturi de bază -->
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+
+    <!-- Conectare Firebase SDK (Necesar pentru salvarea în baza de date) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configurația ta Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA",
+            authDomain: "pizeria-61550.firebaseapp.com",
+            projectId: "pizeria-61550",
+            storageBucket: "pizeria-61550.firebasestorage.app",
+            messagingSenderId: "655046868435",
+            appId: "1:655046868435:web:b9a0815d10e38e4f1dc326"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 3. LOGICA PENTRU POP-UP ȘI SALVARE ABONAȚI ÎN FIREBASE
+        const popup = document.getElementById('newsletter-popup');
+        const closePopupBtn = document.getElementById('close-popup');
+        const popupForm = document.getElementById('popup-form');
+
+        // Arată pop-up-ul după 4 secunde doar dacă e client nou
+        if (popup && !localStorage.getItem('newsletter_shown')) {
+            setTimeout(() => { popup.classList.add('show'); }, 4000);
+        }
+
+        // Închidere din "X"
+        if (closePopupBtn) {
+            closePopupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                popup.classList.remove('show');
+                localStorage.setItem('newsletter_shown', 'true');
+            });
+        }
+
+        // Când trimite formularul
+        if (popupForm) {
+            popupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const btnSubmit = popupForm.querySelector('button[type="submit"]');
+                const nume = popupForm.querySelector('input[type="text"]').value;
+                const email = popupForm.querySelector('input[type="email"]').value;
+                
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se procesează...';
+
+                try {
+                    await db.collection('subscribers').add({
+                        name: nume,
+                        email: email,
+                        subscribedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    popupForm.innerHTML = '<h3 style="color:var(--success); font-size: 1.2rem; margin: 20px 0;"><i class="fas fa-check-circle"></i> Mulțumim! Ai fost abonat cu succes.</h3>';
+                    localStorage.setItem('newsletter_shown', 'true');
+                    
+                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
+                } catch(error) {
+                    console.error("Eroare la abonare: ", error);
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = 'Eroare. Reîncearcă!';
+                }
+            });
         }
     </script>
 </body>
