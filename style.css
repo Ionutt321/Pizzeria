@@ -159,3 +159,37 @@ body { font-family: var(--font-body); background-color: var(--light); color: var
 .popup-box input { padding: 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font-body); transition: border-color 0.3s; }
 .popup-box input:focus { border-color: var(--primary); }
 .popup-box small { font-size: 0.75rem; color: #94a3b8; line-height: 1.4; display: block; }
+/* Fix pentru așezarea grilei și dimensiunea pozelor din meniu */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    width: 100%;
+}
+.menu-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.card-img {
+    width: 100%;
+    height: 240px; /* Înălțime fixă pentru toate pozele */
+    position: relative;
+    overflow: hidden;
+}
+.card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Taie poza proporțional pentru a umple chenarul */
+}
+.card-info {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+}
