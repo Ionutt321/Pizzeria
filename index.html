@@ -3,45 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Di'vino | Acasă</title>
+    <title>Di'vino | Experiență Culinară Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-    <!-- Navbar Dark -->
+
+    <!-- ANIMATIE LOADER -->
+    <div id="intro-loader" class="intro-loader">
+        <h1 class="loader-logo">Di'vino</h1>
+        <div class="loader-line"></div>
+    </div>
+
+    <div id="store-closed-banner" style="display: none; background: #ef4444; color: white; text-align: center; padding: 10px; font-weight: bold; position: fixed; top: 0; width: 100%; z-index: 2000;">
+        <i class="fas fa-exclamation-circle"></i> Momentan suntem închiși. Nu putem prelua comenzi noi.
+    </div>
+
+    <!-- Navbar -->
     <nav class="navbar" id="main-nav">
-        <a href="index.html" class="logo">Di'vino</a>
+        <a href="#" class="logo">Di'vino</a>
         <ul class="nav-links">
-            <li><a href="index.html" class="active">Acasă</a></li>
-            <li><a href="produse.html">Meniu</a></li>
+            <li><a href="#hero" class="active">Acasă</a></li>
+            <li><a href="#meniu">Meniu</a></li>
             <li><a href="#livrare">Livrare</a></li>
         </ul>
         <div class="nav-actions">
-            <a href="tel:0700000000" class="nav-btn call-btn"><i class="fas fa-phone"></i> 0700 000 000</a>
+            <a href="tel:0700000000" class="nav-btn call-btn"><i class="fas fa-phone"></i> <span class="hide-mobile">0700 000 000</span></a>
             <button id="cart-icon-btn" class="nav-btn cart-btn"><i class="fas fa-shopping-bag"></i> <span id="cart-count">0</span></button>
         </div>
     </nav>
+    <style>@media(max-width: 600px){ .hide-mobile { display:none; } }</style>
 
-    <!-- Hero Dark (Vibe-ul Original) -->
-    <section class="hero">
+    <!-- Hero Dark -->
+    <section id="hero" class="hero">
         <span class="hero-badge">Tradiție & Inovație</span>
         <h1>O NOUĂ <span>DIMENSIUNE</span> A GUSTULUI</h1>
         <p>Descoperă preparate artizanale, ingrediente premium și o atmosferă inconfundabilă direct la tine acasă.</p>
-        <a href="produse.html" class="btn-primary">Explorează Meniul</a>
+        <a href="#meniu" class="btn-primary">Explorează Meniul</a>
     </section>
 
-    <!-- Rollercoaster Produse -->
-    <section class="rollercoaster-section">
-        <h2 class="rollercoaster-title">Specialitățile Noastre</h2>
-        <div class="marquee-container">
-            <div class="marquee-content" id="rollercoaster-track">
-                <!-- Se va popula din Firebase -->
-                <h3 style="color:white;">Se încarcă deliciile...</h3>
+    <!-- Meniu cu Tab-uri -->
+    <section id="meniu" class="menu-section">
+        <div class="section-title">
+            <h2>Meniul Di'vino</h2>
+            <p style="color:#64748b; margin-top:10px;">Navighează prin categoriile noastre pentru a descoperi preparatele.</p>
+        </div>
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('tab-kebab', this)"><i class="fas fa-drumstick-bite"></i> Donner Kebab</button>
+            <button class="tab-btn" onclick="switchTab('tab-pizza', this)"><i class="fas fa-pizza-slice"></i> Pizza Artizanală</button>
+        </div>
+        
+        <div class="tab-content active" id="tab-kebab">
+            <div class="menu-grid" id="menu-grid-kebab">
+                <p style="text-align:center; color:#94a3b8; grid-column:1/-1;">Se încarcă deliciile...</p>
             </div>
         </div>
+        <div class="tab-content" id="tab-pizza">
+            <div class="menu-grid" id="menu-grid-pizza"></div>
+        </div>
     </section>
+
+    <!-- Parteneri Livrare -->
+    <section id="livrare" class="delivery-section">
+        <h2>Comandă Rapid la Tine Acasă</h2>
+        <p style="color:#cbd5e1;">Beneficiezi de reduceri și oferte speciale prin platformele partenere.</p>
+        <div class="delivery-buttons">
+            <a href="#" class="del-btn glovo">Glovo</a>
+            <a href="#" class="del-btn wolt">Wolt</a>
+            <a href="#" class="del-btn bolt">Bolt Food</a>
+        </div>
+    </section>
+
+    <!-- Footer cu Formular Newsletter -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <a href="#" class="logo" style="font-size:2.2rem;">Di'vino</a>
+                <p style="margin-top:15px;">Pizza napoletană artizanală cu maia naturală în Brașov, direct la tine acasă.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Contact & Program</h3>
+                <p><i class="fas fa-clock" style="color:var(--primary); width:20px;"></i> Luni - Duminică: 10:00 - 23:00</p>
+                <p><i class="fas fa-map-marker-alt" style="color:var(--primary); width:20px;"></i> Str. Republicii nr. 10, Brașov</p>
+                <p><i class="fas fa-phone-alt" style="color:var(--primary); width:20px;"></i> 0700 000 000</p>
+            </div>
+            <div class="footer-col">
+                <h3>Abonare Newsletter</h3>
+                <p>Abonează-te și primești pe loc 10% reducere la comanda ta.</p>
+                <form id="footer-form" class="footer-form">
+                    <input type="text" id="foot-name" placeholder="Nume (opțional)">
+                    <input type="tel" id="foot-phone" placeholder="Telefon (Obligatoriu)" required>
+                    <input type="email" id="foot-email" placeholder="Email (Obligatoriu)" required>
+                    <button type="submit" class="btn-primary" style="width: 100%; border-radius: 8px; padding: 12px; margin-top:5px; border:none;">Abonează-mă</button>
+                </form>
+            </div>
+        </div>
+    </footer>
 
     <!-- Chatbot Widget -->
     <div class="chatbot-widget" id="chatbot-widget">
@@ -60,12 +118,15 @@
         </div>
     </div>
 
-    <!-- Sidebar Coș (Structura necesara in toate paginile) -->
+    <!-- Sidebar Coș Lateral -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
             <h2 style="color:var(--dark);">Coșul dvs.</h2>
             <button id="close-cart" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:10px; text-align:center; font-size:0.9rem; font-weight:bold; display:none; border-bottom:1px solid var(--border);">
+            Calculăm livrarea...
         </div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-footer">
@@ -73,22 +134,23 @@
                 <span style="font-weight:600;">Total:</span>
                 <span id="cart-total-price" style="font-size:1.5rem; font-weight:800;">0,00 lei</span>
             </div>
-            <button class="btn-primary" style="width: 100%;">Finalizați comanda</button>
+            <button id="checkout-btn" class="btn-primary" style="width: 100%; border:none;">Finalizați comanda</button>
         </div>
     </div>
 
-    <!-- Pop-up Newsletter -->
+    <!-- Pop-up Newsletter Intrare -->
     <div class="popup-overlay" id="newsletter-popup">
         <div class="popup-box">
             <button class="close-popup" id="close-popup">&times;</button>
             <h2 style="font-family:'Cinzel', serif; color:var(--dark); margin-bottom:10px;">Primește 10% Reducere!</h2>
-            <p style="color:#64748b; margin-bottom:20px;">Abonează-te și primești pe loc o reducere.</p>
+            <p style="color:#64748b; margin-bottom:20px;">Abonează-te și primești pe loc o reducere sau desert la prima comandă.</p>
             <form id="popup-form">
                 <input type="text" id="sub-name" placeholder="Nume (opțional)">
                 <input type="tel" id="sub-phone" placeholder="Număr de telefon (Obligatoriu)" required>
                 <input type="email" id="sub-email" placeholder="Adresă de email (Obligatoriu)" required>
-                <button type="submit" class="btn-primary" style="width: 100%; border-radius: 12px; margin-top:5px;">Revendică Reducerea</button>
+                <button type="submit" class="btn-primary" style="width: 100%; border-radius: 8px; margin-top:5px; border:none;">Revendică Reducerea</button>
             </form>
+            <small style="color:#94a3b8; font-size:0.75rem; display:block; margin-top:15px;">Datele tale sunt în siguranță.</small>
         </div>
     </div>
 
@@ -97,53 +159,120 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // 1. Loader & Popup Timer
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('intro-loader').classList.add('hidden');
+                if (!localStorage.getItem('newsletter_shown')) {
+                    setTimeout(() => { document.getElementById('newsletter-popup').classList.add('show'); }, 3000);
+                }
+            }, 1200);
+        });
+
+        // 2. Tab Switch
+        window.switchTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        };
+
+        // 3. Conexiune Firebase
         const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        window.FREE_DELIVERY_THRESHOLD = 100;
+        window.storeIsOpen = true;
         window.dbProductsList = [];
 
-        // Incarca produse pentru Rollercoaster
-        db.collection('products').where('active', '==', true).get().then(snapshot => {
-            const track = document.getElementById('rollercoaster-track');
-            track.innerHTML = '';
-            let cardsHTML = '';
+        // Status Magazin și Prag
+        db.collection('settings').doc('general').onSnapshot(doc => {
+            if (doc.exists) {
+                window.FREE_DELIVERY_THRESHOLD = doc.data().freeDeliveryThreshold || 100;
+                window.storeIsOpen = doc.data().isOpen ?? true;
+                const closedBanner = document.getElementById('store-closed-banner');
+                const checkoutBtn = document.getElementById('checkout-btn');
+                if (closedBanner && checkoutBtn) {
+                    closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
+                    checkoutBtn.style.opacity = window.storeIsOpen ? '1' : '0.5';
+                    checkoutBtn.textContent = window.storeIsOpen ? 'Finalizați comanda' : 'Magazin Închis';
+                }
+                if (typeof updateCartUI === 'function') updateCartUI();
+            }
+        });
+
+        // 4. Incarcare Produse Meniu (se randeaza structura O SINGURA DATA)
+        db.collection('products').where('active', '==', true).onSnapshot(snapshot => {
+            const gridKebab = document.getElementById('menu-grid-kebab');
+            const gridPizza = document.getElementById('menu-grid-pizza');
+            if(!gridKebab || !gridPizza) return;
+
+            gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
+            window.dbProductsList = [];
 
             snapshot.forEach(doc => {
                 const p = doc.data();
                 p.id = doc.id;
                 window.dbProductsList.push(p);
+                
+                const priceDisplay = (p.discountPercent > 0) 
+                    ? `<s style="color:#94a3b8; font-size:1rem;">${p.originalPrice.toFixed(2)}</s> <span style="color:var(--danger); font-size: 1.25rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` 
+                    : `<span style="font-size: 1.25rem; font-weight: 800; color: var(--dark);">${p.price.toFixed(2)} lei</span>`;
+                
+                let badgesArr = [];
+                if (p.onePlusOne) badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
+                if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
+                const badgeHTML = badgesArr.length > 0 ? `<div class="badges-container">${badgesArr.join('')}</div>` : '';
 
-                cardsHTML += `
-                    <div class="mini-card" onclick="window.location.href='produse.html'">
-                        <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
-                        <div class="mini-card-info">
-                            <h3>${p.name}</h3>
-                            <span style="color:var(--primary); font-weight:800;">${p.price.toFixed(2)} lei</span>
+                const cardHTML = `
+                    <div class="menu-card">
+                        <div class="card-img">
+                            <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
+                            ${badgeHTML}
+                        </div>
+                        <div class="card-info">
+                            <div>
+                                <h3>${p.name} <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">${p.weight || ''}</span></h3>
+                                <p>${p.description}</p>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 15px;">
+                                <div>${priceDisplay}</div>
+                                <!-- Aici se randează izolat butoanele -->
+                                <div id="action-btn-${p.id}" style="min-width:90px; display:flex; justify-content:flex-end;"></div>
+                            </div>
                         </div>
                     </div>
                 `;
+
+                if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
+                else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
 
-            // Dublam HTML-ul pentru efectul de derulare infinita
-            track.innerHTML = cardsHTML + cardsHTML;
-            if(typeof updateCartUI === 'function') updateCartUI();
+            // Imediat după ce grila a fost creată, inserăm butoanele
+            if (typeof syncMenuButtons === 'function') syncMenuButtons();
         });
 
-        // Salvare Newsletter in BD
-        document.getElementById('popup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
+        // 5. Trimitere Date Newsletter (Comună)
+        async function submitNewsletter(form, nume, phone, email) {
+            const btn = form.querySelector('button');
             btn.disabled = true; btn.innerHTML = 'Se trimite...';
-            await db.collection('subscribers').add({ 
-                name: document.getElementById('sub-name').value || 'Anonim', 
-                phone: document.getElementById('sub-phone').value, 
-                email: document.getElementById('sub-email').value, 
-                subscribedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            });
-            e.target.innerHTML = '<h3 style="color:#10b981; margin: 20px 0;">Mulțumim! Te-ai abonat.</h3>';
-            localStorage.setItem('newsletter_shown', 'true');
-            setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 2000);
+            try {
+                await db.collection('subscribers').add({ name: nume || 'Anonim', phone: phone, email: email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                form.innerHTML = '<h3 style="color:#10b981; margin: 10px 0;"><i class="fas fa-check-circle"></i> Mulțumim!</h3>';
+                localStorage.setItem('newsletter_shown', 'true');
+                setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 3000);
+            } catch(err) {
+                btn.disabled = false; btn.textContent = 'Eroare. Reîncearcă!';
+            }
+        }
+
+        document.getElementById('popup-form').addEventListener('submit', (e) => {
+            e.preventDefault(); submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value);
+        });
+
+        document.getElementById('footer-form').addEventListener('submit', (e) => {
+            e.preventDefault(); submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value);
         });
     </script>
 </body>
