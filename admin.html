@@ -71,7 +71,7 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        .admin-grid { display: grid; grid-template-columns: 380px 1fr; gap: 25px; }
+        .admin-grid { display: grid; grid-template-columns: 400px 1fr; gap: 25px; }
         @media (max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
 
         .card {
@@ -88,6 +88,17 @@
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* Stil pentru încărcare fișier și previzualizare */
+        .file-upload-box {
+            border: 2px dashed var(--border); padding: 15px; border-radius: 8px;
+            text-align: center; cursor: pointer; background: #fafafa; transition: border-color 0.2s;
+        }
+        .file-upload-box:hover { border-color: var(--primary); }
+        .img-preview {
+            width: 100%; height: 140px; object-fit: cover; border-radius: 8px;
+            margin-top: 10px; display: none; border: 1px solid var(--border);
+        }
 
         .btn-submit {
             width: 100%; background: var(--dark); color: white; padding: 12px;
@@ -183,9 +194,13 @@
                         </div>
                     </div>
 
+                    <!-- Încărcare Poză din Calculator -->
                     <div class="form-group">
-                        <label>Nume Fișier Imagine</label>
-                        <input type="text" id="p-img" placeholder="ex: falafel.jpg sau link complet" value="falafel.jpg" required>
+                        <label>Imagine Produs (Din Calculator / Telefon)</label>
+                        <div class="file-upload-box">
+                            <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
+                        </div>
+                        <img id="p-preview" class="img-preview" alt="Previzualizare">
                     </div>
 
                     <div class="form-group">
@@ -193,7 +208,7 @@
                         <textarea id="p-desc" rows="3" placeholder="Ingrediente, alergeni..." required></textarea>
                     </div>
 
-                    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Salvează în Meniu</button>
+                    <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
                 </form>
             </div>
 
@@ -207,12 +222,11 @@
         </div>
     </div>
 
-    <!-- Conectare Firebase SDK (Compat) -->
+    <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Configurația ta Firebase extrasă direct din consolă
         const firebaseConfig = {
             apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA",
             authDomain: "pizeria-61550.firebaseapp.com",
@@ -226,7 +240,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Autentificare simplificată cu PIN (Cod implicit: 1234)
+        // Autentificare PIN
         const ADMIN_PIN = "1234";
         const authScreen = document.getElementById('auth-screen');
         const adminDashboard = document.getElementById('admin-dashboard');
@@ -248,7 +262,47 @@
         btnLogin.addEventListener('click', checkPin);
         pinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPin(); });
 
-        // Gestionare Status Magazin (Deschis / Închis)
+        // Procesare și optimizare imagine în browser (Comprimare automată)
+        const fileInput = document.getElementById('p-file');
+        const previewImg = document.getElementById('p-preview');
+        let currentBase64Image = "falafel.jpg"; // imagine implicită dacă nu selectează nimic
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Redimensionare proporțională la max 800px lățime
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height = (height * MAX_WIDTH) / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Comprimare la format JPEG 75% calitate (ușoară și rapidă)
+                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
+                    previewImg.src = currentBase64Image;
+                    previewImg.style.display = 'block';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Gestionare Magazin Deschis / Închis
         const storeToggle = document.getElementById('store-toggle');
         const storeStatusText = document.getElementById('store-status-text');
 
@@ -273,17 +327,22 @@
             storeStatusText.style.color = isOpen ? 'var(--success)' : 'var(--danger)';
         }
 
-        // Adăugare Produs Nou
+        // Salvare Produs
         const addForm = document.getElementById('add-product-form');
+        const submitBtn = document.getElementById('btn-submit-form');
+
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
+
             const newProduct = {
                 name: document.getElementById('p-name').value.trim(),
                 category: document.getElementById('p-cat').value,
                 weight: document.getElementById('p-weight').value.trim(),
                 price: parseFloat(document.getElementById('p-price').value),
                 badge: document.getElementById('p-badge').value.trim(),
-                image: document.getElementById('p-img').value.trim(),
+                image: currentBase64Image,
                 description: document.getElementById('p-desc').value.trim(),
                 active: true,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -291,10 +350,13 @@
 
             await db.collection('products').add(newProduct);
             addForm.reset();
-            document.getElementById('p-img').value = 'falafel.jpg';
+            previewImg.style.display = 'none';
+            currentBase64Image = "falafel.jpg";
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
         });
 
-        // Ascultare și randare produse în timp real
+        // Ascultare produse în timp real
         function listenProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('products-container');
