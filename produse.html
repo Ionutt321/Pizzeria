@@ -106,6 +106,56 @@
         </div>
     </section>
 
+    <!-- Footer (Subsol) -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <a href="#" class="logo footer-logo">Di'vino</a>
+                <p>Pizza napoletană artizanală cu maia naturală în Brașov. Aluat dospit fără drojdie comercială, copt la peste 400°C.</p>
+                <div class="social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <p>Strada Plevnei 1, Brașov</p>
+                <p>Tel: <a href="tel:0700000000">0700 000 000</a></p>
+                <p>Email: <a href="mailto:contact@divino.ro">contact@divino.ro</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Program</h3>
+                <p>Luni - Joi: 9:00 - 19:30</p>
+                <p>Vineri: 9:00 - 21:00</p>
+                <p>Sâmbătă: 10:00 - 21:00</p>
+                <p>Duminică: 10:00 - 16:00</p>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h3>Abonează-te pentru oferte!</h3>
+                <form class="footer-newsletter">
+                    <input type="email" placeholder="E-mail" required>
+                    <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Pop-up Newsletter (Apare o singură dată) -->
+    <div class="popup-overlay" id="newsletter-popup">
+        <div class="popup-box">
+            <button class="close-popup" id="close-popup"><i class="fas fa-times"></i></button>
+            <h2>O surpriză dulce!</h2>
+            <p>Abonează-te și primești un <strong>CANNOLI</strong> gratuit la prima comandă.</p>
+            <form id="popup-form">
+                <input type="text" placeholder="Nume" required>
+                <input type="email" placeholder="Email" required>
+                <button type="submit" class="btn-primary" style="width: 100%; border-radius: 5px;">Vreau cannoli gratuit!</button>
+            </form>
+            <small>Prin înscriere, sunteți de acord să primiți e-mailuri de marketing. Consultați politica noastră de confidențialitate.</small>
+        </div>
+    </div>
+
     <!-- Coșul de Cumpărături -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
@@ -138,5 +188,10 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
 </body>
 </html>
