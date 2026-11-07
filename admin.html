@@ -7,148 +7,77 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #c2410c;
-            --dark: #0f172a;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-        }
-
+        :root { --primary: #c2410c; --dark: #0f172a; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --success: #10b981; --danger: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--dark); padding: 20px; }
 
-        .admin-auth {
-            position: fixed; inset: 0; background: var(--dark); display: flex;
-            align-items: center; justify-content: center; z-index: 9999;
-        }
-        .auth-box {
-            background: white; padding: 35px; border-radius: 16px;
-            max-width: 380px; width: 90%; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        }
+        .admin-auth { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .auth-box { background: white; padding: 35px; border-radius: 16px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
         .auth-box h2 { margin-bottom: 8px; color: var(--dark); }
         .auth-box p { font-size: 0.9rem; color: #64748b; margin-bottom: 20px; }
-        .auth-box input {
-            width: 100%; padding: 12px 16px; border: 2px solid var(--border);
-            border-radius: 10px; font-size: 1.2rem; text-align: center;
-            letter-spacing: 5px; outline: none; margin-bottom: 15px;
-        }
+        .auth-box input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 1.2rem; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
         .auth-box input:focus { border-color: var(--primary); }
-        .btn-auth {
-            width: 100%; background: var(--primary); color: white; padding: 12px;
-            border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
-            font-size: 1rem; transition: background 0.2s;
-        }
-        .btn-auth:hover { background: #ea580c; }
-
+        .btn-auth { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        
         .admin-container { max-width: 1100px; margin: 0 auto; display: none; }
-        .admin-header {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 15px; margin-bottom: 30px;
-            background: var(--card); padding: 20px 30px; border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-        .header-title h1 { font-size: 1.8rem; color: var(--dark); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; background: var(--card); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); }
+        .header-title h1 { font-size: 1.8rem; }
         .header-title p { color: #64748b; font-size: 0.9rem; }
-
-        .status-toggle {
-            display: flex; align-items: center; gap: 12px;
-            background: #f1f5f9; padding: 8px 16px; border-radius: 50px;
-        }
+        .status-toggle { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1;
-            transition: .3s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 20px; width: 20px; left: 3px;
-            bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        .admin-grid { display: grid; grid-template-columns: 400px 1fr; gap: 25px; }
+        .admin-grid { display: grid; grid-template-columns: 420px 1fr; gap: 25px; }
         @media (max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
-
-        .card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .card h2 { font-size: 1.25rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px 14px; border: 1px solid var(--border);
-            border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        /* Stil pentru încărcare fișier și previzualizare */
-        .file-upload-box {
-            border: 2px dashed var(--border); padding: 15px; border-radius: 8px;
-            text-align: center; cursor: pointer; background: #fafafa; transition: border-color 0.2s;
-        }
-        .file-upload-box:hover { border-color: var(--primary); }
-        .img-preview {
-            width: 100%; height: 140px; object-fit: cover; border-radius: 8px;
-            margin-top: 10px; display: none; border: 1px solid var(--border);
-        }
-
-        .btn-submit {
-            width: 100%; background: var(--dark); color: white; padding: 12px;
-            border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
-            margin-top: 10px; transition: background 0.2s;
-        }
-        .btn-submit:hover { background: #1e293b; }
-
+        .file-upload-box { border: 2px dashed var(--border); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; background: #fafafa; }
+        .img-preview { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid var(--border); }
+        
+        .btn-submit { width: 100%; background: var(--dark); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn-cancel { width: 100%; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; display: none; }
+        
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .product-row {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px;
-            border-radius: 12px; gap: 15px;
-        }
+        .product-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; gap: 15px; }
         .product-row.inactive { opacity: 0.5; background: #f1f5f9; }
         .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #e2e8f0; }
         .product-meta { flex: 1; }
-        .product-meta h4 { font-size: 1rem; margin-bottom: 2px; }
+        .product-meta h4 { font-size: 1rem; margin-bottom: 2px; display:flex; align-items:center; gap:5px; flex-wrap: wrap; }
         .product-meta p { font-size: 0.85rem; color: #64748b; }
-        .product-badge { font-size: 0.75rem; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
-        .product-actions { display: flex; gap: 8px; align-items: center; }
-        .btn-action {
-            width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
-            background: white; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; color: #64748b; transition: all 0.2s;
-        }
+        .product-badge { font-size: 0.7rem; background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 12px; font-weight: bold; }
+        .badge-red { background: #fee2e2; color: #b91c1c; }
+        .product-actions { display: flex; gap: 6px; align-items: center; }
+        .btn-action { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: all 0.2s; }
+        .btn-action.edit:hover { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-action.delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .btn-action.toggle:hover { background: var(--success); color: white; border-color: var(--success); }
     </style>
 </head>
 <body>
 
-    <!-- Ecran Protectie PIN -->
     <div class="admin-auth" id="auth-screen">
         <div class="auth-box">
             <i class="fas fa-lock" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;"></i>
             <h2>Panou Administrare</h2>
-            <p>Introdu codul PIN de securitate</p>
             <input type="password" id="pin-input" maxlength="4" placeholder="••••" autofocus>
             <button class="btn-auth" id="btn-login">Accesare Panou</button>
             <p id="auth-err" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Cod PIN incorect!</p>
         </div>
     </div>
 
-    <!-- Panou Principal Admin -->
     <div class="admin-container" id="admin-dashboard">
         <header class="admin-header">
             <div class="header-title">
                 <h1>Di'vino Admin</h1>
-                <p>Gestionează meniul, prețurile și disponibilitatea comenzilor</p>
+                <p>Meniu, prețuri, reduceri și setări livrare</p>
             </div>
             <div class="status-toggle">
                 <span id="store-status-text" style="font-weight: 600; font-size: 0.9rem;">Magazin Deschis</span>
@@ -160,69 +89,89 @@
         </header>
 
         <div class="admin-grid">
-            <!-- Formular Adăugare Preparat -->
-            <div class="card">
-                <h2><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Adaugă Produs Nou</h2>
-                <form id="add-product-form">
+            <div class="left-column">
+                
+                <!-- Setări Generale -->
+                <div class="card">
+                    <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Generale</h2>
                     <div class="form-group">
-                        <label>Denumire Preparat</label>
-                        <input type="text" id="p-name" placeholder="ex: Pizza Prosciutto Crudo" required>
+                        <label>Prag Livrare Gratuită (RON)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="number" id="setting-free-delivery" value="100">
+                            <button class="btn-submit" style="margin:0; width:auto; padding:0 20px;" onclick="saveSettings()">Aplică</button>
+                        </div>
+                        <small style="color:#64748b; font-size:0.75rem; margin-top:5px; display:block;">Dacă clientul cumpără sub această sumă, i se va cere să mai adauge produse.</small>
                     </div>
+                </div>
 
-                    <div class="form-row">
+                <!-- Formular Produs -->
+                <div class="card">
+                    <h2 id="form-title"><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Adaugă Produs Nou</h2>
+                    <form id="add-product-form">
                         <div class="form-group">
-                            <label>Categorie</label>
-                            <select id="p-cat">
-                                <option value="kebab">Donner Kebab</option>
-                                <option value="pizza">Pizza Artizanală</option>
-                            </select>
+                            <label>Denumire Preparat</label>
+                            <input type="text" id="p-name" placeholder="ex: Pizza Prosciutto" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Categorie</label>
+                                <select id="p-cat">
+                                    <option value="kebab">Donner Kebab</option>
+                                    <option value="pizza">Pizza Artizanală</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Gramaj</label>
+                                <input type="text" id="p-weight" placeholder="ex: 450g" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Preț Standard (RON)</label>
+                                <input type="number" step="0.5" id="p-price" placeholder="ex: 40" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Reducere (%)</label>
+                                <input type="number" id="p-discount" placeholder="ex: 15" value="0" min="0" max="99">
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-bottom:16px;">
+                            <div class="form-group" style="margin:0; display:flex; align-items:center; gap:8px;">
+                                <input type="checkbox" id="p-1plus1" style="width:22px; height:22px; accent-color:var(--danger);">
+                                <label style="margin:0; font-size:0.95rem; color:var(--danger); font-weight:bold;">Ofertă 1+1 GRATIS</label>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <input type="text" id="p-badge" placeholder="Altă etichetă (ex: NOU)">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Gramaj</label>
-                            <input type="text" id="p-weight" placeholder="ex: 450g" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Preț (RON)</label>
-                            <input type="number" step="0.5" id="p-price" placeholder="ex: 38" required>
+                            <label>Imagine Produs</label>
+                            <div class="file-upload-box">
+                                <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
+                            </div>
+                            <img id="p-preview" class="img-preview" alt="Previzualizare">
                         </div>
                         <div class="form-group">
-                            <label>Etichetă (Opțional)</label>
-                            <input type="text" id="p-badge" placeholder="ex: NOU / 1+1">
+                            <label>Descriere Ingrediente</label>
+                            <textarea id="p-desc" rows="3" placeholder="Ingrediente, alergeni..." required></textarea>
                         </div>
-                    </div>
-
-                    <!-- Încărcare Poză din Calculator -->
-                    <div class="form-group">
-                        <label>Imagine Produs (Din Calculator / Telefon)</label>
-                        <div class="file-upload-box">
-                            <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
-                        </div>
-                        <img id="p-preview" class="img-preview" alt="Previzualizare">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Descriere Ingrediente</label>
-                        <textarea id="p-desc" rows="3" placeholder="Ingrediente, alergeni..." required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
-                </form>
+                        <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
+                        <button type="button" class="btn-cancel" id="btn-cancel-edit" onclick="cancelEdit()">Anulează Editarea</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Listă Produse Active -->
             <div class="card">
                 <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Meniu Curent (<span id="count-items">0</span>)</h2>
                 <div class="product-list" id="products-container">
-                    <p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă produsele din baza de date...</p>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK (Compat) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -233,175 +182,177 @@
             projectId: "pizeria-61550",
             storageBucket: "pizeria-61550.firebasestorage.app",
             messagingSenderId: "655046868435",
-            appId: "1:655046868435:web:b9a0815d10e38e4f1dc326",
-            measurementId: "G-EBGNG0B33R"
+            appId: "1:655046868435:web:b9a0815d10e38e4f1dc326"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Autentificare PIN
         const ADMIN_PIN = "1234";
-        const authScreen = document.getElementById('auth-screen');
-        const adminDashboard = document.getElementById('admin-dashboard');
-        const pinInput = document.getElementById('pin-input');
-        const btnLogin = document.getElementById('btn-login');
-        const authErr = document.getElementById('auth-err');
-
         function checkPin() {
-            if (pinInput.value === ADMIN_PIN) {
-                authScreen.style.display = 'none';
-                adminDashboard.style.display = 'block';
+            if (document.getElementById('pin-input').value === ADMIN_PIN) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
                 loadSettings();
                 listenProducts();
             } else {
-                authErr.style.display = 'block';
-                pinInput.value = '';
+                document.getElementById('auth-err').style.display = 'block';
+                document.getElementById('pin-input').value = '';
             }
         }
-        btnLogin.addEventListener('click', checkPin);
-        pinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPin(); });
+        document.getElementById('btn-login').addEventListener('click', checkPin);
+        document.getElementById('pin-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPin(); });
 
-        // Procesare și optimizare imagine în browser (Comprimare automată)
-        const fileInput = document.getElementById('p-file');
-        const previewImg = document.getElementById('p-preview');
-        let currentBase64Image = "falafel.jpg"; // imagine implicită dacă nu selectează nimic
-
-        fileInput.addEventListener('change', (e) => {
+        // Procesare poză
+        let currentBase64Image = "falafel.jpg";
+        document.getElementById('p-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    // Redimensionare proporțională la max 800px lățime
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height = (height * MAX_WIDTH) / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height = (height * MAX_WIDTH) / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // Comprimare la format JPEG 75% calitate (ușoară și rapidă)
                     currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
-                    previewImg.src = currentBase64Image;
-                    previewImg.style.display = 'block';
+                    document.getElementById('p-preview').src = currentBase64Image;
+                    document.getElementById('p-preview').style.display = 'block';
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        // Gestionare Magazin Deschis / Închis
-        const storeToggle = document.getElementById('store-toggle');
-        const storeStatusText = document.getElementById('store-status-text');
-
+        // Setări Status și Livrare
         function loadSettings() {
             db.collection('settings').doc('general').onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
-                    storeToggle.checked = data.isOpen ?? true;
-                    updateStatusLabel(storeToggle.checked);
+                    document.getElementById('store-toggle').checked = data.isOpen ?? true;
+                    document.getElementById('store-status-text').textContent = (data.isOpen ?? true) ? 'Magazin Deschis' : 'Magazin Închis';
+                    document.getElementById('setting-free-delivery').value = data.freeDeliveryThreshold || 100;
                 }
             });
         }
-
-        storeToggle.addEventListener('change', () => {
-            const isOpen = storeToggle.checked;
-            updateStatusLabel(isOpen);
-            db.collection('settings').doc('general').set({ isOpen }, { merge: true });
+        document.getElementById('store-toggle').addEventListener('change', (e) => {
+            db.collection('settings').doc('general').set({ isOpen: e.target.checked }, { merge: true });
         });
-
-        function updateStatusLabel(isOpen) {
-            storeStatusText.textContent = isOpen ? 'Magazin Deschis' : 'Magazin Închis Temporar';
-            storeStatusText.style.color = isOpen ? 'var(--success)' : 'var(--danger)';
+        window.saveSettings = function() {
+            const val = Number(document.getElementById('setting-free-delivery').value);
+            db.collection('settings').doc('general').set({ freeDeliveryThreshold: val }, { merge: true });
+            alert("Pragul de livrare gratuită a fost salvat!");
         }
 
-        // Salvare Produs
+        // Logică Salvare / Editare
+        let editingProductId = null;
         const addForm = document.getElementById('add-product-form');
         const submitBtn = document.getElementById('btn-submit-form');
+        const cancelBtn = document.getElementById('btn-cancel-edit');
+
+        window.editProduct = function(id) {
+            db.collection('products').doc(id).get().then(doc => {
+                const p = doc.data();
+                document.getElementById('p-name').value = p.name;
+                document.getElementById('p-cat').value = p.category;
+                document.getElementById('p-weight').value = p.weight || '';
+                document.getElementById('p-price').value = p.originalPrice || p.price;
+                document.getElementById('p-discount').value = p.discountPercent || 0;
+                document.getElementById('p-1plus1').checked = p.onePlusOne || false;
+                document.getElementById('p-badge').value = p.badge || '';
+                document.getElementById('p-desc').value = p.description;
+                
+                currentBase64Image = p.image;
+                if(p.image && p.image !== 'falafel.jpg') {
+                    document.getElementById('p-preview').src = p.image;
+                    document.getElementById('p-preview').style.display = 'block';
+                }
+                
+                editingProductId = id;
+                document.getElementById('form-title').innerHTML = '<i class="fas fa-edit" style="color:var(--primary);"></i> Editează Produsul';
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizează Produs';
+                cancelBtn.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        window.cancelEdit = function() {
+            editingProductId = null;
+            addForm.reset();
+            currentBase64Image = "falafel.jpg";
+            document.getElementById('p-preview').style.display = 'none';
+            document.getElementById('form-title').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--primary);"></i> Adaugă Produs Nou';
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
+            cancelBtn.style.display = 'none';
+        }
 
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
+            
+            const basePrice = parseFloat(document.getElementById('p-price').value);
+            const discount = parseFloat(document.getElementById('p-discount').value) || 0;
+            const finalPrice = basePrice - (basePrice * discount / 100);
 
-            const newProduct = {
+            const productData = {
                 name: document.getElementById('p-name').value.trim(),
                 category: document.getElementById('p-cat').value,
                 weight: document.getElementById('p-weight').value.trim(),
-                price: parseFloat(document.getElementById('p-price').value),
+                originalPrice: basePrice,
+                price: finalPrice,
+                discountPercent: discount,
+                onePlusOne: document.getElementById('p-1plus1').checked,
                 badge: document.getElementById('p-badge').value.trim(),
                 image: currentBase64Image,
                 description: document.getElementById('p-desc').value.trim(),
                 active: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            await db.collection('products').add(newProduct);
-            addForm.reset();
-            previewImg.style.display = 'none';
-            currentBase64Image = "falafel.jpg";
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
+            if (editingProductId) {
+                await db.collection('products').doc(editingProductId).update(productData);
+            } else {
+                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('products').add(productData);
+            }
+            cancelEdit();
         });
 
-        // Ascultare produse în timp real
+        // Randare Listă
         function listenProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('products-container');
                 document.getElementById('count-items').textContent = snapshot.size;
-
-                if (snapshot.empty) {
-                    container.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem;">Niciun preparat adăugat. Completează formularul din stânga.</p>';
-                    return;
-                }
-
+                if (snapshot.empty) { container.innerHTML = '<p>Niciun preparat.</p>'; return; }
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
                     const p = doc.data();
-                    const id = doc.id;
-                    const row = document.createElement('div');
-                    row.className = `product-row ${p.active ? '' : 'inactive'}`;
-                    row.innerHTML = `
-                        <img src="${p.image}" class="product-thumb" onerror="this.src='falafel.jpg'">
-                        <div class="product-meta">
-                            <h4>${p.name} ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}</h4>
-                            <p>${p.weight} • <strong>${p.price.toFixed(2)} lei</strong> • <em>${p.category === 'pizza' ? 'Pizza' : 'Kebab'}</em></p>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-action toggle" title="${p.active ? 'Dezactivează' : 'Activează'}" onclick="toggleProduct('${id}', ${p.active})">
-                                <i class="fas fa-${p.active ? 'eye' : 'eye-slash'}"></i>
-                            </button>
-                            <button class="btn-action delete" title="Șterge" onclick="deleteProduct('${id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                    const badges = [];
+                    if(p.onePlusOne) badges.push(`<span class="product-badge badge-red">1+1</span>`);
+                    if(p.discountPercent > 0) badges.push(`<span class="product-badge badge-red">-${p.discountPercent}%</span>`);
+                    if(p.badge) badges.push(`<span class="product-badge">${p.badge}</span>`);
+
+                    container.innerHTML += `
+                        <div class="product-row ${p.active ? '' : 'inactive'}">
+                            <img src="${p.image}" class="product-thumb" onerror="this.src='falafel.jpg'">
+                            <div class="product-meta">
+                                <h4>${p.name} ${badges.join(' ')}</h4>
+                                <p>${p.weight} • <strong style="color:var(--dark);">${p.price.toFixed(2)} lei</strong> 
+                                ${p.discountPercent > 0 ? `<s style="font-size:0.75rem;">${p.originalPrice.toFixed(2)} lei</s>` : ''}</p>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn-action edit" title="Editează" onclick="editProduct('${doc.id}')"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="btn-action toggle" onclick="db.collection('products').doc('${doc.id}').update({active: ${!p.active}})"><i class="fas fa-${p.active ? 'eye' : 'eye-slash'}"></i></button>
+                                <button class="btn-action delete" onclick="if(confirm('Ștergi produsul?')) db.collection('products').doc('${doc.id}').delete()"><i class="fas fa-trash"></i></button>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(row);
                 });
             });
         }
-
-        window.toggleProduct = function(id, currentStatus) {
-            db.collection('products').doc(id).update({ active: !currentStatus });
-        };
-
-        window.deleteProduct = function(id) {
-            if (confirm("Sigur dorești să elimini acest preparat?")) {
-                db.collection('products').doc(id).delete();
-            }
-        };
     </script>
 </body>
 </html>
