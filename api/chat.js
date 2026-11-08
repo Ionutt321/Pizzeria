@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+    // Permitem accesul frontend-ului la acest API
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,63 +14,76 @@ export default async function handler(req, res) {
         }
 
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
-        const userMessages = rawMessages.filter(m => m && m.role && m.content);
+        const currentMenu = body.currentMenu || "Meniu indisponibil.";
+        const storeRules = body.storeRules || "Reguli indisponibile.";
 
-        const currentMenu = body.currentMenu || "Eroare la citirea meniului.";
-        const storeRules = body.storeRules || "Regulile nu sunt setate.";
+        // Preia cheia GEMINI din Vercel
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: "Cheia GEMINI_API_KEY lipsește din Vercel." });
 
-        let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
-        if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
+        const PHONE_NUMBER = "40700000000"; // Înlocuiește cu numărul tău real
 
-        const PHONE_NUMBER = "40700000000"; 
+        // Instrucțiunile stricte pentru Gemini
+        const systemPrompt = `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română.
+INTERZIS: Nu folosi caractere speciale precum steluțe (**) sau diez (#) sub nicio formă. Scrie doar text simplu.
 
-        const systemPrompt = {
-            role: "system",
-            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română. 
-INTERZIS: Nu folosi caractere speciale precum steluțe (**) sau diez (#) pentru a îngroșa textul. Scrie doar text simplu și curat.
-
-ACESTA ESTE MENIUL DISPONIBIL ACUM PE SITE:
+ACESTA ESTE MENIUL CURENT (oferă doar ce este aici):
 ${currentMenu}
 
-REGULI DE PREȚ (FOARTE IMPORTANT):
-Prețurile pe care le vezi în lista de mai sus sunt PREȚURILE FINALE. NU aplica tu nicio reducere matematică. Dacă un client întreabă cât costă, îi spui exact prețul din listă. Dacă un produs are [PROMO: 1+1 GRATIS], menționează acest beneficiu clientului.
+REGULI DE PREȚ ȘI OFERTE (FOARTE IMPORTANT):
+Prețurile pe care le vezi în listă sunt prețuri finale. NU calcula nicio reducere procentuală suplimentară. Dacă un client întreabă de oferte, spune-i strict care produse au [PROMO: 1+1 GRATIS].
 
-REGULI LOGISTICE RESTAURANT:
+REGULI LOGISTICE:
 ${storeRules}
 
-REGULI CRITICE (RĂBDARE ȘI CONVERSAȚIE):
-1. NU CERE adresa sau metoda de plată la primele mesaje! Așteaptă să spună el ce vrea.
-2. ABIA la final, când clientul confirmă comanda, îi ceri politicos cele 4 lucruri de finalizare: Livrare/Ridicare, Adresa, Mentuni, Metoda plata.
+REGULI DE FINALIZARE:
+1. NU CERE detalii de livrare/plată la început. Răspunde doar la întrebări.
+2. ABIA la final, când clientul confirmă comanda (ex: "vreau asta"), cere: Livrare/Ridicare, Adresa, Mențiuni, Metoda de plată.
 
 ADĂUGAREA ÎN COȘ - MAGIC COMMAND:
 Dacă clientul cere să adaugi în coș, scrie OBLIGATORIU la sfârșitul mesajului tău codul: [ADAUGA: nume_produs]. 
-Exemplu: dacă clientul zice "Pune un falafel", tu scrii la final:
+Exemplu: dacă vrea un falafel, tu scrii la final:
 [ADAUGA: Falafel]
-Spune-i în text: "Am adăugat produsul în coșul tău de pe site."
+Spune-i natural în text: "Am adăugat produsul în coșul tău de pe site."
 
 BUTON WHATSAPP:
-Când aveți toate detaliile finale, generează butonul:
-<a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`
+Când ai toate datele finale, generează butonul:
+<a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`;
+
+        // Formatăm mesajele pentru formatul specific cerut de Gemini
+        const geminiMessages = rawMessages.map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }]
+        }));
+
+        // Structura payload-ului pentru REST API Gemini
+        const payload = {
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: geminiMessages,
+            generationConfig: {
+                temperature: 0.2 // Setăm creativitatea la un nivel foarte mic ca să fie strict și calculat
+            }
         };
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        // Apelăm endpoint-ul Google
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://vercel.app",
-                "X-Title": "Divino Assistant"
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ model: "openrouter/free", messages: [systemPrompt, ...userMessages] })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
-        if (!response.ok || data.error) return res.status(500).json({ error: data.error?.message || "Eroare OpenRouter" });
+        
+        if (!response.ok) {
+            return res.status(500).json({ error: data.error?.message || "Eroare la API-ul Google" });
+        }
 
-        const reply = data.choices?.[0]?.message?.content || "Eroare AI.";
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Eroare generare răspuns AI.";
         return res.status(200).json({ reply });
 
     } catch (error) {
-        return res.status(500).json({ error: `Eroare internă: ${error.message}` });
+        return res.status(500).json({ error: `Eroare internă backend: ${error.message}` });
     }
 }
