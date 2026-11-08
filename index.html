@@ -227,12 +227,16 @@
                     </div>
                 `;
 
-                const priceDisplay = (p.discountPercent > 0) 
-                    ? `<s style="color:#94a3b8; font-size:1rem; font-family:'Plus Jakarta Sans', sans-serif;">${p.originalPrice.toFixed(2)}</s> <span class="price" style="color:var(--danger);">${p.price.toFixed(2)} lei</span>` 
+                // LOGICA REPARATĂ: Dacă există discount > 0, arată prețul tăiat vechi + prețul nou roșu. Altfel, doar prețul normal.
+                const hasDiscount = parseFloat(p.discountPercent) > 0;
+                const priceDisplay = hasDiscount 
+                    ? `<s style="color:#94a3b8; font-size:1.1rem; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` 
                     : `<span class="price">${p.price.toFixed(2)} lei</span>`;
                 
                 let badgesArr = [];
-                if (p.onePlusOne) badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
+                // Asigurăm evaluarea booleană indiferent cum o dă baza de date
+                const is1Plus1 = (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true');
+                if (is1Plus1) badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
                 if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
                 const badgeHTML = badgesArr.length > 0 ? `<div class="badges-container">${badgesArr.join('')}</div>` : '';
 
