@@ -25,13 +25,36 @@
         .footer-schedule { margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: #cbd5e1; }
         .footer-schedule div { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .footer-schedule .today { font-weight: bold; color: white; }
+
+        /* Stil bara magazin închis - fixată sus, fără suprapunere peste navbar */
+        #store-closed-banner {
+            display: none;
+            background: #ef4444;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2500;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
+        }
+
+        #main-nav {
+            transition: top 0.2s ease;
+        }
     </style>
 </head>
 <body>
 
     <div id="intro-loader" class="intro-loader"><h1 class="loader-logo">Di'vino</h1></div>
 
-    <div id="store-closed-banner" style="display: none; background: #ef4444; color: white; text-align: center; padding: 12px; font-weight: bold; position: fixed; top: 0; width: 100%; z-index: 2000; font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div id="store-closed-banner">
         <i class="fas fa-exclamation-circle"></i> Momentan suntem închiși. Te așteptăm în timpul programului de funcționare!
     </div>
 
@@ -232,6 +255,26 @@
             }
         }
 
+        // Calculează poziția barei și coboară meniul automat fără suprapunere
+        function updateStoreBannerPosition() {
+            const closedBanner = document.getElementById('store-closed-banner');
+            const mainNav = document.getElementById('main-nav');
+            if (!closedBanner || !mainNav) return;
+
+            if (!window.storeIsOpen) {
+                closedBanner.style.display = 'block';
+                const bannerHeight = closedBanner.offsetHeight || 42;
+                mainNav.style.top = bannerHeight + 'px';
+                document.body.style.paddingTop = bannerHeight + 'px';
+            } else {
+                closedBanner.style.display = 'none';
+                mainNav.style.top = '0px';
+                document.body.style.paddingTop = '0px';
+            }
+        }
+
+        window.addEventListener('resize', updateStoreBannerPosition);
+
         db.collection('settings').doc('general').onSnapshot(doc => {
             if (doc.exists) {
                 const data = doc.data();
@@ -241,9 +284,7 @@
                 window.PACKAGING_TAX = data.packagingTax !== undefined ? data.packagingTax : 2.5;
                 
                 window.storeIsOpen = checkSchedule(data.schedule);
-                
-                const closedBanner = document.getElementById('store-closed-banner');
-                if (closedBanner) closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
+                updateStoreBannerPosition();
                 
                 window.dispatchEvent(new Event('cartUpdated'));
             }
