@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // 1. Efect Navbar la scroll
     const navbar = document.getElementById('main-nav');
     window.addEventListener('scroll', () => {
         if (navbar) {
@@ -9,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 2. Chatbot AI Toggle
     const chatWidget = document.getElementById('chatbot-widget');
     const chatHeader = document.getElementById('chat-toggle');
     const chatIcon = document.getElementById('chat-icon');
@@ -21,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 3. Chatbot AI Logică (Trimite către Vercel)
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send');
     const chatLogs = document.getElementById('chat-logs');
@@ -69,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (chatSendBtn) chatSendBtn.addEventListener('click', sendChatMessage);
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
 
-    // 4. Sidebar Coș Lateral
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
     const btnOpenCart = document.getElementById('cart-icon-btn');
@@ -79,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCloseCart) btnCloseCart.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
     if (cartOverlay) cartOverlay.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
 
-    // 5. Validare Coș (Curăță produsele șterse din baza de date)
     window.validateCart = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         let validCart = [];
@@ -98,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // 6. Gestiune Cantitate (+ / -)
     window.changeQtyDB = function(id, change) {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const index = cart.findIndex(i => i.id === id);
@@ -110,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // 7. Adăugare Produs
     window.addToCartDB = function(id, name, price, is1plus1, btnElement) {
         if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
         
@@ -133,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // 8. Sincronizare Butoane din Meniu cu Coșul (Afișează - 1 + dacă e deja în coș)
     window.syncMenuButtons = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         if (window.dbProductsList) {
@@ -161,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // 9. Actualizare UI Coș + Bon Fiscal HoReCa
     window.updateCartUI = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const container = document.getElementById('cart-items');
@@ -216,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // Citirea regulilor de livrare setate în Admin
         const deliveryCost = window.DELIVERY_COST !== undefined ? parseFloat(window.DELIVERY_COST) : 15;
         const threshold = window.FREE_DELIVERY_THRESHOLD !== undefined ? parseFloat(window.FREE_DELIVERY_THRESHOLD) : 100;
         const minOrder = window.MIN_ORDER !== undefined ? parseFloat(window.MIN_ORDER) : 50;
@@ -238,6 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const productSavings = subtotalOriginal - subtotalDiscounted;
         const totalSavings = productSavings + deliverySavings;
         
+        // Salvăm totalul curent pentru a-l folosi la finalizare
+        window.currentOrderTotal = totalToPay;
+        
         const countEl = document.getElementById('cart-count');
         if (countEl) countEl.textContent = totalItems;
         
@@ -257,7 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Randarea Bonului Fiscal
         const totalsContainer = document.getElementById('cart-totals-area');
         if (totalsContainer) {
             if (subtotalDiscounted > 0) {
@@ -284,13 +276,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Blocare checkout dacă nu se atinge comanda minimă
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
             if (subtotalDiscounted > 0 && subtotalDiscounted < minOrder) {
                 checkoutBtn.disabled = true;
                 checkoutBtn.style.opacity = '0.5';
                 checkoutBtn.textContent = `Comandă minimă: ${minOrder} lei`;
+            } else if (subtotalDiscounted === 0) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.opacity = '0.5';
+                checkoutBtn.textContent = 'Finalizați comanda';
             } else {
                 checkoutBtn.disabled = false;
                 checkoutBtn.style.opacity = '1';
@@ -307,7 +302,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     updateCartUI();
 
-    // 10. Pop-up Newsletter
     const popup = document.getElementById('newsletter-popup');
     const closePopupBtn = document.getElementById('close-popup');
     if (closePopupBtn) {
@@ -315,6 +309,112 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             popup.classList.remove('show');
             localStorage.setItem('newsletter_shown', 'true');
+        });
+    }
+
+    // --- LOGICA DE FINALIZARE COMANDĂ (CHECKOUT) ---
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutModal = document.getElementById('checkout-modal');
+    const closeCheckoutBtn = document.getElementById('close-checkout');
+    
+    const radioDelivery = document.getElementById('radio-delivery');
+    const radioTakeaway = document.getElementById('radio-takeaway');
+    const addressGroup = document.getElementById('address-group');
+    const orderAddress = document.getElementById('order-address');
+    
+    if (checkoutBtn && checkoutModal) {
+        checkoutBtn.addEventListener('click', () => {
+            if (!checkoutBtn.disabled) {
+                document.getElementById('cart-sidebar').classList.remove('active');
+                checkoutModal.classList.add('show');
+            }
+        });
+    }
+    
+    if (closeCheckoutBtn) {
+        closeCheckoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            checkoutModal.classList.remove('show');
+            document.getElementById('cart-sidebar').classList.add('active'); // Redeschide coșul dacă anulează
+        });
+    }
+
+    // Ascunde/Arată câmpul de adresă în funcție de tipul comenzii
+    if (radioDelivery && radioTakeaway) {
+        radioDelivery.addEventListener('change', () => {
+            addressGroup.style.display = 'block';
+            orderAddress.required = true;
+            window.dispatchEvent(new Event('cartUpdated')); // Recalculează cu livrare
+        });
+        radioTakeaway.addEventListener('change', () => {
+            addressGroup.style.display = 'none';
+            orderAddress.required = false;
+            // Dacă e ridicare personală, forțăm costul de livrare la 0 în background temporar
+            window.dispatchEvent(new Event('cartUpdated'));
+        });
+    }
+
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('btn-submit-order');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se procesează...';
+
+            let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+            
+            // Construim lista detaliată a produselor din coș
+            let orderItems = [];
+            cart.forEach(item => {
+                const dbItem = window.dbProductsList.find(p => p.id === item.id);
+                if (dbItem) {
+                    orderItems.push({
+                        id: dbItem.id,
+                        name: dbItem.name,
+                        price: dbItem.price,
+                        quantity: item.quantity,
+                        is1plus1: (dbItem.onePlusOne === true || String(dbItem.onePlusOne).toLowerCase() === 'true')
+                    });
+                }
+            });
+
+            // Colectăm datele clientului
+            const orderData = {
+                customerName: document.getElementById('order-name').value.trim(),
+                customerPhone: document.getElementById('order-phone').value.trim(),
+                orderType: document.querySelector('input[name="order-type"]:checked').value,
+                address: document.querySelector('input[name="order-type"]:checked').value === 'delivery' ? document.getElementById('order-address').value.trim() : 'Ridicare Personală (Takeaway)',
+                paymentMethod: document.getElementById('order-payment').value,
+                notes: document.getElementById('order-notes').value.trim(),
+                items: orderItems,
+                totalPrice: window.currentOrderTotal || 0,
+                status: 'new', // Statusul inițial în Admin
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                // Trimitem în Firebase
+                await db.collection('orders').add(orderData);
+                
+                // Golim coșul
+                localStorage.removeItem('divino_cart');
+                window.dispatchEvent(new Event('cartUpdated'));
+                
+                // Mesaj de succes
+                checkoutForm.innerHTML = `
+                    <div style="text-align:center; padding: 20px 0;">
+                        <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success); margin-bottom:15px;"></i>
+                        <h2 style="color:var(--dark);">Comanda a fost trimisă!</h2>
+                        <p style="color:#64748b; margin-top:10px;">Bucătăria noastră a preluat comanda. Vei fi contactat în scurt timp pentru confirmare.</p>
+                        <button onclick="document.getElementById('checkout-modal').classList.remove('show');" class="btn-primary" style="margin-top:20px; border-radius:12px; padding:12px 30px;">Închide</button>
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Eroare la trimiterea comenzii:", error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Eroare. Reîncearcă!';
+            }
         });
     }
 });
