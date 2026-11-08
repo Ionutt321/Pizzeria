@@ -14,32 +14,37 @@ export default async function handler(req, res) {
 
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
-        
-        // Primim meniul real din frontend
-        const currentMenu = body.currentMenu || 'Meniul nu este disponibil momentan.';
+
+        // Preia datele de la script.js (ofertele reale și regulile logistice)
+        const currentMenu = body.currentMenu || "Eroare la citirea meniului.";
+        const storeRules = body.storeRules || "Regulile nu sunt setate.";
 
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
         if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
 
-        const PHONE_NUMBER = "40700000000";
+        const PHONE_NUMBER = "40700000000"; 
 
         const systemPrompt = {
             role: "system",
-            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino. Răspunzi prietenos și scurt în română.
+            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română.
 
-ACESTA ESTE MENIUL CURENT ȘI PREȚURILE REALE (nu oferi produse care nu sunt pe această listă):
+ACESTA ESTE MENIUL DISPONIBIL ACUM PE SITE (cu tot cu oferte 1+1 sau Reduceri, dacã existã):
 ${currentMenu}
 
+REGULI LOGISTICE RESTAURANT:
+${storeRules}
+
+Dacă clientul întreabă de oferte, promoții sau reduceri, citește meniul de mai sus și spune-i strict produsele care au eticheta [PROMO: 1+1 GRATIS] sau [REDUCERE]. Răspunde-i și la întrebări despre cât costă livrarea folosind regulile logistice. Nu inventa oferte care nu apar în textul de mai sus.
+
 REGULI CRITICE (RĂBDARE ȘI CONVERSAȚIE):
-1. NU CERE adresa, detaliile, ridicarea sau metoda de plată la primele mesaje! Dacă clientul întreabă "ce meniu aveți?" sau "pot să scot salamul?", răspunde-i EXACT la întrebare și atât. Așteaptă să spună el ce vrea.
-2. ABIA la final, când clientul confirmă comanda (ex: "vreau asta"), îi ceri politicos cele 4 lucruri de finalizare: Livrare/Ridicare, Mențiuni, Metoda Plată.
+1. NU CERE adresa sau metoda de plată la primele mesaje! Așteaptă să spună el ce vrea.
+2. ABIA la final, când clientul confirmă comanda, îi ceri politicos cele 4 lucruri de finalizare.
 
 ADĂUGAREA ÎN COȘ - MAGIC COMMAND:
-Dacă clientul îți cere să îi "pui în coș", "adaugă", sau "vreau o...", trebuie SĂ SCRII OBLIGATORIU la sfârșitul mesajului tău un cod secret de forma [ADAUGA: nume_produs]. 
-Exemplu: dacă clientul zice "Pune o diavola și un falafel" (și diavola există în meniu), tu îi răspunzi politicos și la final de tot scrii:
-[ADAUGA: Pizza Diavola]
+Dacă clientul îți cere să îi "pui în coș", "adaugă", sau "vreau o...", trebuie SĂ SCRII OBLIGATORIU la sfârșitul mesajului tău codul: [ADAUGA: nume_produs]. 
+Exemplu: dacă clientul zice "Pune un falafel", tu scrii la final:
 [ADAUGA: Falafel]
-*Spune-i în textul normal:* "Am pregătit produsele! Le-am adăugat în coșul tău de pe site de unde poți finaliza."
+*Spune-i în textul normal:* "Am pregătit produsul! L-am adăugat în coșul tău de pe site de unde poți finaliza."
 
 BUTON WHATSAPP:
 Când aveți toate detaliile finale, generează butonul:
