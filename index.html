@@ -7,6 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
+        #checkout-modal .form-group input:focus, #checkout-modal .form-group textarea:focus, #checkout-modal .form-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(194,65,12,0.1); }
+        input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; }
         .footer-schedule { margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: #cbd5e1; }
         .footer-schedule div { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .footer-schedule .today { font-weight: bold; color: white; }
@@ -14,22 +16,15 @@
 </head>
 <body>
 
-    <!-- ANIMATIE LOADER -->
-    <div id="intro-loader" class="intro-loader">
-        <h1 class="loader-logo">Di'vino</h1>
-    </div>
+    <div id="intro-loader" class="intro-loader"><h1 class="loader-logo">Di'vino</h1></div>
 
     <div id="store-closed-banner" style="display: none; background: #ef4444; color: white; text-align: center; padding: 12px; font-weight: bold; position: fixed; top: 0; width: 100%; z-index: 2000; font-family: 'Plus Jakarta Sans', sans-serif;">
         <i class="fas fa-exclamation-circle"></i> Momentan suntem închiși. Te așteptăm în timpul programului de funcționare!
     </div>
 
-    <!-- Navbar -->
     <nav class="navbar" id="main-nav">
         <a href="#" class="logo">Di'vino</a>
-        <ul class="nav-links">
-            <li><a href="#hero" class="active">Acasă</a></li>
-            <li><a href="#meniu">Meniu</a></li>
-        </ul>
+        <ul class="nav-links"><li><a href="#hero" class="active">Acasă</a></li><li><a href="#meniu">Meniu</a></li></ul>
         <div class="nav-actions">
             <a href="tel:0700000000" class="call-btn"><i class="fas fa-phone-alt"></i> <span class="hide-mobile">0700 000 000</span></a>
             <button id="cart-icon-btn" class="cart-btn"><i class="fas fa-shopping-bag"></i> <span id="cart-count">0</span></button>
@@ -37,7 +32,6 @@
     </nav>
     <style>@media(max-width: 768px){ .hide-mobile { display:none; } .nav-links { display:none; } }</style>
 
-    <!-- HERO RESTABILIT -->
     <section id="hero" class="hero">
         <span class="hero-badge">Tradiție & Inovație</span>
         <h1>O NOUĂ<br><span>DIMENSIUNE</span><br>A GUSTULUI</h1>
@@ -45,38 +39,25 @@
         <a href="#meniu" class="btn-primary">Explorează Meniul</a>
     </section>
 
-    <!-- Rollercoaster Produse Firebase -->
     <section class="rollercoaster-section">
         <h2 class="rollercoaster-title">Specialitățile Noastre</h2>
         <div class="marquee-container">
-            <div class="marquee-content" id="rollercoaster-track">
-                <p style="text-align:center; width:100%; color: var(--dark);">Se încarcă deliciile...</p>
-            </div>
+            <div class="marquee-content" id="rollercoaster-track"><p style="text-align:center; width:100%; color: var(--dark);">Se încarcă deliciile...</p></div>
         </div>
     </section>
 
-    <!-- Meniu cu Tab-uri -->
     <section id="meniu" class="menu-section">
         <div class="section-title">
-            <h2>Meniul Di'vino</h2>
-            <p>Navighează prin categoriile noastre pentru a descoperi toate preparatele.</p>
+            <h2>Meniul Di'vino</h2><p>Navighează prin categoriile noastre pentru a descoperi toate preparatele.</p>
         </div>
         <div class="tabs-header">
             <button class="tab-btn active" onclick="switchTab('tab-kebab', this)"><i class="fas fa-drumstick-bite" style="color:var(--primary);"></i> Donner Kebab</button>
             <button class="tab-btn" onclick="switchTab('tab-pizza', this)"><i class="fas fa-pizza-slice" style="color:var(--primary);"></i> Pizza Artizanală</button>
         </div>
-        
-        <div class="tab-content active" id="tab-kebab">
-            <div class="menu-grid" id="menu-grid-kebab">
-                <p style="text-align:center; color:#64748b; grid-column:1/-1; font-family:'Plus Jakarta Sans', sans-serif;">Se încarcă...</p>
-            </div>
-        </div>
-        <div class="tab-content" id="tab-pizza">
-            <div class="menu-grid" id="menu-grid-pizza"></div>
-        </div>
+        <div class="tab-content active" id="tab-kebab"><div class="menu-grid" id="menu-grid-kebab"></div></div>
+        <div class="tab-content" id="tab-pizza"><div class="menu-grid" id="menu-grid-pizza"></div></div>
     </section>
 
-    <!-- Parteneri Livrare -->
     <section id="livrare" class="delivery-section">
         <div class="delivery-banner">
             <h2>Comandă Rapid la Tine Acasă</h2>
@@ -89,7 +70,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col">
@@ -102,7 +82,6 @@
                 <p><i class="fas fa-phone-alt" style="color:var(--primary); width:25px;"></i> 0700 000 000</p>
                 <p><i class="fas fa-envelope" style="color:var(--primary); width:25px;"></i> contact@divino.ro</p>
                 
-                <!-- Container pentru programul generat dinamic din Admin -->
                 <div class="footer-schedule" id="footer-schedule-container">
                     <p style="font-size:0.8rem; font-style:italic;">Se încarcă programul...</p>
                 </div>
@@ -120,29 +99,22 @@
         </div>
     </footer>
 
-    <!-- Chatbot Widget -->
     <div class="chatbot-widget" id="chatbot-widget">
         <div class="chat-header" id="chat-toggle">
-            <span><i class="fas fa-robot"></i> Asistent Di'vino</span>
-            <i class="fas fa-chevron-up" id="chat-icon"></i>
+            <span><i class="fas fa-robot"></i> Asistent Di'vino</span><i class="fas fa-chevron-up" id="chat-icon"></i>
         </div>
         <div class="chat-body">
-            <div class="chat-logs" id="chat-logs">
-                <div class="msg bot">Salut! Cu ce te pot ajuta astăzi? Putem plasa o comandă rapidă.</div>
-            </div>
+            <div class="chat-logs" id="chat-logs"><div class="msg bot">Salut! Cu ce te pot ajuta astăzi? Putem plasa o comandă rapidă.</div></div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Scrie aici mesajul tău...">
-                <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="chat-input" placeholder="Scrie aici mesajul tău..."><button id="chat-send"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar Coș Lateral -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
-            <h2>Coșul dvs.</h2>
-            <button id="close-cart" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--dark); transition:0.2s;"><i class="fas fa-times"></i></button>
+            <h2>Coșul dvs.</h2><button id="close-cart" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--dark); transition:0.2s;"><i class="fas fa-times"></i></button>
         </div>
         <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:12px; text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:700; display:none; border-bottom:1px solid var(--border);"></div>
         <div class="cart-items" id="cart-items"></div>
@@ -152,53 +124,22 @@
         </div>
     </div>
 
-    <!-- Pop-up Finalizare Comandă (Checkout) -->
     <div class="popup-overlay" id="checkout-modal">
         <div class="popup-box" style="max-width: 500px; text-align: left; padding: 30px;">
             <button class="close-popup" id="close-checkout">&times;</button>
             <h2 style="margin-bottom: 20px; text-align: center; color: var(--primary);">Finalizare Comandă</h2>
             <form id="checkout-form">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Nume și Prenume *</label>
-                    <input type="text" id="order-name" required placeholder="Numele tău complet" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
-                </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Telefon *</label>
-                    <input type="tel" id="order-phone" required placeholder="07XX XXX XXX" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
-                </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de preluare *</label>
-                    <div style="display: flex; gap: 15px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="order-type" value="delivery" checked id="radio-delivery"> Livrare
-                        </label>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="order-type" value="takeaway" id="radio-takeaway"> Ridicare personală
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group" id="address-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Adresă completă de livrare *</label>
-                    <textarea id="order-address" required placeholder="Strada, număr, bloc, scară, etaj, apartament, interfon..." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea>
-                </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de plată *</label>
-                    <select id="order-payment" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit;">
-                        <option value="Cash">Cash (Numerar la livrare/ridicare)</option>
-                        <option value="Card">Card Bancar (POS la locație/curier)</option>
-                        <option value="Edenred">Card Tichete de Masă (DOAR Edenred)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Mențiuni bucătărie (Opțional)</label>
-                    <textarea id="order-notes" placeholder="Ex: Fără ceapă, sosul separat, etc." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea>
-                </div>
+                <div class="form-group" style="margin-bottom: 15px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Nume și Prenume *</label><input type="text" id="order-name" required placeholder="Numele tău complet" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);"></div>
+                <div class="form-group" style="margin-bottom: 15px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Telefon *</label><input type="tel" id="order-phone" required placeholder="07XX XXX XXX" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);"></div>
+                <div class="form-group" style="margin-bottom: 15px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de preluare *</label><div style="display: flex; gap: 15px;"><label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="order-type" value="delivery" checked id="radio-delivery"> Livrare</label><label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="order-type" value="takeaway" id="radio-takeaway"> Ridicare personală</label></div></div>
+                <div class="form-group" id="address-group" style="margin-bottom: 15px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Adresă completă de livrare *</label><textarea id="order-address" required placeholder="Strada, număr, bloc, scară, etaj, apartament, interfon..." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea></div>
+                <div class="form-group" style="margin-bottom: 15px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de plată *</label><select id="order-payment" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit;"><option value="Cash">Cash (Numerar la livrare/ridicare)</option><option value="Card">Card Bancar (POS la curier/locație)</option><option value="Edenred">Card Tichete de Masă (DOAR Edenred)</option></select></div>
+                <div class="form-group" style="margin-bottom: 20px;"><label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Mențiuni bucătărie (Opțional)</label><textarea id="order-notes" placeholder="Ex: Fără ceapă, sosul separat, interfon stricat, etc." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea></div>
                 <button type="submit" class="btn-primary" id="btn-submit-order" style="width: 100%; border-radius: 12px; font-size: 1.1rem;">Trimite Comanda Ferma</button>
             </form>
         </div>
     </div>
 
-    <!-- Pop-up Newsletter -->
     <div class="popup-overlay" id="newsletter-popup">
         <div class="popup-box">
             <button class="close-popup" id="close-popup">&times;</button>
@@ -220,47 +161,45 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('intro-loader').classList.add('hidden');
-                if (!localStorage.getItem('newsletter_shown')) {
-                    setTimeout(() => { document.getElementById('newsletter-popup').classList.add('show'); }, 3000);
-                }
+                if (!localStorage.getItem('newsletter_shown')) { setTimeout(() => { document.getElementById('newsletter-popup').classList.add('show'); }, 3000); }
             }, 1200);
         });
 
         window.switchTab = function(tabId, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active'); document.getElementById(tabId).classList.add('active');
         };
 
         const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        window.FREE_DELIVERY_THRESHOLD = 100;
-        window.DELIVERY_COST = 15;
-        window.MIN_ORDER = 50;
-        window.PACKAGING_TAX = 2.5;
-        window.storeIsOpen = true;
-        window.dbProductsList = [];
-
+        window.FREE_DELIVERY_THRESHOLD = 100; window.DELIVERY_COST = 15; window.MIN_ORDER = 50; window.PACKAGING_TAX = 2.5; window.storeIsOpen = true; window.dbProductsList = [];
+        
         function checkSchedule(schedule) {
-            if (!schedule) return true;
-            const daysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const now = new Date();
-            const currentDayString = daysMap[now.getDay()];
-            const todaysSchedule = schedule[currentDayString];
-
+            const footerContainer = document.getElementById('footer-schedule-container');
+            const displayOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
             const roDays = { mon: "Luni", tue: "Marți", wed: "Miercuri", thu: "Joi", fri: "Vineri", sat: "Sâmbătă", sun: "Duminică" };
+            
+            const now = new Date();
+            const jsDaysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const currentDayString = jsDaysMap[now.getDay()];
+
+            if (!schedule) {
+                if (footerContainer) footerContainer.innerHTML = '<p style="font-size:0.9rem;">Programul nu a fost setat.</p>';
+                return true; 
+            }
+
             let footerHtml = '';
-            for(let key of daysMap.slice(1).concat(['sun'])) {
+            for(let key of displayOrder) {
                 const isToday = (key === currentDayString) ? 'class="today"' : '';
                 const hoursText = schedule[key] ? schedule[key] : 'Închis';
                 footerHtml += `<div ${isToday}><span>${roDays[key]}</span><span>${hoursText}</span></div>`;
             }
-            const footerContainer = document.getElementById('footer-schedule-container');
             if (footerContainer) footerContainer.innerHTML = footerHtml;
 
+            const todaysSchedule = schedule[currentDayString];
             if (!todaysSchedule || todaysSchedule.toLowerCase().includes('inchis') || todaysSchedule.toLowerCase().includes('închis')) return false;
             
             const times = todaysSchedule.split('-');
@@ -289,21 +228,13 @@
                 window.MIN_ORDER = data.minOrder !== undefined ? data.minOrder : 50;
                 window.PACKAGING_TAX = data.packagingTax !== undefined ? data.packagingTax : 2.5;
                 
-                const isAutomaticallyOpen = checkSchedule(data.schedule);
-                window.storeIsOpen = isAutomaticallyOpen;
+                window.storeIsOpen = checkSchedule(data.schedule);
                 
                 const closedBanner = document.getElementById('store-closed-banner');
-                const checkoutBtn = document.getElementById('checkout-btn');
-                if (closedBanner && checkoutBtn) {
-                    closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
-                    if(!window.storeIsOpen){
-                        checkoutBtn.style.opacity = '0.5';
-                        checkoutBtn.textContent = 'Suntem Închiși';
-                        checkoutBtn.disabled = true;
-                    } else {
-                        if (typeof updateCartUI === 'function') updateCartUI();
-                    }
-                }
+                if (closedBanner) closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
+                
+                // Forțăm coșul să se actualizeze când se schimbă statusul (închis/deschis)
+                window.dispatchEvent(new Event('cartUpdated'));
             }
         });
 
@@ -314,70 +245,37 @@
             if(!gridKebab || !gridPizza) return;
 
             gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
-            let rcHTML = '';
-            window.dbProductsList = [];
+            let rcHTML = ''; window.dbProductsList = [];
 
             snapshot.forEach(doc => {
                 const p = doc.data(); p.id = doc.id; window.dbProductsList.push(p);
+                rcHTML += `<div class="mini-card" onclick="document.getElementById('meniu').scrollIntoView({behavior: 'smooth'})"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}"><div class="mini-card-info"><h3>${p.name}</h3><span>${p.price.toFixed(2)} lei</span></div></div>`;
                 
-                rcHTML += `
-                    <div class="mini-card" onclick="document.getElementById('meniu').scrollIntoView({behavior: 'smooth'})">
-                        <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
-                        <div class="mini-card-info">
-                            <h3>${p.name}</h3>
-                            <span>${p.price.toFixed(2)} lei</span>
-                        </div>
-                    </div>
-                `;
-
                 const hasDiscount = parseFloat(p.discountPercent) > 0;
-                const priceDisplay = hasDiscount 
-                    ? `<s style="color:#94a3b8; font-size:1.1rem; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` 
-                    : `<span class="price">${p.price.toFixed(2)} lei</span>`;
+                const priceDisplay = hasDiscount ? `<s style="color:#94a3b8; font-size:1.1rem; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` : `<span class="price">${p.price.toFixed(2)} lei</span>`;
                 
                 let badgesArr = [];
-                const is1Plus1 = (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true');
-                if (is1Plus1) badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
+                if (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
                 if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
                 const badgeHTML = badgesArr.length > 0 ? `<div class="badges-container">${badgesArr.join('')}</div>` : '';
 
-                const cardHTML = `
-                    <div class="menu-card">
-                        <div class="card-img"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}">${badgeHTML}</div>
-                        <div class="card-info">
-                            <div>
-                                <h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; font-family:'Plus Jakarta Sans', sans-serif; text-transform:none;">${p.weight || ''}</span></h3>
-                                <p>${p.description}</p>
-                            </div>
-                            <div class="card-bottom">
-                                <div>${priceDisplay}</div>
-                                <div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                const cardHTML = `<div class="menu-card"><div class="card-img"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}">${badgeHTML}</div><div class="card-info"><div><h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; text-transform:none;">${p.weight || ''}</span></h3><p>${p.description}</p></div><div class="card-bottom"><div>${priceDisplay}</div><div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div></div></div></div>`;
                 if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
                 else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
-            
             if (track) track.innerHTML = rcHTML + rcHTML;
-            
             if (typeof validateCart === 'function') validateCart();
             if (typeof syncMenuButtons === 'function') syncMenuButtons();
             if (typeof updateCartUI === 'function') updateCartUI();
         });
 
         async function submitNewsletter(form, nume, phone, email) {
-            const btn = form.querySelector('button');
-            btn.disabled = true; btn.innerHTML = 'Se trimite...';
+            const btn = form.querySelector('button'); btn.disabled = true; btn.innerHTML = 'Se trimite...';
             try {
                 await db.collection('subscribers').add({ name: nume || 'Anonim', phone: phone, email: email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                form.innerHTML = '<h3 style="color:#10b981; margin: 15px 0; font-family:\'Cinzel\', serif;"><i class="fas fa-check-circle"></i> Mulțumim!</h3>';
-                localStorage.setItem('newsletter_shown', 'true');
-                setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 2500);
-            } catch(err) {
-                btn.disabled = false; btn.textContent = 'Eroare. Reîncearcă!';
-            }
+                form.innerHTML = '<h3 style="color:#10b981; margin: 15px 0;"><i class="fas fa-check-circle"></i> Mulțumim!</h3>';
+                localStorage.setItem('newsletter_shown', 'true'); setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 2500);
+            } catch(err) { btn.disabled = false; btn.textContent = 'Eroare. Reîncearcă!'; }
         }
         document.getElementById('popup-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value); });
         document.getElementById('footer-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value); });
