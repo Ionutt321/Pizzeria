@@ -1,46 +1,69 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Metoda nepermisă' });
-    }
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Doar cereri POST sunt permise' });
 
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        let body = req.body;
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch (e) { body = {}; }
+        }
 
-        const userMessages = req.body.messages;
-        const currentMenu = req.body.currentMenu || 'Meniul nu este disponibil momentan.';
+        const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
+        const userMessages = rawMessages.filter(m => m && m.role && m.content);
+        
+        // Primim meniul real din frontend
+        const currentMenu = body.currentMenu || 'Meniul nu este disponibil momentan.';
 
-        const systemPrompt = `Ești asistentul virtual al pizzeriei Di'vino din Brașov. 
-Răspunde scurt, prietenos și concis.
+        let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
+        if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
 
-Acesta este MENIUL NOSTRU CURENT DISPONIBIL: ${currentMenu}
-(Dacă un produs nu se află în lista de mai sus, înseamnă că NU îl avem, scuză-te politicos).
+        const PHONE_NUMBER = "40700000000";
 
-Dacă clientul vrea să adauge un preparat existent în coș, răspunde natural și adaugă la finalul mesajului tău textul: [ADAUGA: nume_produs]. 
-Exemplu: "Sigur, am adăugat pizza pentru tine! [ADAUGA: Pizza Diavola]"`;
+        const systemPrompt = {
+            role: "system",
+            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino. Răspunzi prietenos și scurt în română.
 
-        const chat = model.startChat({
-            history: [
-                {
-                    role: "user",
-                    parts: [{ text: systemPrompt }],
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Am înțeles, voi răspunde conform instrucțiunilor și voi oferi doar produsele din meniul disponibil." }],
-                }
-            ]
+ACESTA ESTE MENIUL CURENT ȘI PREȚURILE REALE (nu oferi produse care nu sunt pe această listă):
+${currentMenu}
+
+REGULI CRITICE (RĂBDARE ȘI CONVERSAȚIE):
+1. NU CERE adresa, detaliile, ridicarea sau metoda de plată la primele mesaje! Dacă clientul întreabă "ce meniu aveți?" sau "pot să scot salamul?", răspunde-i EXACT la întrebare și atât. Așteaptă să spună el ce vrea.
+2. ABIA la final, când clientul confirmă comanda (ex: "vreau asta"), îi ceri politicos cele 4 lucruri de finalizare: Livrare/Ridicare, Mențiuni, Metoda Plată.
+
+ADĂUGAREA ÎN COȘ - MAGIC COMMAND:
+Dacă clientul îți cere să îi "pui în coș", "adaugă", sau "vreau o...", trebuie SĂ SCRII OBLIGATORIU la sfârșitul mesajului tău un cod secret de forma [ADAUGA: nume_produs]. 
+Exemplu: dacă clientul zice "Pune o diavola și un falafel" (și diavola există în meniu), tu îi răspunzi politicos și la final de tot scrii:
+[ADAUGA: Pizza Diavola]
+[ADAUGA: Falafel]
+*Spune-i în textul normal:* "Am pregătit produsele! Le-am adăugat în coșul tău de pe site de unde poți finaliza."
+
+BUTON WHATSAPP:
+Când aveți toate detaliile finale, generează butonul:
+<a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`
+        };
+
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://vercel.app",
+                "X-Title": "Divino Assistant"
+            },
+            body: JSON.stringify({ model: "openrouter/free", messages: [systemPrompt, ...userMessages] })
         });
 
-        const lastMessage = userMessages[userMessages.length - 1].content;
-        const result = await chat.sendMessage(lastMessage);
-        const responseText = result.response.text();
+        const data = await response.json();
+        if (!response.ok || data.error) return res.status(500).json({ error: data.error?.message || "Eroare OpenRouter" });
 
-        return res.status(200).json({ reply: responseText });
+        const reply = data.choices?.[0]?.message?.content || "Eroare AI.";
+        return res.status(200).json({ reply });
+
     } catch (error) {
-        console.error("Eroare API:", error);
-        return res.status(500).json({ error: 'Eroare la procesarea cererii' });
+        return res.status(500).json({ error: `Eroare internă: ${error.message}` });
     }
 }
