@@ -4,6 +4,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Doar cereri POST sunt permise' });
 
     try {
         let body = req.body;
@@ -12,73 +13,80 @@ export default async function handler(req, res) {
         }
 
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
-        const currentMenu = body.currentMenu || "Meniu indisponibil.";
-        const storeRules = body.storeRules || "Reguli indisponibile.";
+        const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
-        // Preia cheia din Vercel
-        const apiKey = process.env.GEMINI_API_KEY;
-        
-        if (!apiKey) {
-            // Trimitem eroarea pe ecran ca să o vezi!
-            return res.status(200).json({ reply: "⚠️ EROARE VERCEL: Nu ai setat GEMINI_API_KEY în variabilele de mediu sau ai uitat să dai Redeploy din tab-ul Deployments." });
-        }
+        const currentMenu = body.currentMenu || "Meniul este momentan indisponibil.";
+        const storeRules = body.storeRules || "Regulile logistice nu sunt configurate.";
 
-        const PHONE_NUMBER = "40700000000"; // Pune numărul tău aici
+        let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
+        if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
 
-        const systemPrompt = `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română.
-INTERZIS: Nu folosi caractere speciale precum steluțe (**) sau diez (#) sub nicio formă. Scrie doar text simplu.
+        const PHONE_NUMBER = "40700000000"; // Înlocuiește cu numărul tău real
 
-ACESTA ESTE MENIUL CURENT (oferă doar ce este aici):
+        const systemPrompt = {
+            role: "system",
+            content: `Ești asistentul virtual inteligent pentru comenzi al restaurantului Di'vino din Brașov. Răspunzi politicos, prietenos și concis în limba română.
+
+INTERDICȚII STRICTE DE FORMATARE:
+- NU folosi sub nicio formă caractere Markdown: fără steluțe (** sau *), fără diez (#), fără liniuțe de listă sau paranteze ciudate.
+- Scrie doar text simplu, cursiv și curat, ușor de citit.
+
+DATE MENIU REALE ȘI ACTUALE:
 ${currentMenu}
 
-REGULI DE PREȚ ȘI OFERTE (FOARTE IMPORTANT):
-Prețurile pe care le vezi în listă sunt prețuri finale. NU calcula nicio reducere procentuală suplimentară. Dacă un client întreabă de oferte, spune-i strict care produse au [PROMO: 1+1 GRATIS].
+REGULI CRITICE PRIVIND PREȚURILE ȘI OFERTELE:
+1. Prețurile din lista de mai sus sunt PREȚURILE FINALE DE PLATĂ. Nu face niciun fel de scădere sau calcul matematic. Spune exact prețul specificat în listă.
+2. Dacă un preparat are mențiunea [PROMO: 1+1 GRATIS], explică-i clientului că la fiecare produs comandat primește încă unul gratuit din partea casei.
+3. Oferă clienților doar preparatele existente în lista de mai sus. Dacă cer ceva inexistent, anunță-i politicos că nu se află în meniu.
 
 REGULI LOGISTICE:
 ${storeRules}
 
-REGULI DE FINALIZARE:
-1. NU CERE detalii de livrare/plată la început. Răspunde doar la întrebări.
-2. ABIA la final, când clientul confirmă comanda (ex: "vreau asta"), cere: Livrare/Ridicare, Adresa, Mențiuni, Metoda de plată.
+FLUXUL CONVERSAȚIEI:
+1. Răspunde direct la întrebările clientului despre meniu, ingrediente sau oferte. Nu cere adresa sau metoda de plată la începutul discuției.
+2. Doar atunci când clientul este hotărât și finalizează comanda, solicită detaliile necesare: livrare la adresă sau ridicare personală, mențiuni pentru bucătărie și metoda de plată.
 
-ADĂUGAREA ÎN COȘ - MAGIC COMMAND:
-Dacă clientul cere să adaugi în coș, scrie OBLIGATORIU la sfârșitul mesajului tău codul: [ADAUGA: nume_produs]. 
-Exemplu: dacă vrea un falafel, tu scrii la final:
-[ADAUGA: Falafel]
-Spune-i natural în text: "Am adăugat produsul în coșul tău de pe site."
+COMANDA RAPIDĂ ÎN COȘ:
+Când clientul solicită să îi pui în coș sau să comande un produs existent, adaugă la sfârșitul mesajului tău comanda specială: [ADAUGA: Nume_Produs].
+Exemplu: [ADAUGA: Shaorma pui]
+În mesajul tău informează-l: "Am adăugat produsul în coșul tău de pe site. Poți verifica coșul oricând pentru a plasa comanda."
 
-BUTON WHATSAPP:
-Când ai toate datele finale, generează butonul:
-<a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`;
-
-        const geminiMessages = rawMessages.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }]
-        }));
-
-        const payload = {
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: geminiMessages,
-            generationConfig: { temperature: 0.2 }
+BUTONUL WHATSAPP:
+După ce comanda este stabilită complet, include butonul dedicat:
+<a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`
         };
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://vercel.app",
+                "X-Title": "Divino Assistant"
+            },
+            body: JSON.stringify({
+                model: "meta-llama/llama-3.1-8b-instruct:free",
+                messages: [systemPrompt, ...userMessages],
+                temperature: 0.3
+            })
         });
 
         const data = await response.json();
-        
-        if (!response.ok) {
-            // Trimitem eroarea exactă de la Google pe ecran
-            return res.status(200).json({ reply: `⚠️ EROARE GOOGLE: ${data.error?.message || 'Eroare necunoscută'}` });
+        if (!response.ok || data.error) {
+            return res.status(500).json({ error: data.error?.message || "Eroare OpenRouter" });
         }
 
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Nu am putut genera un răspuns.";
-        return res.status(200).json({ reply });
+        let rawReply = data.choices?.[0]?.message?.content || "Nu am putut procesa răspunsul.";
+
+        // Eliminăm automat orice steluță sau formatare markdown nedorită
+        const cleanReply = rawReply
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/#{1,6}\s?/g, '');
+
+        return res.status(200).json({ reply: cleanReply });
 
     } catch (error) {
-        return res.status(200).json({ reply: `⚠️ EROARE DE COD FRONTEND/BACKEND: ${error.message}` });
+        return res.status(500).json({ error: `Eroare internă: ${error.message}` });
     }
 }
