@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatLogs.innerHTML += `<div class="msg user">${text}</div>`;
         chatInput.value = '';
         chatLogs.scrollTop = chatLogs.scrollHeight; 
-
         messageHistory.push({ role: "user", content: text });
 
         const loadingId = 'load-' + Date.now();
@@ -39,29 +38,34 @@ document.addEventListener("DOMContentLoaded", () => {
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
         try {
-            // Trimitem CĂTRE Vercel și lista curentă de produse din DB
-            const availableProducts = window.dbProductsList.map(p => `${p.name} - ${p.price} lei`).join(', ');
+            // Trimitem CĂTRE AI lista de produse CU TOATE OFERTELE
+            const availableProducts = window.dbProductsList.map(p => {
+                let desc = `${p.name} - ${p.price.toFixed(2)} lei`;
+                if(p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') desc += ' [PROMO: 1+1 GRATIS]';
+                if(p.discountPercent > 0) desc += ` [REDUCERE ${p.discountPercent}%]`;
+                return desc;
+            }).join('; ');
+
+            const storeRules = `Comandă minimă: ${window.MIN_ORDER} lei. Livrare: ${window.DELIVERY_COST} lei (Gratuit peste ${window.FREE_DELIVERY_THRESHOLD} lei). Ambalaj: ${window.PACKAGING_TAX} lei/produs.`;
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     messages: messageHistory,
-                    currentMenu: availableProducts
+                    currentMenu: availableProducts,
+                    storeRules: storeRules
                 })
             });
             const data = await response.json();
-            
             document.getElementById(loadingId).remove();
             
             if (data.reply) {
                 let botReply = data.reply;
                 let addedItems = [];
 
-                // Verificăm dacă AI-ul vrea să adauge ceva
                 const addRegex = /\[ADAUGA:\s*(.+?)\]/gi;
                 let match;
-                
                 while ((match = addRegex.exec(botReply)) !== null) {
                     let itemName = match[1].trim().toLowerCase();
                     if (window.dbProductsList) {
@@ -95,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
             chatLogs.scrollTop = chatLogs.scrollHeight;
         } catch (err) {
             document.getElementById(loadingId).remove();
-            chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de conexiune server.</div>`;
+            chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de conexiune.</div>`;
             chatLogs.scrollTop = chatLogs.scrollHeight;
         }
     }
@@ -124,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             if (changed) {
                 localStorage.setItem('divino_cart', JSON.stringify(validCart));
-                window.dispatchEvent(new Event('cartUpdated')); 
             }
         }
     };
@@ -141,7 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     window.addToCartDB = function(id, name, price, is1plus1, btnElement) {
-        if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
+        if (typeof window.storeIsOpen !== 'undefined' && !window.storeIsOpen) {
+            alert("Magazinul este momentan închis! Te așteptăm în timpul programului.");
+            return;
+        }
         
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         let existingItem = cart.find(i => i.id === id);
@@ -197,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateCartUI = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const container = document.getElementById('cart-items');
-        
         let totalItems = 0; let subtotalOriginal = 0; let subtotalDiscounted = 0; 
         
         if (container) {
@@ -247,20 +252,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const orderTypeInput = document.querySelector('input[name="order-type"]:checked');
         const isTakeaway = orderTypeInput && orderTypeInput.value === 'takeaway';
 
-        if (isTakeaway) {
-            finalDelivery = 0; deliverySavings = 0;
-        } else {
-            if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
-                finalDelivery = 0; deliverySavings = deliveryCost;
-            } else if (subtotalDiscounted === 0) {
-                finalDelivery = 0; totalPackaging = 0;
-            }
+        if (isTakeaway) { finalDelivery = 0; deliverySavings = 0; } 
+        else {
+            if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) { finalDelivery = 0; deliverySavings = deliveryCost; } 
+            else if (subtotalDiscounted === 0) { finalDelivery = 0; totalPackaging = 0; }
         }
         
         const totalToPay = subtotalDiscounted + finalDelivery + totalPackaging;
         const productSavings = subtotalOriginal - subtotalDiscounted;
         const totalSavings = productSavings + deliverySavings;
-        
         window.currentOrderTotal = totalToPay;
         
         const countEl = document.getElementById('cart-count'); if (countEl) countEl.textContent = totalItems;
@@ -293,7 +293,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
-            if (subtotalDiscounted > 0 && subtotalDiscounted < minOrder) {
+            // Aici blocam plata daca e in afara orelor
+            if (typeof window.storeIsOpen !== 'undefined' && !window.storeIsOpen) {
+                checkoutBtn.disabled = true; checkoutBtn.style.opacity = '0.5'; checkoutBtn.textContent = 'Suntem Închiși';
+            } else if (subtotalDiscounted > 0 && subtotalDiscounted < minOrder) {
                 checkoutBtn.disabled = true; checkoutBtn.style.opacity = '0.5'; checkoutBtn.textContent = `Comandă minimă: ${minOrder} lei`;
             } else if (subtotalDiscounted === 0) {
                 checkoutBtn.disabled = true; checkoutBtn.style.opacity = '0.5'; checkoutBtn.textContent = 'Finalizați comanda';
@@ -308,8 +311,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof updateCartUI === 'function') updateCartUI(); 
         if (typeof syncMenuButtons === 'function') syncMenuButtons();
     });
-    
-    updateCartUI();
 
     const popup = document.getElementById('newsletter-popup');
     const closePopupBtn = document.getElementById('close-popup');
@@ -371,13 +372,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.removeItem('divino_cart');
                 window.dispatchEvent(new Event('cartUpdated'));
                 
-                // Am scos location.reload() care cauza ecranul alb!
                 checkoutForm.innerHTML = `
                     <div style="text-align:center; padding: 20px 0;">
                         <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success); margin-bottom:15px;"></i>
                         <h2 style="color:var(--dark);">Comanda a fost trimisă!</h2>
                         <p style="color:#64748b; margin-top:10px;">Bucătăria noastră a preluat comanda. Vei fi contactat în scurt timp pentru confirmare.</p>
-                        <button onclick="document.getElementById('checkout-modal').classList.remove('show'); document.body.style.overflow = 'auto';" class="btn-primary" style="margin-top:20px; border-radius:12px; padding:12px 30px;">Închide</button>
+                        <button type="button" onclick="document.getElementById('checkout-modal').classList.remove('show');" class="btn-primary" style="margin-top:20px; border-radius:12px; padding:12px 30px;">Închide</button>
                     </div>
                 `;
             } catch (error) {
