@@ -15,40 +15,51 @@ export default async function handler(req, res) {
         const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
         const userMessages = rawMessages.filter(m => m && m.role && m.content);
 
-        const currentMenu = body.currentMenu || "Eroare la citirea meniului.";
-        const storeRules = body.storeRules || "Regulile nu sunt setate.";
+        const currentMenu = body.currentMenu || "Meniul este momentan indisponibil.";
+        const storeRules = body.storeRules || "Regulile logistice nu sunt configurate.";
 
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
-        if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
+        if (!apiKey) {
+            return res.status(200).json({ reply: "Cheia OPENROUTER_API_KEY lipsește din setările Vercel." });
+        }
 
-        const PHONE_NUMBER = "40700000000"; 
+        const PHONE_NUMBER = "40700000000";
 
         const systemPrompt = {
             role: "system",
-            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română. 
-INTERZIS: Nu folosi caractere speciale precum steluțe (**) sau diez (#) pentru a îngroșa textul. Scrie doar text simplu și curat.
+            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi politicos, prietenos și scurt în limba română.
 
-ACESTA ESTE MENIUL DISPONIBIL ACUM PE SITE:
+INTERDICȚII STRICTE DE FORMAT:
+- NU folosi niciodată caractere Markdown: fără steluțe (** sau *), fără diez (#), fără ghilimele speciale. Scrie doar text simplu și curat.
+
+MENIUL ACTUAL ȘI OFERTE DISPONIBILE:
 ${currentMenu}
 
-REGULI DE PREȚ (FOARTE IMPORTANT):
-Prețurile pe care le vezi în lista de mai sus sunt PREȚURILE FINALE. NU aplica tu nicio reducere matematică. Dacă un client întreabă cât costă, îi spui exact prețul din listă. Dacă un produs are [PROMO: 1+1 GRATIS], menționează acest beneficiu clientului.
+REGULI PRIVIND PROMOȚIILE ȘI PREȚURILE:
+1. Când clientul întreabă de oferte, promoții sau reduceri, răspunde clar și complet:
+   - Menționează reducerile de preț active (arată prețul vechi și prețul redus).
+   - Menționează preparatele cu oferta 1+1 GRATIS (explică-i că la fiecare bucată comandată, mai primește una gratis).
+2. Prețul final de plată este întotdeauna cel redus specificat în listă. Nu inventa alte reduceri sau calcule matematice.
+3. Oferă DOAR preparatele existente în lista de mai sus. Dacă cere ceva ce nu e în listă, spune-i politicos că nu îl aveți în meniu.
 
-REGULI LOGISTICE RESTAURANT:
+GESTIUNE COȘ (COMENZI ASCUNSE PENTRU SITE):
+Când clientul cere să adaugi, să modifici sau să ștergi preparate, răspunde-i natural și scurt în text, iar la sfârșitul mesajului include comenzile speciale exacte (folosind denumirea exactă din meniu):
+- Pentru adăugare: [ADAUGA: Nume_Exact, Cantitate] (sau [ADAUGA: Nume_Exact] pentru 1 buc)
+- Pentru scădere: [SCADE: Nume_Exact, Cantitate] (sau [SCADE: Nume_Exact] pentru 1 buc)
+- Pentru eliminare completă: [STERGE: Nume_Exact]
+Exemple:
+- Client: "Pune o shaorma de pui și două porții de falafel" -> Răspuns: "Sigur, am adăugat o shaorma de pui și 2 porții de falafel în coș. [ADAUGA: Shaorma pui, 1] [ADAUGA: falafel, 2]"
+- Client: "Mai scade o shaorma" -> Răspuns: "Am redus o bucată din coș. [SCADE: Shaorma pui, 1]"
+- Client: "Scoate falafelul" -> Răspuns: "Am șters falafelul din coșul tău. [STERGE: falafel]"
+Aceste etichete din paranteze drepte vor fi curățate automat, așa că vorbește firesc.
+
+REGULI LOGISTICE:
 ${storeRules}
 
-REGULI CRITICE (RĂBDARE ȘI CONVERSAȚIE):
-1. NU CERE adresa sau metoda de plată la primele mesaje! Așteaptă să spună el ce vrea.
-2. ABIA la final, când clientul confirmă comanda, îi ceri politicos cele 4 lucruri de finalizare: Livrare/Ridicare, Adresa, Mentuni, Metoda plata.
-
-ADĂUGAREA ÎN COȘ - MAGIC COMMAND:
-Dacă clientul cere să adaugi în coș, scrie OBLIGATORIU la sfârșitul mesajului tău codul: [ADAUGA: nume_produs]. 
-Exemplu: dacă clientul zice "Pune un falafel", tu scrii la final:
-[ADAUGA: Falafel]
-Spune-i în text: "Am adăugat produsul în coșul tău de pe site."
-
-BUTON WHATSAPP:
-Când aveți toate detaliile finale, generează butonul:
+CONVERSAȚIE ȘI FINALIZARE:
+- Nu cere adresa sau metoda de plată la început. Discută întâi despre ce dorește să comande.
+- Doar la final, când clientul vrea să finalizeze, cere: Livrare sau Ridicare, Adresa, Mențiuni și Metoda de plată.
+- Când comanda este completă, generează butonul WhatsApp:
 <a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`
         };
 
@@ -60,16 +71,31 @@ Când aveți toate detaliile finale, generează butonul:
                 "HTTP-Referer": "https://vercel.app",
                 "X-Title": "Divino Assistant"
             },
-            body: JSON.stringify({ model: "openrouter/free", messages: [systemPrompt, ...userMessages] })
+            body: JSON.stringify({
+                model: "openrouter/free",
+                messages: [systemPrompt, ...userMessages],
+                temperature: 0.2
+            })
         });
 
         const data = await response.json();
-        if (!response.ok || data.error) return res.status(500).json({ error: data.error?.message || "Eroare OpenRouter" });
+        
+        if (!response.ok || data.error) {
+            return res.status(200).json({ reply: `Eroare OpenRouter: ${data.error?.message || "Serviciul gratuit este temporar indisponibil. Te rog reîncearcă."}` });
+        }
 
-        const reply = data.choices?.[0]?.message?.content || "Eroare AI.";
-        return res.status(200).json({ reply });
+        let rawReply = data.choices?.[0]?.message?.content || "Nu am putut genera un răspuns.";
+
+        // Curățare forțată Markdown
+        const cleanReply = rawReply
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/#{1,6}\s?/g, '')
+            .replace(/`/g, '');
+
+        return res.status(200).json({ reply: cleanReply });
 
     } catch (error) {
-        return res.status(500).json({ error: `Eroare internă: ${error.message}` });
+        return res.status(200).json({ reply: `Eroare server: ${error.message}` });
     }
 }
