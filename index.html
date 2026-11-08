@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EBGNG0B33R"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-EBGNG0B33R');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Di'vino | Experiență Culinară Premium</title>
@@ -256,12 +266,10 @@
                 const priceDisplay = hasDiscount ? `<s style="color:#94a3b8; font-size:1.1rem; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` : `<span class="price">${p.price.toFixed(2)} lei</span>`;
                 
                 let badgesArr = [];
-                // Afișăm separat etichetele pentru a putea apărea mai multe odată
                 if (hasDiscount) badgesArr.push(`<span class="badge-custom" style="background:#fee2e2; color:#b91c1c;">-${p.discountPercent}%</span>`);
                 if (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
                 if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
                 
-                // Div container pentru multiple etichete deasupra imaginii
                 const badgeHTML = badgesArr.length > 0 ? `<div style="position:absolute; top:10px; right:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-end;">${badgesArr.join('')}</div>` : '';
 
                 const cardHTML = `
