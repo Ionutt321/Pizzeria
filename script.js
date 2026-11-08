@@ -49,8 +49,36 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById(loadingId).remove();
             
             if (data.reply) {
-                chatLogs.innerHTML += `<div class="msg bot">${data.reply.replace(/\n/g, '<br>')}</div>`;
-                messageHistory.push({ role: "assistant", content: data.reply });
+                let botReply = data.reply;
+                let addedItems = [];
+
+                // INTERCEPTORUL MAGIC: Caută comenzile [ADAUGA: nume produs] lăsate de AI
+                const addRegex = /\[ADAUGA:\s*(.+?)\]/gi;
+                let match;
+                
+                while ((match = addRegex.exec(botReply)) !== null) {
+                    let itemName = match[1].trim().toLowerCase();
+                    // Caută produsul în baza de date ca să îl adauge real în coș
+                    if (window.dbProductsList) {
+                        let foundProduct = window.dbProductsList.find(p => p.name.toLowerCase().includes(itemName));
+                        if (foundProduct) {
+                            addToCartDB(foundProduct.id, foundProduct.name, foundProduct.price, foundProduct.onePlusOne ? 'true' : 'false');
+                            addedItems.push(foundProduct.name);
+                        }
+                    }
+                }
+
+                // Elimină tag-urile [ADAUGA:...] din vizualizarea utilizatorului
+                botReply = botReply.replace(/\[ADAUGA:\s*(.+?)\]/gi, '').trim();
+                botReply = botReply.replace(/\n/g, '<br>');
+
+                // Dacă AI-ul a adăugat ceva cu succes, afișăm o confirmare grafică frumoasă
+                if (addedItems.length > 0) {
+                    botReply += `<br><br><div style="color:var(--success); font-weight:bold; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Acțiune executată: S-au adăugat în coșul tău: ${addedItems.join(', ')}</div>`;
+                }
+
+                chatLogs.innerHTML += `<div class="msg bot">${botReply}</div>`;
+                messageHistory.push({ role: "assistant", content: botReply }); // Salvăm fără taguri
             } else {
                 chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de la asistent. Încearcă din nou.</div>`;
             }
@@ -95,9 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btnElement) {
             btnElement.classList.add('spin-green');
             btnElement.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => {
-                window.dispatchEvent(new Event('cartUpdated'));
-            }, 600);
+            setTimeout(() => { window.dispatchEvent(new Event('cartUpdated')); }, 600);
         } else {
              window.dispatchEvent(new Event('cartUpdated'));
         }
