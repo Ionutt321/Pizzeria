@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panou Administrare | Di'vino</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #c2410c; --dark: #0f172a; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
@@ -36,12 +36,14 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; }
+        .form-group textarea:focus, .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .file-upload-box { border: 2px dashed var(--border); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; background: #fafafa; }
         .img-preview { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid var(--border); }
 
         .btn-submit { width: 100%; background: var(--dark); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn-cancel { width: 100%; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; display: none; }
+        .btn-export { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: inherit; }
 
         .product-list { display: flex; flex-direction: column; gap: 12px; }
         .product-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; gap: 15px; }
@@ -58,27 +60,44 @@
         .subscribers-table th, .subscribers-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
         .subscribers-table th { background: #f1f5f9; color: #475569; font-weight: 700; }
 
+        /* Stiluri Comenzi */
         .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .order-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 4px solid var(--warning); }
+        .order-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 4px solid var(--warning); transition: all 0.2s ease; }
         .order-card.status-accepted { border-top-color: var(--success); }
-        .order-card.status-completed { border-top-color: #64748b; opacity: 0.7; }
+        .order-card.status-completed { border-top-color: #64748b; opacity: 0.75; }
+        .order-card.status-cancelled { border-top-color: var(--danger); background: #fff8f8; border-color: #fecaca; }
+        
         .order-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .order-id { font-weight: 800; color: var(--dark); font-size: 1.1rem; }
         .order-time { font-size: 0.85rem; color: #64748b; }
         .order-details { margin-bottom: 15px; font-size: 0.95rem; }
         .order-details strong { color: var(--dark); }
         .order-items { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
-        .order-actions { display: flex; gap: 10px; }
-        .btn-order { flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; }
+        .order-card.status-cancelled .order-items { background: #fee2e2; }
+
+        .order-actions { display: flex; flex-direction: column; gap: 8px; }
+        .order-actions-row { display: flex; gap: 8px; }
+        .btn-order { flex: 1; padding: 9px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; color: white; font-family: inherit; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s; }
         .btn-accept { background: var(--success); }
+        .btn-accept:hover { background: #059669; }
         .btn-print { background: var(--dark); }
+        .btn-print:hover { background: #334155; }
+        .btn-cancel-order { width: 100%; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .btn-cancel-order:hover { background: #fecaca; color: #991b1b; }
         
-        /* Tabel Program cu selectoare */
         .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .schedule-table td { padding: 6px 4px; vertical-align: middle; }
         .time-select { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; outline:none; }
         .btn-closed { background: #f1f5f9; color: var(--danger); border: 1px solid var(--border); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; width: 100%; transition: 0.2s;}
         .btn-closed.active { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* Pop-up Modal Anulare */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .modal-box { background: white; border-radius: 16px; width: 100%; max-width: 440px; padding: 25px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); text-align: left; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .modal-header h3 { font-size: 1.2rem; color: #991b1b; display: flex; align-items: center; gap: 8px; }
+        .modal-close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; line-height: 1; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -124,9 +143,7 @@
                         <h2><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> Program de Funcționare</h2>
                         <p style="font-size: 0.85rem; color:#64748b; margin-bottom:10px;">Alege ora de deschidere și închidere. Dacă nu lucrați într-o zi, apasă "Marcare Închis".</p>
                         
-                        <table class="schedule-table" id="schedule-table">
-                            <!-- Tabel generat de JS mai jos -->
-                        </table>
+                        <table class="schedule-table" id="schedule-table"></table>
                         
                         <h2 style="margin-top:20px;"><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Livrare</h2>
                         <div class="form-row">
@@ -174,7 +191,7 @@
         <div id="subs-tab" class="tab-section">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div><h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri</h2></div>
+                    <div><h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri (<span id="sub-badge-count">0</span>)</h2></div>
                     <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel</button>
                 </div>
                 <div style="overflow-x:auto;">
@@ -183,6 +200,25 @@
                         <tbody id="subs-table-body"><tr><td colspan="5" style="text-align:center; color:#94a3b8;">Se încarcă abonații...</td></tr></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Anulare Comandă -->
+    <div class="modal-overlay" id="cancel-order-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-ban"></i> Anulează Comanda <span id="modal-cancel-order-id"></span></h3>
+                <button class="modal-close-btn" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <p style="font-size:0.9rem; color:#64748b; margin-bottom:15px;">Ești sigur că vrei să anulezi această comandă? Poți introduce un comentariu / motiv mai jos (opțional):</p>
+            <div class="form-group">
+                <label style="font-weight:700; font-size:0.85rem; color:#475569;">Motiv Anulare / Mențiune internă:</label>
+                <textarea id="cancel-reason-input" rows="3" placeholder="Ex: Clientul nu răspunde la telefon / Lipsă stoc ingrediente / Anulată la cererea clientului..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-order" style="background:#64748b;" onclick="closeCancelModal()">Renunță</button>
+                <button class="btn-order" style="background:var(--danger);" id="btn-confirm-cancel" onclick="confirmCancelOrder()"><i class="fas fa-trash-alt"></i> Confirmă Anularea</button>
             </div>
         </div>
     </div>
@@ -214,7 +250,6 @@
             document.getElementById(tabId).classList.add('active'); btn.classList.add('active');
         };
 
-        // Generare Tabel Program cu Ceasuri
         const daysKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
         const daysNames = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică'];
         
@@ -246,49 +281,158 @@
             }
         };
 
+        // Gestiune Pop-up Anulare Comandă
+        let currentCancellingOrderId = null;
+
+        window.openCancelModal = function(id) {
+            currentCancellingOrderId = id;
+            document.getElementById('modal-cancel-order-id').textContent = '#' + id.slice(-5).toUpperCase();
+            document.getElementById('cancel-reason-input').value = '';
+            document.getElementById('cancel-order-modal').style.display = 'flex';
+        };
+
+        window.closeCancelModal = function() {
+            currentCancellingOrderId = null;
+            document.getElementById('cancel-order-modal').style.display = 'none';
+        };
+
+        window.confirmCancelOrder = async function() {
+            if (!currentCancellingOrderId) return;
+            const btn = document.getElementById('btn-confirm-cancel');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se anulează...';
+
+            const reason = document.getElementById('cancel-reason-input').value.trim() || 'Fără motiv specificat';
+
+            try {
+                await db.collection('orders').doc(currentCancellingOrderId).update({
+                    status: 'cancelled',
+                    cancelReason: reason,
+                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeCancelModal();
+            } catch (err) {
+                console.error("Eroare la anularea comenzii:", err);
+                alert("Nu am putut anula comanda. Reîncearcă!");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash-alt"></i> Confirmă Anularea';
+            }
+        };
+
         function listenOrders() {
             db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('orders-container');
                 const countBadge = document.getElementById('live-orders-count');
-                let activeOrdersCount = 0; let htmlContent = '';
+                let activeOrdersCount = 0; 
+                let htmlContent = '';
 
-                if (snapshot.empty) { container.innerHTML = '<p style="color:#94a3b8;">Nu aveți nicio comandă în acest moment.</p>'; countBadge.textContent = "0"; return; }
+                if (snapshot.empty) { 
+                    container.innerHTML = '<p style="color:#94a3b8;">Nu aveți nicio comandă în acest moment.</p>'; 
+                    countBadge.textContent = "0"; 
+                    return; 
+                }
 
                 snapshot.forEach(doc => {
-                    const order = doc.data(); const id = doc.id;
+                    const order = doc.data(); 
+                    const id = doc.id;
                     const time = order.createdAt ? order.createdAt.toDate().toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : 'Acum';
-                    if (order.status !== 'completed') activeOrdersCount++;
-
-                    let statusClass = ''; let statusText = 'Comandă Nouă';
-                    let actionButtons = `<button class="btn-order btn-accept" onclick="updateOrderStatus('${id}', 'accepted')"><i class="fas fa-check"></i> Acceptă</button><button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>`;
-
-                    if (order.status === 'accepted') {
-                        statusClass = 'status-accepted'; statusText = 'În Preparare';
-                        actionButtons = `<button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button><button class="btn-order btn-accept" style="background:#0284c7;" onclick="updateOrderStatus('${id}', 'completed')"><i class="fas fa-motorcycle"></i> Trimite (Finalizată)</button>`;
-                    } else if (order.status === 'completed') {
-                        statusClass = 'status-completed'; statusText = 'Comandă Finalizată';
-                        actionButtons = `<p style="text-align:center; width:100%; color:#64748b; font-weight:600; font-size:0.9rem;"><i class="fas fa-check-double"></i> Finalizată</p>`;
+                    
+                    // Numărăm doar comenzile care necesită atenție (nu sunt nici finalizate, nici anulate)
+                    if (order.status !== 'completed' && order.status !== 'cancelled') {
+                        activeOrdersCount++;
                     }
 
-                    let itemsHtml = order.items.map(item => `<div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;"><span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span><span>${(item.price * item.quantity).toFixed(2)} lei</span></div>`).join('');
-                    const orderTypeBadge = order.orderType === 'delivery' ? '<span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-motorcycle"></i> LIVRARE</span>' : '<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-walking"></i> RIDICARE</span>';
+                    let statusClass = ''; 
+                    let statusText = 'Comandă Nouă';
+                    let actionButtons = `
+                        <div class="order-actions-row">
+                            <button class="btn-order btn-accept" onclick="updateOrderStatus('${id}', 'accepted')"><i class="fas fa-check"></i> Acceptă</button>
+                            <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
+                        </div>
+                        <button class="btn-order btn-cancel-order" onclick="openCancelModal('${id}')"><i class="fas fa-times-circle"></i> Anulează Comanda</button>
+                    `;
+
+                    if (order.status === 'accepted') {
+                        statusClass = 'status-accepted'; 
+                        statusText = 'În Preparare';
+                        actionButtons = `
+                            <div class="order-actions-row">
+                                <button class="btn-order btn-accept" style="background:#0284c7;" onclick="updateOrderStatus('${id}', 'completed')"><i class="fas fa-motorcycle"></i> Finalizează</button>
+                                <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
+                            </div>
+                            <button class="btn-order btn-cancel-order" onclick="openCancelModal('${id}')"><i class="fas fa-times-circle"></i> Anulează Comanda</button>
+                        `;
+                    } else if (order.status === 'completed') {
+                        statusClass = 'status-completed'; 
+                        statusText = 'Comandă Finalizată';
+                        actionButtons = `
+                            <div class="order-actions-row">
+                                <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează Bon</button>
+                            </div>
+                            <p style="text-align:center; color:#64748b; font-weight:700; font-size:0.85rem; margin-top:4px;"><i class="fas fa-check-double" style="color:var(--success);"></i> Finalizată cu succes</p>
+                        `;
+                    } else if (order.status === 'cancelled') {
+                        statusClass = 'status-cancelled';
+                        statusText = 'Comandă Anulată';
+                        actionButtons = `
+                            <div style="background:#fee2e2; border-left:4px solid var(--danger); padding:8px 12px; border-radius:6px; font-size:0.85rem; color:#991b1b;">
+                                <strong><i class="fas fa-ban"></i> Comandă Anulată</strong>
+                                ${order.cancelReason ? `<div style="margin-top:3px; color:#7f1d1d;"><strong>Motiv:</strong> ${order.cancelReason}</div>` : ''}
+                            </div>
+                        `;
+                    }
+
+                    let itemsHtml = (order.items || []).map(item => `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;">
+                            <span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span>
+                            <span>${(item.price * item.quantity).toFixed(2)} lei</span>
+                        </div>
+                    `).join('');
+                    
+                    const orderTypeBadge = order.orderType === 'delivery' 
+                        ? '<span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-motorcycle"></i> LIVRARE</span>' 
+                        : '<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-walking"></i> RIDICARE</span>';
 
                     htmlContent += `
                         <div class="order-card ${statusClass}">
-                            <div class="order-header"><div><div class="order-id">#${id.slice(-5).toUpperCase()}</div><div class="order-time"><i class="far fa-clock"></i> ${time} - <span style="font-weight:600;">${statusText}</span></div></div><div>${orderTypeBadge}</div></div>
-                            <div class="order-details"><p><i class="fas fa-user" style="width:20px; color:#94a3b8;"></i> <strong>${order.customerName}</strong></p><p><i class="fas fa-phone-alt" style="width:20px; color:#94a3b8;"></i> <a href="tel:${order.customerPhone}" style="color:var(--primary); text-decoration:none;"><strong>${order.customerPhone}</strong></a></p>${order.orderType === 'delivery' ? `<p><i class="fas fa-map-marker-alt" style="width:20px; color:#94a3b8;"></i> ${order.address}</p>` : ''}<p style="margin-top:5px;"><i class="fas fa-wallet" style="width:20px; color:#94a3b8;"></i> Plată: <strong>${order.paymentMethod}</strong></p></div>
-                            <div class="order-items">${itemsHtml}<div style="display:flex; justify-content:space-between; margin-top:10px; font-weight:800; font-size:1.1rem; color:var(--dark);"><span>TOTAL BON:</span><span>${order.totalPrice.toFixed(2)} lei</span></div></div>
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-id">#${id.slice(-5).toUpperCase()}</div>
+                                    <div class="order-time"><i class="far fa-clock"></i> ${time} - <span style="font-weight:700;">${statusText}</span></div>
+                                </div>
+                                <div>${orderTypeBadge}</div>
+                            </div>
+                            <div class="order-details">
+                                <p><i class="fas fa-user" style="width:20px; color:#94a3b8;"></i> <strong>${order.customerName}</strong></p>
+                                <p><i class="fas fa-phone-alt" style="width:20px; color:#94a3b8;"></i> <a href="tel:${order.customerPhone}" style="color:var(--primary); text-decoration:none;"><strong>${order.customerPhone}</strong></a></p>
+                                ${order.orderType === 'delivery' ? `<p><i class="fas fa-map-marker-alt" style="width:20px; color:#94a3b8;"></i> ${order.address}</p>` : ''}
+                                <p style="margin-top:5px;"><i class="fas fa-wallet" style="width:20px; color:#94a3b8;"></i> Plată: <strong>${order.paymentMethod}</strong></p>
+                            </div>
+                            <div class="order-items">
+                                ${itemsHtml}
+                                <div style="display:flex; justify-content:space-between; margin-top:10px; font-weight:800; font-size:1.1rem; color:var(--dark);">
+                                    <span>TOTAL BON:</span><span>${(order.totalPrice || 0).toFixed(2)} lei</span>
+                                </div>
+                            </div>
                             ${order.notes ? `<div style="background:#fee2e2; border-left:4px solid var(--danger); padding:8px 12px; border-radius:4px; margin-bottom:15px; font-size:0.9rem;"><strong><i class="fas fa-exclamation-triangle"></i> Mențiuni client:</strong><br>${order.notes}</div>` : ''}
                             <div class="order-actions">${actionButtons}</div>
                         </div>
                     `;
                 });
-                container.innerHTML = htmlContent; countBadge.textContent = activeOrdersCount;
+                container.innerHTML = htmlContent; 
+                countBadge.textContent = activeOrdersCount;
             });
         }
 
-        window.updateOrderStatus = function(id, status) { db.collection('orders').doc(id).update({ status: status }); };
-        window.printOrder = function(id) { alert(`Conectare la imprimanta termică...`); window.print(); };
+        window.updateOrderStatus = function(id, status) { 
+            db.collection('orders').doc(id).update({ status: status }); 
+        };
+
+        window.printOrder = function(id) { 
+            alert(`Conectare la imprimanta termică...`); 
+            window.print(); 
+        };
 
         let currentBase64Image = "falafel.jpg";
         document.getElementById('p-file').addEventListener('change', (e) => {
@@ -431,8 +575,11 @@
         let subscribersList = [];
         function listenSubscribers() {
             db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
-                const tbody = document.getElementById('subs-table-body'); document.getElementById('sub-badge-count').textContent = snapshot.size;
-                subscribersList = []; if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>'; return; }
+                const tbody = document.getElementById('subs-table-body'); 
+                const countBadge = document.getElementById('sub-badge-count');
+                if (countBadge) countBadge.textContent = snapshot.size;
+                subscribersList = []; 
+                if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>'; return; }
                 tbody.innerHTML = '';
                 snapshot.forEach(doc => {
                     const sub = doc.data(); const id = doc.id; const date = sub.subscribedAt ? sub.subscribedAt.toDate().toLocaleDateString('ro-RO') : 'N/A';
@@ -441,6 +588,7 @@
                 });
             });
         }
+        
         window.exportSubscribersCSV = function() {
             if (subscribersList.length === 0) return alert("Nu există date!");
             let csv = "Nume,Telefon,Email,Data Inscriere\n";
