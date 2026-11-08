@@ -49,36 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById(loadingId).remove();
             
             if (data.reply) {
-                let botReply = data.reply;
-                let addedItems = [];
-
-                // INTERCEPTORUL MAGIC: Caută comenzile [ADAUGA: nume produs] lăsate de AI
-                const addRegex = /\[ADAUGA:\s*(.+?)\]/gi;
-                let match;
-                
-                while ((match = addRegex.exec(botReply)) !== null) {
-                    let itemName = match[1].trim().toLowerCase();
-                    // Caută produsul în baza de date ca să îl adauge real în coș
-                    if (window.dbProductsList) {
-                        let foundProduct = window.dbProductsList.find(p => p.name.toLowerCase().includes(itemName));
-                        if (foundProduct) {
-                            addToCartDB(foundProduct.id, foundProduct.name, foundProduct.price, foundProduct.onePlusOne ? 'true' : 'false');
-                            addedItems.push(foundProduct.name);
-                        }
-                    }
-                }
-
-                // Elimină tag-urile [ADAUGA:...] din vizualizarea utilizatorului
-                botReply = botReply.replace(/\[ADAUGA:\s*(.+?)\]/gi, '').trim();
-                botReply = botReply.replace(/\n/g, '<br>');
-
-                // Dacă AI-ul a adăugat ceva cu succes, afișăm o confirmare grafică frumoasă
-                if (addedItems.length > 0) {
-                    botReply += `<br><br><div style="color:var(--success); font-weight:bold; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Acțiune executată: S-au adăugat în coșul tău: ${addedItems.join(', ')}</div>`;
-                }
-
+                let botReply = data.reply.replace(/\n/g, '<br>');
                 chatLogs.innerHTML += `<div class="msg bot">${botReply}</div>`;
-                messageHistory.push({ role: "assistant", content: botReply }); // Salvăm fără taguri
+                messageHistory.push({ role: "assistant", content: data.reply }); 
             } else {
                 chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de la asistent. Încearcă din nou.</div>`;
             }
@@ -102,6 +75,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCloseCart) btnCloseCart.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
     if (cartOverlay) cartOverlay.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
 
+    // Funcția care scoate produsele fantezie din coș dacă nu mai sunt în DB
+    window.validateCart = function() {
+        let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+        let validCart = [];
+        let changed = false;
+        
+        if (window.dbProductsList && window.dbProductsList.length > 0) {
+            cart.forEach(item => {
+                const exists = window.dbProductsList.find(p => p.id === item.id);
+                if (exists) validCart.push(item);
+                else changed = true;
+            });
+            if (changed) localStorage.setItem('divino_cart', JSON.stringify(validCart));
+        }
+    };
+
     window.changeQtyDB = function(id, change) {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const index = cart.findIndex(i => i.id === id);
@@ -117,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
         
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
-        cart.push({ id: id, name: name, price: parseFloat(price), quantity: 1, is1plus1: is1plus1 === 'true' });
+        cart.push({ id: id, quantity: 1 }); // Salvăm strict ID-ul și cantitatea
         localStorage.setItem('divino_cart', JSON.stringify(cart));
         
         if (btnElement) {
@@ -165,7 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateCartUI = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const container = document.getElementById('cart-items');
-        let totalItems = 0, totalPrice = 0;
+        
+        let totalItems = 0;
+        let subtotalOriginal = 0; // Preț întreg (fără reducerea pe produs)
+        let subtotalDiscounted = 0; // Preț redus (de vânzare actual)
         
         if (container) {
             container.innerHTML = '';
@@ -173,41 +165,113 @@ document.addEventListener("DOMContentLoaded", () => {
                 container.innerHTML = '<div style="text-align:center; padding:50px 20px;"><i class="fas fa-shopping-basket" style="font-size:3.5rem; color:#cbd5e1; margin-bottom:20px;"></i><p style="color:#64748b; font-weight:600; font-family:\'Plus Jakarta Sans\', sans-serif;">Coșul este gol.</p></div>';
             } else {
                 cart.forEach((item) => {
-                    totalItems += item.quantity;
-                    totalPrice += item.price * item.quantity;
-                    const giftHTML = item.is1plus1 ? `<div style="color:var(--success); font-size:0.85rem; font-weight:800; margin-top:5px; font-family:\'Plus Jakarta Sans\', sans-serif;"><i class="fas fa-gift"></i> +${item.quantity} produs(e) GRATIS</div>` : '';
+                    const dbItem = window.dbProductsList ? window.dbProductsList.find(p => p.id === item.id) : null;
+                    
+                    if (dbItem) {
+                        totalItems += item.quantity;
+                        const itemPrice = dbItem.price;
+                        const itemOriginalPrice = dbItem.originalPrice || dbItem.price;
+                        
+                        subtotalOriginal += (itemOriginalPrice * item.quantity);
+                        subtotalDiscounted += (itemPrice * item.quantity);
+                        
+                        const hasDiscount = itemOriginalPrice > itemPrice;
+                        const priceHTML = hasDiscount 
+                            ? `<s style="color:#94a3b8; font-size:0.9rem; margin-right:5px;">${(itemOriginalPrice * item.quantity).toFixed(2)}</s> <span style="color:var(--danger); font-weight:800;">${(itemPrice * item.quantity).toFixed(2)} lei</span>`
+                            : `<span style="color:var(--primary); font-weight:800;">${(itemPrice * item.quantity).toFixed(2)} lei</span>`;
 
-                    container.innerHTML += `
-                        <div class="cart-item">
-                            <div style="flex:1;">
-                                <h4>${item.name}</h4>
-                                <p style="color:var(--primary); font-weight:800; font-family:\'Cinzel\', serif; font-size:1.1rem;">${(item.price * item.quantity).toFixed(2)} lei</p>
-                                ${giftHTML}
+                        const is1Plus1 = (dbItem.onePlusOne === true || String(dbItem.onePlusOne).toLowerCase() === 'true');
+                        const giftHTML = is1Plus1
+                            ? `<div style="color:var(--success); font-size:0.85rem; font-weight:800; margin-top:5px; font-family:\'Plus Jakarta Sans\', sans-serif;"><i class="fas fa-gift"></i> +${item.quantity} produs(e) GRATIS</div>` 
+                            : '';
+
+                        container.innerHTML += `
+                            <div class="cart-item">
+                                <div style="flex:1;">
+                                    <h4>${dbItem.name}</h4>
+                                    <div style="font-family:'Cinzel', serif; font-size:1.1rem; margin-top:3px;">
+                                        ${priceHTML}
+                                    </div>
+                                    ${giftHTML}
+                                </div>
+                                <div class="cart-controls">
+                                    <button onclick="changeQtyDB('${item.id}', -1)">-</button>
+                                    <span style="font-weight:800; width:22px; text-align:center; font-family:\'Plus Jakarta Sans\', sans-serif;">${item.quantity}</span>
+                                    <button onclick="changeQtyDB('${item.id}', 1)">+</button>
+                                </div>
                             </div>
-                            <div class="cart-controls">
-                                <button onclick="changeQtyDB('${item.id}', -1)">-</button>
-                                <span style="font-weight:800; width:22px; text-align:center; font-family:\'Plus Jakarta Sans\', sans-serif;">${item.quantity}</span>
-                                <button onclick="changeQtyDB('${item.id}', 1)">+</button>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
             }
         }
         
+        // Calcul Costuri Livrare și Total
+        const deliveryCost = window.DELIVERY_COST !== undefined ? parseFloat(window.DELIVERY_COST) : 15;
+        const threshold = window.FREE_DELIVERY_THRESHOLD !== undefined ? parseFloat(window.FREE_DELIVERY_THRESHOLD) : 100;
+        
+        let finalDelivery = deliveryCost;
+        let deliverySavings = 0;
+        
+        if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
+            finalDelivery = 0;
+            deliverySavings = deliveryCost;
+        } else if (subtotalDiscounted === 0) {
+            finalDelivery = 0; // Coș gol
+        }
+        
+        const totalToPay = subtotalDiscounted + finalDelivery;
+        const productSavings = subtotalOriginal - subtotalDiscounted;
+        const totalSavings = productSavings + deliverySavings;
+        
         const countEl = document.getElementById('cart-count');
-        const priceEl = document.getElementById('cart-total-price');
-        const msgArea = document.getElementById('free-delivery-msg');
-        
         if (countEl) countEl.textContent = totalItems;
-        if (priceEl) priceEl.textContent = `${totalPrice.toFixed(2)} lei`;
         
-        if(typeof window.FREE_DELIVERY_THRESHOLD !== 'undefined' && msgArea) {
-            const diff = window.FREE_DELIVERY_THRESHOLD - totalPrice;
-            msgArea.style.display = 'block';
-            if (totalPrice === 0) { msgArea.innerHTML = `Comandă de <strong>${window.FREE_DELIVERY_THRESHOLD} lei</strong> pt. livrare gratuită!`; msgArea.style.background = '#e0f2fe'; msgArea.style.color = '#0369a1'; }
-            else if (diff > 0) { msgArea.innerHTML = `Mai adaugă <strong>${diff.toFixed(2)} lei</strong> pt. livrare gratuită!`; msgArea.style.background = '#e0f2fe'; msgArea.style.color = '#0369a1'; }
-            else { msgArea.innerHTML = `🎉 <strong>Livrare gratuită</strong>!`; msgArea.style.background = '#dcfce7'; msgArea.style.color = '#166534'; }
+        const msgArea = document.getElementById('free-delivery-msg');
+        if (msgArea) {
+            const diff = threshold - subtotalDiscounted;
+            if (subtotalDiscounted === 0) { 
+                msgArea.style.display = 'none'; 
+            } else if (diff > 0) { 
+                msgArea.style.display = 'block';
+                msgArea.innerHTML = `Mai adaugă <strong>${diff.toFixed(2)} lei</strong> pt. livrare gratuită!`; 
+                msgArea.style.background = '#e0f2fe'; msgArea.style.color = '#0369a1'; 
+            } else { 
+                msgArea.style.display = 'block';
+                msgArea.innerHTML = `🎉 <strong>Livrare gratuită</strong>! Ai economisit ${deliveryCost.toFixed(2)} lei.`; 
+                msgArea.style.background = '#dcfce7'; msgArea.style.color = '#166534'; 
+            }
+        }
+
+        // Randează tot bonul detaliat în footer-ul coșului
+        const totalsContainer = document.getElementById('cart-totals-area');
+        if (totalsContainer) {
+            totalsContainer.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
+                    <span>Subtotal produse:</span>
+                    <span>${subtotalOriginal.toFixed(2)} lei</span>
+                </div>
+                ${productSavings > 0 ? `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:var(--danger); font-weight:bold;">
+                    <span>Reduceri produse:</span>
+                    <span>-${productSavings.toFixed(2)} lei</span>
+                </div>
+                ` : ''}
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
+                    <span>Cost livrare:</span>
+                    <span style="${finalDelivery === 0 && subtotalDiscounted > 0 ? 'text-decoration:line-through; color:var(--success); font-weight:bold;' : ''}">${deliveryCost.toFixed(2)} lei</span>
+                </div>
+                ${totalSavings > 0 ? `
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.95rem; color:var(--success); font-weight:800; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                    <span>Total economisit:</span>
+                    <span>${totalSavings.toFixed(2)} lei</span>
+                </div>
+                ` : '<div style="border-bottom:1px solid var(--border); margin-bottom:15px;"></div>'}
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:1.1rem; color:var(--dark);">Total de plată:</span>
+                    <span style="font-size:1.8rem; font-weight:800; font-family:'Cinzel', serif; color:var(--dark);">${totalToPay.toFixed(2)} lei</span>
+                </div>
+            `;
         }
     };
 
