@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #c2410c; --dark: #0f172a; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --success: #10b981; --danger: #ef4444; }
+        :root { --primary: #c2410c; --dark: #0f172a; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--dark); padding: 20px; }
 
@@ -17,7 +17,7 @@
         .auth-box input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 1.2rem; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
         .btn-auth { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
 
-        .admin-container { max-width: 1100px; margin: 0 auto; display: none; }
+        .admin-container { max-width: 1300px; margin: 0 auto; display: none; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; background: var(--card); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); }
         .header-title h1 { font-size: 1.8rem; }
         .status-toggle { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; }
@@ -28,16 +28,17 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        .admin-nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-        .tab-nav-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; }
+        .admin-nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 10px; overflow-x: auto; }
+        .tab-nav-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; white-space: nowrap; }
         .tab-nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .tab-section { display: none; }
         .tab-section.active { display: block; }
 
-        .admin-grid { display: grid; grid-template-columns: 420px 1fr; gap: 25px; }
-        @media (max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .admin-grid { display: grid; grid-template-columns: 450px 1fr; gap: 25px; }
+        @media (max-width: 950px) { .admin-grid { grid-template-columns: 1fr; } }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
         .card h2 { font-size: 1.25rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; }
@@ -47,22 +48,37 @@
 
         .btn-submit { width: 100%; background: var(--dark); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn-cancel { width: 100%; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; display: none; }
-        .btn-export { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
 
         .product-list { display: flex; flex-direction: column; gap: 12px; }
         .product-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; gap: 15px; }
         .product-row.inactive { opacity: 0.5; background: #f1f5f9; }
-        .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #e2e8f0; }
+        .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
         .product-meta h4 { font-size: 1rem; margin-bottom: 2px; }
         .product-meta p { font-size: 0.85rem; color: #64748b; }
-        .product-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 12px; font-weight: bold; background: #e0e7ff; color: #4338ca; }
+        .product-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 12px; font-weight: bold; }
         .badge-red { background: #fee2e2; color: #b91c1c; }
-        .product-actions { display: flex; gap: 6px; align-items: center; }
+        .product-actions { display: flex; gap: 6px; }
         .btn-action { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: all 0.2s; }
-        
+
         .subscribers-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .subscribers-table th, .subscribers-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
         .subscribers-table th { background: #f1f5f9; color: #475569; font-weight: 700; }
+
+        /* --- STILURI NOI PENTRU TAB-UL DE COMENZI LIVE --- */
+        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .order-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 4px solid var(--warning); }
+        .order-card.status-accepted { border-top-color: var(--success); }
+        .order-card.status-completed { border-top-color: #64748b; opacity: 0.7; }
+        .order-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .order-id { font-weight: 800; color: var(--dark); font-size: 1.1rem; }
+        .order-time { font-size: 0.85rem; color: #64748b; }
+        .order-details { margin-bottom: 15px; font-size: 0.95rem; }
+        .order-details strong { color: var(--dark); }
+        .order-items { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
+        .order-actions { display: flex; gap: 10px; }
+        .btn-order { flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; }
+        .btn-accept { background: var(--success); }
+        .btn-print { background: var(--dark); }
     </style>
 </head>
 <body>
@@ -81,7 +97,7 @@
         <header class="admin-header">
             <div class="header-title">
                 <h1>Di'vino Admin</h1>
-                <p>Gestionează meniul, livrarea și baza de date cu clienți</p>
+                <p>Panou central de gestiune HoReCa</p>
             </div>
             <div class="status-toggle">
                 <span id="store-status-text" style="font-weight: 600; font-size: 0.9rem;">Magazin Deschis</span>
@@ -93,14 +109,25 @@
         </header>
 
         <div class="admin-nav-tabs">
-            <button class="tab-nav-btn active" onclick="switchAdminTab('menu-tab', this)"><i class="fas fa-utensils"></i> Meniu & Setări Logistică</button>
-            <button class="tab-nav-btn" onclick="switchAdminTab('subs-tab', this)"><i class="fas fa-users"></i> Abonați (<span id="sub-badge-count">0</span>)</button>
+            <button class="tab-nav-btn active" onclick="switchAdminTab('orders-tab', this)"><i class="fas fa-bell"></i> Comenzi Live (<span id="live-orders-count">0</span>)</button>
+            <button class="tab-nav-btn" onclick="switchAdminTab('menu-tab', this)"><i class="fas fa-utensils"></i> Gestiune Meniu & Logistică</button>
+            <button class="tab-nav-btn" onclick="switchAdminTab('subs-tab', this)"><i class="fas fa-users"></i> CRM Clienți</button>
         </div>
 
-        <div id="menu-tab" class="tab-section active">
+        <!-- TAB 1: COMENZI LIVE -->
+        <div id="orders-tab" class="tab-section active">
+            <div class="card">
+                <h2><i class="fas fa-concierge-bell" style="color: var(--primary);"></i> Dispecerat Comenzi Noi</h2>
+                <div class="orders-grid" id="orders-container">
+                    <p style="color:#94a3b8;">Așteptăm comenzi noi...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: MENIU ȘI LOGISTICĂ -->
+        <div id="menu-tab" class="tab-section">
             <div class="admin-grid">
                 <div class="left-column">
-                    <!-- SETĂRI LOGISTICĂ NOU ADAUGATE -->
                     <div class="card">
                         <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Livrare & Ambalaje</h2>
                         <div class="form-row">
@@ -199,6 +226,7 @@
             </div>
         </div>
 
+        <!-- TAB 3: CRM CLIENTI -->
         <div id="subs-tab" class="tab-section">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -237,7 +265,7 @@
                 loadSettings(); 
                 listenProducts(); 
                 listenSubscribers();
-                listenOrders(); // APELĂM FUNCȚIA NOUĂ DE COMENZI
+                listenOrders(); // Apelăm funcția de comenzi live
             } else {
                 document.getElementById('auth-err').style.display = 'block';
                 document.getElementById('pin-input').value = '';
@@ -253,33 +281,10 @@
             btn.classList.add('active');
         };
 
-        let currentBase64Image = "falafel.jpg";
-        document.getElementById('p-file').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width, height = img.height;
-                    if (width > 800) { height = (height * 800) / width; width = 800; }
-                    canvas.width = width; canvas.height = height;
-                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
-                    document.getElementById('p-preview').src = currentBase64Image;
-                    document.getElementById('p-preview').style.display = 'block';
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
         // -----------------------------------------------------
-        // NOU: LOGICA DE ASCULTARE ȘI AFIȘARE A COMENZILOR LIVE
+        // LOGICA PENTRU AFIȘARE COMPOZIȚIE COMENZI LIVE
         // -----------------------------------------------------
         function listenOrders() {
-            // Ascultăm colecția 'orders', ordonate de la cea mai nouă la cea mai veche
             db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('orders-container');
                 const countBadge = document.getElementById('live-orders-count');
@@ -298,12 +303,8 @@
                     const id = doc.id;
                     const time = order.createdAt ? order.createdAt.toDate().toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : 'Acum';
                     
-                    // Contorizăm doar comenzile care NU sunt finalizate
-                    if (order.status !== 'completed') {
-                        activeOrdersCount++;
-                    }
+                    if (order.status !== 'completed') activeOrdersCount++;
 
-                    // Culori și texte dinamice în funcție de status
                     let statusClass = '';
                     let statusText = 'Comandă Nouă';
                     let actionButtons = `
@@ -324,7 +325,7 @@
                         actionButtons = `<p style="text-align:center; width:100%; color:#64748b; font-weight:600; font-size:0.9rem;"><i class="fas fa-check-double"></i> Finalizată</p>`;
                     }
 
-                    // Generare lista produse pentru card
+                    // Iterăm produsele din coșul trimis
                     let itemsHtml = order.items.map(item => `
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;">
                             <span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span>
@@ -356,7 +357,7 @@
                             <div class="order-items">
                                 ${itemsHtml}
                                 <div style="display:flex; justify-content:space-between; margin-top:10px; font-weight:800; font-size:1.1rem; color:var(--dark);">
-                                    <span>TOTAL:</span>
+                                    <span>TOTAL BON:</span>
                                     <span>${order.totalPrice.toFixed(2)} lei</span>
                                 </div>
                             </div>
@@ -377,25 +378,41 @@
 
                 container.innerHTML = htmlContent;
                 countBadge.textContent = activeOrdersCount;
-                
-                // Opțional: Redare sunet dacă e comandă nouă
-                if (activeOrdersCount > 0) {
-                    // console.log("Ai comenzi noi de procesat!");
-                }
             });
         }
 
         window.updateOrderStatus = function(id, status) {
-            db.collection('orders').doc(id).update({
-                status: status
-            });
+            db.collection('orders').doc(id).update({ status: status });
         };
 
         window.printOrder = function(id) {
-            alert(`Sistemul se conectează la imprimanta termică pentru comanda #${id.slice(-5).toUpperCase()}... (Funcționalitate în dezvoltare pt. conectare ESC/POS)`);
-            window.print(); // Deschide meniul standard de printare al browserului
+            alert(`Sistemul se conectează la imprimanta termică pentru comanda #${id.slice(-5).toUpperCase()}...`);
+            window.print();
         };
+
         // -----------------------------------------------------
+
+        let currentBase64Image = "falafel.jpg";
+        document.getElementById('p-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width, height = img.height;
+                    if (width > 800) { height = (height * 800) / width; width = 800; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
+                    document.getElementById('p-preview').src = currentBase64Image;
+                    document.getElementById('p-preview').style.display = 'block';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
 
         function loadSettings() {
             db.collection('settings').doc('general').onSnapshot(doc => {
@@ -562,6 +579,6 @@
             link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `abonati_divino.csv`; link.click();
         };
-           </script>
+    </script>
 </body>
 </html>
