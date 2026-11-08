@@ -58,7 +58,6 @@
         .subscribers-table th, .subscribers-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
         .subscribers-table th { background: #f1f5f9; color: #475569; font-weight: 700; }
 
-        /* Stiluri pentru Comenzi Live */
         .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .order-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 4px solid var(--warning); }
         .order-card.status-accepted { border-top-color: var(--success); }
@@ -74,10 +73,12 @@
         .btn-accept { background: var(--success); }
         .btn-print { background: var(--dark); }
         
-        /* Tabel Program */
+        /* Tabel Program cu selectoare */
         .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .schedule-table td { padding: 8px 5px; }
-        .schedule-table input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        .schedule-table td { padding: 6px 4px; vertical-align: middle; }
+        .time-select { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; outline:none; }
+        .btn-closed { background: #f1f5f9; color: var(--danger); border: 1px solid var(--border); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; width: 100%; transition: 0.2s;}
+        .btn-closed.active { background: var(--danger); color: white; border-color: var(--danger); }
     </style>
 </head>
 <body>
@@ -109,54 +110,32 @@
             <button class="tab-nav-btn" onclick="switchAdminTab('subs-tab', this)"><i class="fas fa-users"></i> CRM Clienți</button>
         </div>
 
-        <!-- TAB 1: COMENZI LIVE -->
         <div id="orders-tab" class="tab-section active">
             <div class="card">
                 <h2><i class="fas fa-concierge-bell" style="color: var(--primary);"></i> Dispecerat Comenzi Noi</h2>
-                <div class="orders-grid" id="orders-container">
-                    <p style="color:#94a3b8;">Așteptăm comenzi noi...</p>
-                </div>
+                <div class="orders-grid" id="orders-container"><p style="color:#94a3b8;">Așteptăm comenzi noi...</p></div>
             </div>
         </div>
 
-        <!-- TAB 2: MENIU ȘI LOGISTICĂ -->
         <div id="menu-tab" class="tab-section">
             <div class="admin-grid">
                 <div class="left-column">
-                    <!-- PROGRAMUL PE ZILE -->
                     <div class="card">
                         <h2><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> Program de Funcționare</h2>
-                        <p style="font-size: 0.85rem; color:#64748b; margin-bottom:10px;">Scrie orarul (ex: 10:00 - 23:00). Lasă gol sau scrie "Închis" dacă nu lucrați. Site-ul se va închide automat în afara orelor scrise aici.</p>
-                        <table class="schedule-table">
-                            <tr><td style="width:100px;"><strong>Luni</strong></td><td><input type="text" id="sch-mon" placeholder="ex: 10:00 - 23:00"></td></tr>
-                            <tr><td><strong>Marți</strong></td><td><input type="text" id="sch-tue" placeholder="ex: 10:00 - 23:00"></td></tr>
-                            <tr><td><strong>Miercuri</strong></td><td><input type="text" id="sch-wed" placeholder="ex: 10:00 - 23:00"></td></tr>
-                            <tr><td><strong>Joi</strong></td><td><input type="text" id="sch-thu" placeholder="ex: 10:00 - 23:00"></td></tr>
-                            <tr><td><strong>Vineri</strong></td><td><input type="text" id="sch-fri" placeholder="ex: 10:00 - 23:00"></td></tr>
-                            <tr><td><strong>Sâmbătă</strong></td><td><input type="text" id="sch-sat" placeholder="ex: 12:00 - 24:00"></td></tr>
-                            <tr><td><strong>Duminică</strong></td><td><input type="text" id="sch-sun" placeholder="ex: 12:00 - 23:00"></td></tr>
+                        <p style="font-size: 0.85rem; color:#64748b; margin-bottom:10px;">Alege ora de deschidere și închidere. Dacă nu lucrați într-o zi, apasă "Marcare Închis".</p>
+                        
+                        <table class="schedule-table" id="schedule-table">
+                            <!-- Tabel generat de JS mai jos -->
                         </table>
                         
                         <h2 style="margin-top:20px;"><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Livrare</h2>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Prag Livrare Gratuită</label>
-                                <input type="number" id="setting-free-delivery" value="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Cost Livrare Standard</label>
-                                <input type="number" id="setting-delivery-cost" value="15">
-                            </div>
+                            <div class="form-group"><label>Prag Livrare Gratuită</label><input type="number" id="setting-free-delivery" value="100"></div>
+                            <div class="form-group"><label>Cost Livrare Standard</label><input type="number" id="setting-delivery-cost" value="15"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Comandă Minimă</label>
-                                <input type="number" id="setting-min-order" value="50">
-                            </div>
-                            <div class="form-group">
-                                <label>Taxă Ambalaj/Cutie</label>
-                                <input type="number" step="0.5" id="setting-packaging" value="2.5">
-                            </div>
+                            <div class="form-group"><label>Comandă Minimă</label><input type="number" id="setting-min-order" value="50"></div>
+                            <div class="form-group"><label>Taxă Ambalaj/Cutie</label><input type="number" step="0.5" id="setting-packaging" value="2.5"></div>
                         </div>
                         <button class="btn-submit" onclick="saveSettings()">Salvează Programul & Livrarea</button>
                     </div>
@@ -164,61 +143,21 @@
                     <div class="card">
                         <h2 id="form-title"><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Adaugă Produs Nou</h2>
                         <form id="add-product-form">
-                            <div class="form-group">
-                                <label>Denumire Preparat</label>
-                                <input type="text" id="p-name" placeholder="ex: Pizza Prosciutto" required>
+                            <div class="form-group"><label>Denumire Preparat</label><input type="text" id="p-name" required></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Categorie</label><select id="p-cat"><option value="kebab">Donner Kebab</option><option value="pizza">Pizza Artizanală</option></select></div>
+                                <div class="form-group"><label>Cantitate / Volum</label><div style="display: flex; gap: 5px;"><input type="number" id="p-weight-val" required style="flex:1;"><select id="p-weight-unit" style="width: 70px;"><option value="g">g</option><option value="ml">ml</option><option value="kg">kg</option><option value="l">l</option></select></div></div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label>Categorie</label>
-                                    <select id="p-cat">
-                                        <option value="kebab">Donner Kebab</option>
-                                        <option value="pizza">Pizza Artizanală</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Cantitate / Volum</label>
-                                    <div style="display: flex; gap: 5px;">
-                                        <input type="number" id="p-weight-val" placeholder="ex: 450" required style="flex:1;">
-                                        <select id="p-weight-unit" style="width: 70px;">
-                                            <option value="g">g</option>
-                                            <option value="ml">ml</option>
-                                            <option value="kg">kg</option>
-                                            <option value="l">l</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Preț Standard (RON)</label>
-                                    <input type="number" step="0.5" id="p-price" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Reducere (%)</label>
-                                    <input type="number" id="p-discount" value="0" min="0" max="99">
-                                </div>
+                                <div class="form-group"><label>Preț Standard (RON)</label><input type="number" step="0.5" id="p-price" required></div>
+                                <div class="form-group"><label>Reducere (%)</label><input type="number" id="p-discount" value="0" min="0" max="99"></div>
                             </div>
                             <div class="form-row" style="margin-bottom:16px;">
-                                <div class="form-group" style="margin:0; display:flex; align-items:center; gap:8px;">
-                                    <input type="checkbox" id="p-1plus1" style="width:22px; height:22px; accent-color:var(--danger);">
-                                    <label style="margin:0; font-size:0.95rem; color:var(--danger); font-weight:bold;">1+1 GRATIS</label>
-                                </div>
-                                <div class="form-group" style="margin:0;">
-                                    <input type="text" id="p-badge" placeholder="Etichetă (ex: NOU)">
-                                </div>
+                                <div class="form-group" style="margin:0; display:flex; align-items:center; gap:8px;"><input type="checkbox" id="p-1plus1" style="width:22px; height:22px; accent-color:var(--danger);"><label style="margin:0; font-size:0.95rem; color:var(--danger); font-weight:bold;">1+1 GRATIS</label></div>
+                                <div class="form-group" style="margin:0;"><input type="text" id="p-badge" placeholder="Etichetă (ex: NOU)"></div>
                             </div>
-                            <div class="form-group">
-                                <label>Imagine Produs</label>
-                                <div class="file-upload-box">
-                                    <input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;">
-                                </div>
-                                <img id="p-preview" class="img-preview" alt="Previzualizare">
-                            </div>
-                            <div class="form-group">
-                                <label>Descriere Ingrediente</label>
-                                <textarea id="p-desc" rows="3" required></textarea>
-                            </div>
+                            <div class="form-group"><label>Imagine Produs</label><div class="file-upload-box"><input type="file" id="p-file" accept="image/*" style="display: block; width: 100%; cursor: pointer;"></div><img id="p-preview" class="img-preview"></div>
+                            <div class="form-group"><label>Descriere Ingrediente</label><textarea id="p-desc" rows="3" required></textarea></div>
                             <button type="submit" class="btn-submit" id="btn-submit-form"><i class="fas fa-save"></i> Salvează în Meniu</button>
                             <button type="button" class="btn-cancel" id="btn-cancel-edit" onclick="cancelEdit()">Anulează Editarea</button>
                         </form>
@@ -227,30 +166,21 @@
 
                 <div class="card">
                     <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Meniu Curent (<span id="count-items">0</span>)</h2>
-                    <div class="product-list" id="products-container">
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă...</p>
-                    </div>
+                    <div class="product-list" id="products-container"><p style="color: #94a3b8; font-size: 0.9rem;">Se încarcă...</p></div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: CRM CLIENTI -->
         <div id="subs-tab" class="tab-section">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div>
-                        <h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri</h2>
-                    </div>
-                    <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel (CSV)</button>
+                    <div><h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri</h2></div>
+                    <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel</button>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="subscribers-table">
-                        <thead>
-                            <tr><th>Nume</th><th>Telefon</th><th>Email</th><th>Data Înscrierii</th><th>Acțiuni</th></tr>
-                        </thead>
-                        <tbody id="subs-table-body">
-                            <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Se încarcă abonații...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Nume</th><th>Telefon</th><th>Email</th><th>Data Înscrierii</th><th>Acțiuni</th></tr></thead>
+                        <tbody id="subs-table-body"><tr><td colspan="5" style="text-align:center; color:#94a3b8;">Se încarcă abonații...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -270,10 +200,9 @@
             if (document.getElementById('pin-input').value === ADMIN_PIN) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-                loadSettings(); listenProducts(); listenSubscribers(); listenOrders();
+                renderScheduleTable(); loadSettings(); listenProducts(); listenSubscribers(); listenOrders();
             } else {
-                document.getElementById('auth-err').style.display = 'block';
-                document.getElementById('pin-input').value = '';
+                document.getElementById('auth-err').style.display = 'block'; document.getElementById('pin-input').value = '';
             }
         }
         document.getElementById('btn-login').addEventListener('click', checkPin);
@@ -282,79 +211,79 @@
         window.switchAdminTab = function(tabId, btn) {
             document.querySelectorAll('.tab-section').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active'); btn.classList.add('active');
+        };
+
+        // Generare Tabel Program cu Ceasuri
+        const daysKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const daysNames = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică'];
+        
+        function renderScheduleTable() {
+            let html = '';
+            for(let i=0; i<7; i++) {
+                html += `
+                    <tr>
+                        <td style="width:70px;"><strong>${daysNames[i]}</strong></td>
+                        <td><input type="time" class="time-select" id="start-${daysKeys[i]}" value="10:00"></td>
+                        <td style="text-align:center;">-</td>
+                        <td><input type="time" class="time-select" id="end-${daysKeys[i]}" value="23:00"></td>
+                        <td><button class="btn-closed" id="btn-close-${daysKeys[i]}" onclick="toggleClosed('${daysKeys[i]}', this)">Marcare Închis</button></td>
+                    </tr>
+                `;
+            }
+            document.getElementById('schedule-table').innerHTML = html;
+        }
+
+        window.toggleClosed = function(day, btn) {
+            const startInput = document.getElementById(`start-${day}`);
+            const endInput = document.getElementById(`end-${day}`);
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active'); btn.textContent = 'Marcare Închis';
+                startInput.disabled = false; endInput.disabled = false;
+            } else {
+                btn.classList.add('active'); btn.textContent = 'Zi Închisă';
+                startInput.disabled = true; endInput.disabled = true;
+            }
         };
 
         function listenOrders() {
             db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('orders-container');
                 const countBadge = document.getElementById('live-orders-count');
-                
-                let activeOrdersCount = 0;
-                let htmlContent = '';
+                let activeOrdersCount = 0; let htmlContent = '';
 
-                if (snapshot.empty) { 
-                    container.innerHTML = '<p style="color:#94a3b8; font-weight:600;">Nu aveți nicio comandă în acest moment.</p>'; 
-                    countBadge.textContent = "0";
-                    return; 
-                }
+                if (snapshot.empty) { container.innerHTML = '<p style="color:#94a3b8;">Nu aveți nicio comandă în acest moment.</p>'; countBadge.textContent = "0"; return; }
 
                 snapshot.forEach(doc => {
-                    const order = doc.data();
-                    const id = doc.id;
+                    const order = doc.data(); const id = doc.id;
                     const time = order.createdAt ? order.createdAt.toDate().toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : 'Acum';
-                    
                     if (order.status !== 'completed') activeOrdersCount++;
 
                     let statusClass = ''; let statusText = 'Comandă Nouă';
-                    let actionButtons = `
-                        <button class="btn-order btn-accept" onclick="updateOrderStatus('${id}', 'accepted')"><i class="fas fa-check"></i> Acceptă</button>
-                        <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
-                    `;
+                    let actionButtons = `<button class="btn-order btn-accept" onclick="updateOrderStatus('${id}', 'accepted')"><i class="fas fa-check"></i> Acceptă</button><button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>`;
 
                     if (order.status === 'accepted') {
                         statusClass = 'status-accepted'; statusText = 'În Preparare';
-                        actionButtons = `
-                            <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
-                            <button class="btn-order btn-accept" style="background:#0284c7;" onclick="updateOrderStatus('${id}', 'completed')"><i class="fas fa-motorcycle"></i> Trimite (Finalizată)</button>
-                        `;
+                        actionButtons = `<button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button><button class="btn-order btn-accept" style="background:#0284c7;" onclick="updateOrderStatus('${id}', 'completed')"><i class="fas fa-motorcycle"></i> Trimite (Finalizată)</button>`;
                     } else if (order.status === 'completed') {
                         statusClass = 'status-completed'; statusText = 'Comandă Finalizată';
                         actionButtons = `<p style="text-align:center; width:100%; color:#64748b; font-weight:600; font-size:0.9rem;"><i class="fas fa-check-double"></i> Finalizată</p>`;
                     }
 
-                    let itemsHtml = order.items.map(item => `
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;">
-                            <span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span>
-                            <span>${(item.price * item.quantity).toFixed(2)} lei</span>
-                        </div>
-                    `).join('');
-
-                    const orderTypeBadge = order.orderType === 'delivery' 
-                        ? '<span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-motorcycle"></i> LIVRARE</span>' 
-                        : '<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-walking"></i> RIDICARE</span>';
+                    let itemsHtml = order.items.map(item => `<div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;"><span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span><span>${(item.price * item.quantity).toFixed(2)} lei</span></div>`).join('');
+                    const orderTypeBadge = order.orderType === 'delivery' ? '<span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-motorcycle"></i> LIVRARE</span>' : '<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-walking"></i> RIDICARE</span>';
 
                     htmlContent += `
                         <div class="order-card ${statusClass}">
-                            <div class="order-header">
-                                <div><div class="order-id">#${id.slice(-5).toUpperCase()}</div><div class="order-time"><i class="far fa-clock"></i> ${time} - <span style="font-weight:600;">${statusText}</span></div></div>
-                                <div>${orderTypeBadge}</div>
-                            </div>
-                            <div class="order-details">
-                                <p><i class="fas fa-user" style="width:20px; color:#94a3b8;"></i> <strong>${order.customerName}</strong></p>
-                                <p><i class="fas fa-phone-alt" style="width:20px; color:#94a3b8;"></i> <a href="tel:${order.customerPhone}" style="color:var(--primary); text-decoration:none;"><strong>${order.customerPhone}</strong></a></p>
-                                ${order.orderType === 'delivery' ? `<p><i class="fas fa-map-marker-alt" style="width:20px; color:#94a3b8;"></i> ${order.address}</p>` : ''}
-                                <p style="margin-top:5px;"><i class="fas fa-wallet" style="width:20px; color:#94a3b8;"></i> Plată: <strong>${order.paymentMethod}</strong></p>
-                            </div>
+                            <div class="order-header"><div><div class="order-id">#${id.slice(-5).toUpperCase()}</div><div class="order-time"><i class="far fa-clock"></i> ${time} - <span style="font-weight:600;">${statusText}</span></div></div><div>${orderTypeBadge}</div></div>
+                            <div class="order-details"><p><i class="fas fa-user" style="width:20px; color:#94a3b8;"></i> <strong>${order.customerName}</strong></p><p><i class="fas fa-phone-alt" style="width:20px; color:#94a3b8;"></i> <a href="tel:${order.customerPhone}" style="color:var(--primary); text-decoration:none;"><strong>${order.customerPhone}</strong></a></p>${order.orderType === 'delivery' ? `<p><i class="fas fa-map-marker-alt" style="width:20px; color:#94a3b8;"></i> ${order.address}</p>` : ''}<p style="margin-top:5px;"><i class="fas fa-wallet" style="width:20px; color:#94a3b8;"></i> Plată: <strong>${order.paymentMethod}</strong></p></div>
                             <div class="order-items">${itemsHtml}<div style="display:flex; justify-content:space-between; margin-top:10px; font-weight:800; font-size:1.1rem; color:var(--dark);"><span>TOTAL BON:</span><span>${order.totalPrice.toFixed(2)} lei</span></div></div>
                             ${order.notes ? `<div style="background:#fee2e2; border-left:4px solid var(--danger); padding:8px 12px; border-radius:4px; margin-bottom:15px; font-size:0.9rem;"><strong><i class="fas fa-exclamation-triangle"></i> Mențiuni client:</strong><br>${order.notes}</div>` : ''}
                             <div class="order-actions">${actionButtons}</div>
                         </div>
                     `;
                 });
-                container.innerHTML = htmlContent;
-                countBadge.textContent = activeOrdersCount;
+                container.innerHTML = htmlContent; countBadge.textContent = activeOrdersCount;
             });
         }
 
@@ -363,20 +292,16 @@
 
         let currentBase64Image = "falafel.jpg";
         document.getElementById('p-file').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+            const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width, height = img.height;
+                    const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
                     if (width > 800) { height = (height * 800) / width; width = 800; }
-                    canvas.width = width; canvas.height = height;
-                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
-                    document.getElementById('p-preview').src = currentBase64Image;
-                    document.getElementById('p-preview').style.display = 'block';
+                    document.getElementById('p-preview').src = currentBase64Image; document.getElementById('p-preview').style.display = 'block';
                 };
                 img.src = event.target.result;
             };
@@ -392,30 +317,41 @@
                     document.getElementById('setting-min-order').value = data.minOrder !== undefined ? data.minOrder : 50;
                     document.getElementById('setting-packaging').value = data.packagingTax !== undefined ? data.packagingTax : 2.5;
                     
-                    // Incarcam Programul
                     if(data.schedule) {
-                        document.getElementById('sch-mon').value = data.schedule.mon || '';
-                        document.getElementById('sch-tue').value = data.schedule.tue || '';
-                        document.getElementById('sch-wed').value = data.schedule.wed || '';
-                        document.getElementById('sch-thu').value = data.schedule.thu || '';
-                        document.getElementById('sch-fri').value = data.schedule.fri || '';
-                        document.getElementById('sch-sat').value = data.schedule.sat || '';
-                        document.getElementById('sch-sun').value = data.schedule.sun || '';
+                        daysKeys.forEach(day => {
+                            const val = data.schedule[day];
+                            const btn = document.getElementById(`btn-close-${day}`);
+                            const startInput = document.getElementById(`start-${day}`);
+                            const endInput = document.getElementById(`end-${day}`);
+                            
+                            if (!val || val.toLowerCase().includes('inchis') || val.toLowerCase().includes('închis')) {
+                                btn.classList.add('active'); btn.textContent = 'Zi Închisă';
+                                startInput.disabled = true; endInput.disabled = true;
+                            } else {
+                                const times = val.split('-');
+                                if(times.length === 2) {
+                                    startInput.value = times[0].trim();
+                                    endInput.value = times[1].trim();
+                                }
+                            }
+                        });
                     }
                 }
             });
         }
         
         window.saveSettings = function() {
-            const schedule = {
-                mon: document.getElementById('sch-mon').value.trim(),
-                tue: document.getElementById('sch-tue').value.trim(),
-                wed: document.getElementById('sch-wed').value.trim(),
-                thu: document.getElementById('sch-thu').value.trim(),
-                fri: document.getElementById('sch-fri').value.trim(),
-                sat: document.getElementById('sch-sat').value.trim(),
-                sun: document.getElementById('sch-sun').value.trim()
-            };
+            const schedule = {};
+            daysKeys.forEach(day => {
+                const btn = document.getElementById(`btn-close-${day}`);
+                if (btn.classList.contains('active')) {
+                    schedule[day] = 'Închis';
+                } else {
+                    const start = document.getElementById(`start-${day}`).value;
+                    const end = document.getElementById(`end-${day}`).value;
+                    schedule[day] = `${start} - ${end}`;
+                }
+            });
 
             db.collection('settings').doc('general').set({ 
                 freeDeliveryThreshold: Number(document.getElementById('setting-free-delivery').value),
@@ -435,31 +371,21 @@
         window.editProduct = function(id) {
             db.collection('products').doc(id).get().then(doc => {
                 const p = doc.data();
-                document.getElementById('p-name').value = p.name;
-                document.getElementById('p-cat').value = p.category;
+                document.getElementById('p-name').value = p.name; document.getElementById('p-cat').value = p.category;
                 if (p.weight) {
                     let match = String(p.weight).match(/^([\d.]+)\s*([a-zA-Z]+)$/);
-                    if (match) {
-                        document.getElementById('p-weight-val').value = match[1];
-                        document.getElementById('p-weight-unit').value = match[2];
-                    } else {
-                        document.getElementById('p-weight-val').value = p.weight.replace(/[^\d.-]/g, '');
-                    }
+                    if (match) { document.getElementById('p-weight-val').value = match[1]; document.getElementById('p-weight-unit').value = match[2]; } 
+                    else { document.getElementById('p-weight-val').value = p.weight.replace(/[^\d.-]/g, ''); }
                 }
                 document.getElementById('p-price').value = p.originalPrice || p.price;
                 document.getElementById('p-discount').value = p.discountPercent || 0;
                 document.getElementById('p-1plus1').checked = p.onePlusOne === true || p.onePlusOne === 'true';
-                document.getElementById('p-badge').value = p.badge || '';
-                document.getElementById('p-desc').value = p.description;
+                document.getElementById('p-badge').value = p.badge || ''; document.getElementById('p-desc').value = p.description;
                 currentBase64Image = p.image;
-                if(p.image && p.image !== 'falafel.jpg') {
-                    document.getElementById('p-preview').src = p.image;
-                    document.getElementById('p-preview').style.display = 'block';
-                }
+                if(p.image && p.image !== 'falafel.jpg') { document.getElementById('p-preview').src = p.image; document.getElementById('p-preview').style.display = 'block'; }
                 editingProductId = id;
                 document.getElementById('form-title').innerHTML = '<i class="fas fa-edit" style="color:var(--primary);"></i> Editează Produsul';
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizează Produs';
-                cancelBtn.style.display = 'block';
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizează Produs'; cancelBtn.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         };
@@ -468,33 +394,14 @@
             editingProductId = null; addForm.reset(); currentBase64Image = "falafel.jpg";
             document.getElementById('p-preview').style.display = 'none';
             document.getElementById('form-title').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--primary);"></i> Adaugă Produs Nou';
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
-            cancelBtn.style.display = 'none';
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu'; cancelBtn.style.display = 'none';
         };
 
         addForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
-            const basePrice = parseFloat(document.getElementById('p-price').value);
-            const discount = parseFloat(document.getElementById('p-discount').value) || 0;
-            const finalPrice = basePrice - (basePrice * discount / 100);
-            const weightFinal = document.getElementById('p-weight-val').value.trim() + document.getElementById('p-weight-unit').value;
-
-            const productData = {
-                name: document.getElementById('p-name').value.trim(),
-                category: document.getElementById('p-cat').value,
-                weight: weightFinal,
-                originalPrice: basePrice,
-                price: finalPrice,
-                discountPercent: discount,
-                onePlusOne: document.getElementById('p-1plus1').checked,
-                badge: document.getElementById('p-badge').value.trim(),
-                image: currentBase64Image,
-                description: document.getElementById('p-desc').value.trim(),
-                active: true,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
+            e.preventDefault(); submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se salvează...';
+            const basePrice = parseFloat(document.getElementById('p-price').value); const discount = parseFloat(document.getElementById('p-discount').value) || 0;
+            const finalPrice = basePrice - (basePrice * discount / 100); const weightFinal = document.getElementById('p-weight-val').value.trim() + document.getElementById('p-weight-unit').value;
+            const productData = { name: document.getElementById('p-name').value.trim(), category: document.getElementById('p-cat').value, weight: weightFinal, originalPrice: basePrice, price: finalPrice, discountPercent: discount, onePlusOne: document.getElementById('p-1plus1').checked, badge: document.getElementById('p-badge').value.trim(), image: currentBase64Image, description: document.getElementById('p-desc').value.trim(), active: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
             if (editingProductId) await db.collection('products').doc(editingProductId).update(productData);
             else { productData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('products').add(productData); }
             cancelEdit();
@@ -502,30 +409,19 @@
 
         function listenProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                const container = document.getElementById('products-container');
-                document.getElementById('count-items').textContent = snapshot.size;
+                const container = document.getElementById('products-container'); document.getElementById('count-items').textContent = snapshot.size;
                 if (snapshot.empty) { container.innerHTML = '<p>Niciun preparat.</p>'; return; }
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const p = doc.data();
-                    const badges = [];
+                    const p = doc.data(); const badges = [];
                     if(p.onePlusOne === true || p.onePlusOne === 'true') badges.push(`<span class="product-badge badge-red">1+1</span>`);
                     if(p.discountPercent > 0) badges.push(`<span class="product-badge badge-red">-${p.discountPercent}%</span>`);
                     if(p.badge) badges.push(`<span class="product-badge">${p.badge}</span>`);
-
                     container.innerHTML += `
                         <div class="product-row ${p.active ? '' : 'inactive'}">
                             <img src="${p.image}" class="product-thumb" onerror="this.src='falafel.jpg'">
-                            <div class="product-meta">
-                                <h4>${p.name} ${badges.join(' ')}</h4>
-                                <p>${p.weight} • <strong style="color:var(--dark);">${p.price.toFixed(2)} lei</strong> 
-                                ${p.discountPercent > 0 ? `<s style="font-size:0.75rem;">${p.originalPrice.toFixed(2)} lei</s>` : ''}</p>
-                            </div>
-                            <div class="product-actions">
-                                <button class="btn-action edit" onclick="editProduct('${doc.id}')"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="btn-action toggle" onclick="db.collection('products').doc('${doc.id}').update({active: ${!p.active}})"><i class="fas fa-${p.active ? 'eye' : 'eye-slash'}"></i></button>
-                                <button class="btn-action delete" onclick="if(confirm('Ștergi produsul?')) db.collection('products').doc('${doc.id}').delete()"><i class="fas fa-trash"></i></button>
-                            </div>
+                            <div class="product-meta"><h4>${p.name} ${badges.join(' ')}</h4><p>${p.weight} • <strong style="color:var(--dark);">${p.price.toFixed(2)} lei</strong> ${p.discountPercent > 0 ? `<s style="font-size:0.75rem;">${p.originalPrice.toFixed(2)} lei</s>` : ''}</p></div>
+                            <div class="product-actions"><button class="btn-action edit" onclick="editProduct('${doc.id}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-action toggle" onclick="db.collection('products').doc('${doc.id}').update({active: ${!p.active}})"><i class="fas fa-${p.active ? 'eye' : 'eye-slash'}"></i></button><button class="btn-action delete" onclick="if(confirm('Ștergi produsul?')) db.collection('products').doc('${doc.id}').delete()"><i class="fas fa-trash"></i></button></div>
                         </div>
                     `;
                 });
@@ -535,34 +431,21 @@
         let subscribersList = [];
         function listenSubscribers() {
             db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
-                const tbody = document.getElementById('subs-table-body');
-                document.getElementById('sub-badge-count').textContent = snapshot.size;
-                subscribersList = [];
-                if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>'; return; }
+                const tbody = document.getElementById('subs-table-body'); document.getElementById('sub-badge-count').textContent = snapshot.size;
+                subscribersList = []; if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>'; return; }
                 tbody.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const sub = doc.data(); const id = doc.id;
-                    const date = sub.subscribedAt ? sub.subscribedAt.toDate().toLocaleDateString('ro-RO') : 'N/A';
+                    const sub = doc.data(); const id = doc.id; const date = sub.subscribedAt ? sub.subscribedAt.toDate().toLocaleDateString('ro-RO') : 'N/A';
                     subscribersList.push({ Nume: sub.name, Telefon: sub.phone, Email: sub.email, Data: date });
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><strong>${sub.name || 'Anonim'}</strong></td>
-                            <td><a href="tel:${sub.phone}" style="color:var(--primary); text-decoration:none;"><i class="fas fa-phone-alt"></i> ${sub.phone}</a></td>
-                            <td>${sub.email}</td><td>${date}</td>
-                            <td><button class="btn-action delete" onclick="if(confirm('Ștergi abonatul?')) db.collection('subscribers').doc('${id}').delete()"><i class="fas fa-trash"></i></button></td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += `<tr><td><strong>${sub.name || 'Anonim'}</strong></td><td><a href="tel:${sub.phone}" style="color:var(--primary); text-decoration:none;"><i class="fas fa-phone-alt"></i> ${sub.phone}</a></td><td>${sub.email}</td><td>${date}</td><td><button class="btn-action delete" onclick="if(confirm('Ștergi abonatul?')) db.collection('subscribers').doc('${id}').delete()"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
             });
         }
-
         window.exportSubscribersCSV = function() {
             if (subscribersList.length === 0) return alert("Nu există date!");
             let csv = "Nume,Telefon,Email,Data Inscriere\n";
             subscribersList.forEach(row => { csv += `"${row.Nume}","${row.Telefon}","${row.Email}","${row.Data}"\n`; });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-            link.download = `abonati_divino.csv`; link.click();
+            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `abonati_divino.csv`; link.click();
         };
     </script>
 </body>
