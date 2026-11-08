@@ -24,6 +24,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatLogs = document.getElementById('chat-logs');
     let messageHistory = []; 
 
+    // Funcție flexibilă de găsire a produsului în baza de date după nume sau cuvinte cheie
+    function findProductInDB(rawName) {
+        if (!window.dbProductsList || window.dbProductsList.length === 0) return null;
+        const clean = rawName.trim().toLowerCase();
+        
+        // 1. Potrivire exactă
+        let found = window.dbProductsList.find(p => p.name.trim().toLowerCase() === clean);
+        if (found) return found;
+
+        // 2. Potrivire parțială (conține)
+        found = window.dbProductsList.find(p => {
+            const pName = p.name.trim().toLowerCase();
+            return pName.includes(clean) || clean.includes(pName);
+        });
+        if (found) return found;
+
+        // 3. Potrivire după cuvinte cheie (ex: "shaorma", "vita", "pui")
+        const words = clean.split(/\s+/).filter(w => w.length > 2);
+        found = window.dbProductsList.find(p => {
+            const pName = p.name.trim().toLowerCase();
+            return words.some(w => pName.includes(w));
+        });
+        return found || null;
+    }
+
     async function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
@@ -38,14 +63,25 @@ document.addEventListener("DOMContentLoaded", () => {
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
         try {
-            // Trimitem CĂTRE AI lista de produse STRICT cu pretul final, fara sa il mai derutam cu procente matematice
-            const availableProducts = window.dbProductsList.map(p => {
-                let desc = `${p.name} - Preț: ${p.price.toFixed(2)} lei`;
-                if(p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') desc += ' [PROMO: 1+1 GRATIS]';
-                return desc;
-            }).join('; ');
+            // Trimitem lista completă cu produse, preț vechi, preț redus, reduceri și promoții 1+1
+            const availableProducts = (window.dbProductsList || []).map(p => {
+                let details = `${p.name}`;
+                const hasDiscount = parseFloat(p.discountPercent) > 0;
+                if (hasDiscount) {
+                    details += ` - Preț redus: ${p.price.toFixed(2)} lei (Preț vechi: ${parseFloat(p.originalPrice || p.price).toFixed(2)} lei, Reducere: ${p.discountPercent}%)`;
+                } else {
+                    details += ` - Preț: ${p.price.toFixed(2)} lei`;
+                }
+                if (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') {
+                    details += ` [PROMO: 1+1 GRATIS - la o bucată comandată se primește încă una gratis]`;
+                }
+                if (p.badge) {
+                    details += ` [Etichetă: ${p.badge}]`;
+                }
+                return details;
+            }).join('\n');
 
-            const storeRules = `Comandă minimă: ${window.MIN_ORDER} lei. Livrare: ${window.DELIVERY_COST} lei (Gratuit peste ${window.FREE_DELIVERY_THRESHOLD} lei). Ambalaj: ${window.PACKAGING_TAX} lei/produs.`;
+            const storeRules = `Comandă minimă: ${window.MIN_ORDER || 50} lei. Livrare: ${window.DELIVERY_COST || 15} lei (Gratuită peste ${window.FREE_DELIVERY_THRESHOLD || 100} lei). Ambalaj: ${window.PACKAGING_TAX || 2.5} lei/produs.`;
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -61,44 +97,66 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (data.reply) {
                 let botReply = data.reply;
-                let addedItems = [];
+                let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+                let cartModified = false;
 
-                const addRegex = /\[ADAUGA:\s*(.+?)\]/gi;
+                // Detectează instrucțiunile de ADAUGA, SCADE, STERGE / ELIMINA
+                const cmdRegex = /\[(ADAUGA|SCADE|STERGE|ELIMINA):\s*([^,\]]+?)(?:,\s*(\d+))?\]/gi;
                 let match;
-                while ((match = addRegex.exec(botReply)) !== null) {
-                    let itemName = match[1].trim().toLowerCase();
-                    if (window.dbProductsList) {
-                        let foundProduct = window.dbProductsList.find(p => p.name.toLowerCase().includes(itemName));
-                        if (foundProduct) {
-                            let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
-                            let existingItem = cart.find(i => i.id === foundProduct.id);
-                            if(existingItem) {
-                                existingItem.quantity += 1;
+
+                while ((match = cmdRegex.exec(botReply)) !== null) {
+                    const action = match[1].toUpperCase();
+                    const itemName = match[2].trim();
+                    const qty = match[3] ? parseInt(match[3], 10) : 1;
+                    
+                    const product = findProductInDB(itemName);
+                    if (product) {
+                        const itemIndex = cart.findIndex(i => i.id === product.id);
+                        
+                        if (action === 'ADAUGA') {
+                            if (itemIndex > -1) {
+                                cart[itemIndex].quantity += qty;
                             } else {
-                                cart.push({ id: foundProduct.id, quantity: 1 });
+                                cart.push({ id: product.id, quantity: qty });
                             }
-                            localStorage.setItem('divino_cart', JSON.stringify(cart));
-                            addedItems.push(foundProduct.name);
+                            cartModified = true;
+                        } else if (action === 'SCADE') {
+                            if (itemIndex > -1) {
+                                cart[itemIndex].quantity -= qty;
+                                if (cart[itemIndex].quantity <= 0) {
+                                    cart.splice(itemIndex, 1);
+                                }
+                                cartModified = true;
+                            }
+                        } else if (action === 'STERGE' || action === 'ELIMINA') {
+                            if (itemIndex > -1) {
+                                cart.splice(itemIndex, 1);
+                                cartModified = true;
+                            }
                         }
                     }
                 }
 
-                botReply = botReply.replace(/\[ADAUGA:\s*(.+?)\]/gi, '').trim().replace(/\n/g, '<br>');
-
-                if (addedItems.length > 0) {
-                    botReply += `<br><br><div style="color:var(--success); font-weight:bold; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> S-au adăugat în coș: ${addedItems.join(', ')}.</div>`;
-                    window.dispatchEvent(new Event('cartUpdated')); 
+                // Sincronizează coșul și butoanele de pe site instant
+                if (cartModified) {
+                    localStorage.setItem('divino_cart', JSON.stringify(cart));
+                    window.dispatchEvent(new Event('cartUpdated'));
                 }
+
+                // Elimină etichetele interne din textul afișat în conversație
+                botReply = botReply.replace(cmdRegex, '').trim().replace(/\n/g, '<br>');
 
                 chatLogs.innerHTML += `<div class="msg bot">${botReply}</div>`;
                 messageHistory.push({ role: "assistant", content: botReply }); 
+            } else if (data.error) {
+                chatLogs.innerHTML += `<div class="msg bot" style="color:red;">${data.error}</div>`;
             } else {
-                chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de la asistent. Încearcă din nou.</div>`;
+                chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de la asistent. Reîncearcă!</div>`;
             }
             chatLogs.scrollTop = chatLogs.scrollHeight;
         } catch (err) {
             document.getElementById(loadingId).remove();
-            chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de conexiune.</div>`;
+            chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de conexiune la server.</div>`;
             chatLogs.scrollTop = chatLogs.scrollHeight;
         }
     }
@@ -162,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnElement.innerHTML = '<i class="fas fa-check"></i>';
             setTimeout(() => { window.dispatchEvent(new Event('cartUpdated')); }, 600);
         } else {
-             window.dispatchEvent(new Event('cartUpdated'));
+            window.dispatchEvent(new Event('cartUpdated'));
         }
 
         const cartIcon = document.getElementById('cart-icon-btn');
@@ -172,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Sincronizează butoanele de pe cardurile din pagină (din '+' în '[- 1 +]')
     window.syncMenuButtons = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         if (window.dbProductsList) {
@@ -251,10 +310,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const orderTypeInput = document.querySelector('input[name="order-type"]:checked');
         const isTakeaway = orderTypeInput && orderTypeInput.value === 'takeaway';
 
-        if (isTakeaway) { finalDelivery = 0; deliverySavings = 0; } 
-        else {
-            if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) { finalDelivery = 0; deliverySavings = deliveryCost; } 
-            else if (subtotalDiscounted === 0) { finalDelivery = 0; totalPackaging = 0; }
+        if (isTakeaway) {
+            finalDelivery = 0; deliverySavings = 0;
+        } else {
+            if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
+                finalDelivery = 0; deliverySavings = deliveryCost;
+            } else if (subtotalDiscounted === 0) {
+                finalDelivery = 0; totalPackaging = 0;
+            }
         }
         
         const totalToPay = subtotalDiscounted + finalDelivery + totalPackaging;
