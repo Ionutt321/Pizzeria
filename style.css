@@ -3,7 +3,8 @@
 :root {
     --primary: #c2410c;
     --primary-hover: #ea580c;
-    --dark: #111827;
+    /* Modificare: Culoare mult mai deschisă, elegantă, de ardezie. Schimbă instant footerul, carouselul și bannerele */
+    --dark: #2a3441; 
     --bg-color: #f4f4f5;
     --card-bg: #ffffff;
     --border: #e4e4e7;
@@ -14,13 +15,11 @@
 body { background-color: var(--bg-color); color: var(--dark); overflow-x: hidden; font-family: 'Plus Jakarta Sans', sans-serif; }
 h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 
-/* Loader */
 .intro-loader { position: fixed; inset: 0; background: var(--dark); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: 0.8s ease; }
 .intro-loader.hidden { opacity: 0; visibility: hidden; }
 .loader-logo { color: var(--primary); font-size: 4rem; text-shadow: 0 0 20px rgba(194,65,12,0.5); animation: pulse 1.5s infinite alternate; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 100% { transform: scale(1.05); opacity: 1; } }
 
-/* Navbar */
 .navbar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background: rgba(244, 244, 245, 0.95); backdrop-filter: blur(10px); z-index: 1000; transition: 0.3s; border-bottom: 1px solid rgba(0,0,0,0.05); }
 .navbar.scrolled { padding: 15px 5%; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 .logo { font-size: 2rem; font-weight: 900; color: var(--primary); text-decoration: none; letter-spacing: 1px; }
@@ -33,16 +32,17 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .cart-btn { background: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 50px; font-weight: 600; display: flex; gap: 8px; align-items: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(194,65,12,0.3); }
 .cart-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(194,65,12,0.4); }
 
-/* Hero Section (Design Original Stivuit) */
-.hero { padding: 180px 5% 120px; text-align: center; background: linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.85)), url('shaorma-farfurie.jpg') center/cover no-repeat; color: white; position: relative; }
-.hero-badge { background: transparent; border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 25px; display: inline-block; font-family: 'Plus Jakarta Sans', sans-serif; text-transform: uppercase; }
-.hero h1 { font-size: 4.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 25px; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-.hero h1 span { color: var(--primary); font-style: italic; font-weight: 900; }
-.hero p { font-size: 1.2rem; color: #e2e8f0; max-width: 600px; margin: 0 auto 35px; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; }
+/* Modificare: Hero doar cu poza (fără nuanța neagră) */
+.hero { 
+    padding: 180px 5% 120px; 
+    text-align: center; 
+    background: url('vita-orez.jpg') center/cover no-repeat; 
+    position: relative; 
+    min-height: 60vh; 
+}
 .btn-primary { background: var(--primary); color: white; padding: 16px 36px; border: none; border-radius: 50px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(194,65,12,0.4); text-decoration: none; display: inline-block; font-family: 'Plus Jakarta Sans', sans-serif; }
 .btn-primary:hover { background: var(--primary-hover); transform: translateY(-3px); }
 
-/* Rollercoaster Carusel */
 .rollercoaster-section { padding: 80px 0; background: var(--dark); overflow: hidden; }
 .rollercoaster-title { text-align: center; color: white; margin-bottom: 40px; font-size: 2.5rem; letter-spacing: 1px; }
 .marquee-container { width: 100%; overflow: hidden; white-space: nowrap; padding: 10px 0 30px; }
@@ -56,7 +56,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .mini-card-info h3 { font-size: 1.1rem; color: var(--dark); margin-bottom: 5px; font-family: 'Cinzel', serif; font-weight: 800; }
 .mini-card-info span { color: var(--primary); font-weight: 800; font-size: 1.1rem; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-/* Sectiunea Meniu */
 .menu-section { padding: 80px 5% 40px; max-width: 1300px; margin: 0 auto; position: relative; z-index: 10; background: var(--bg-color); }
 .section-title { text-align: center; margin-bottom: 40px; }
 .section-title h2 { font-size: 3rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
@@ -70,25 +69,22 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .tab-content.active { display: block; animation: fadeUp 0.5s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Grid Produse cu Umbre */
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; }
 .menu-card { background: var(--card-bg); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: all 0.4s ease; border: 1px solid transparent; position: relative; }
 .menu-card:hover { transform: translateY(-10px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); border-color: rgba(194,65,12,0.1); }
 .card-img { width: 100%; height: 260px; overflow: hidden; position: relative; }
 .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-.menu-card:hover .card-img img { transform: scale(1.1); } /* Zoom doar la hover, fara sarituri */
+.menu-card:hover .card-img img { transform: scale(1.1); } 
 .card-info { padding: 30px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
 .card-info h3 { font-size: 1.4rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .card-info p { font-size: 0.95rem; color: #64748b; line-height: 1.6; margin-bottom: 20px; font-family: 'Plus Jakarta Sans', sans-serif; }
 .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 20px; }
 .price { font-size: 1.6rem; font-weight: 800; color: var(--dark); }
 
-/* Etichete pe imagini */
 .badges-container { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
 .badge-1plus1 { background: var(--danger); color: white; padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
 .badge-custom { background: #fbbf24; color: var(--dark); padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-/* Buton Adaugare & Butoane Plus/Minus Inline */
 .btn-add { background: white; color: var(--success); border: 2px solid var(--success); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
 .btn-add:hover { background: var(--success); color: white; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
 .btn-add.spin-green { background: var(--success); color: white; transform: rotate(360deg) scale(1.1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
@@ -99,7 +95,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .btn-qty:hover { background: var(--border); }
 .inline-qty { font-weight: 800; font-size: 1.1rem; color: var(--dark); min-width: 22px; text-align: center; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-/* Livrare cu Parteneri (Banner pe centru) */
 .delivery-section { padding: 80px 5%; background: var(--bg-color); text-align: center; }
 .delivery-banner { background: var(--dark); border-radius: 30px; padding: 60px 20px; max-width: 1000px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 .delivery-banner h2 { font-size: 2.5rem; color: white; margin-bottom: 15px; }
@@ -111,7 +106,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .wolt { background: #009de0; color: white; }
 .bolt { background: #32c87e; color: white; }
 
-/* Coș Lateral */
 .cart-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.8); backdrop-filter: blur(4px); z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s; }
 .cart-sidebar { position: fixed; top: 0; right: -450px; width: 100%; max-width: 420px; height: 100vh; background: white; z-index: 2001; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
 .cart-overlay.active { opacity: 1; visibility: visible; }
@@ -126,7 +120,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .cart-controls button:hover { background: var(--primary); color: white; }
 .cart-footer { padding: 30px; background: var(--bg-color); border-top: 1px solid var(--border); }
 
-/* Chatbot Original (Acum este Funcțional) */
 .chatbot-widget { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 1500; overflow: hidden; transform: translateY(calc(100% - 60px)); transition: transform 0.4s ease; border: 1px solid var(--primary); }
 .chatbot-widget.open { transform: translateY(0); }
 .chat-header { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem;}
@@ -140,7 +133,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .chat-input-area button { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
 .chat-input-area button:hover { transform: scale(1.1); }
 
-/* Footer */
 .site-footer { background: var(--dark); color: white; padding: 80px 5% 40px; }
 .footer-container { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 50px; }
 .footer-col h3 { color: var(--primary); margin-bottom: 20px; font-size: 1.4rem; }
@@ -150,7 +142,6 @@ h1, h2, h3, h4, .price, .logo, .tab-btn { font-family: 'Cinzel', serif; }
 .footer-form input:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
 .footer-form button { width: 100%; border-radius: 12px; padding: 14px; margin-top: 5px; }
 
-/* Pop-up Newsletter */
 .popup-overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(5px); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.4s ease; }
 .popup-overlay.show { opacity: 1; visibility: visible; }
 .popup-box { background: white; padding: 50px; border-radius: 24px; max-width: 420px; width: 90%; text-align: center; position: relative; transform: translateY(30px); transition: 0.4s ease; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
