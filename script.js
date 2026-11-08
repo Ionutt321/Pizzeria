@@ -120,6 +120,20 @@ document.addEventListener("DOMContentLoaded", () => {
                                 cart.push({ id: product.id, quantity: qty });
                             }
                             cartModified = true;
+
+                            // Google Analytics: Add to cart din AI
+                            if (typeof gtag === 'function') {
+                                gtag('event', 'add_to_cart', {
+                                    currency: 'RON',
+                                    value: product.price * qty,
+                                    items: [{
+                                        item_id: product.id,
+                                        item_name: product.name,
+                                        price: product.price,
+                                        quantity: qty
+                                    }]
+                                });
+                            }
                         } else if (action === 'SCADE') {
                             if (itemIndex > -1) {
                                 cart[itemIndex].quantity -= qty;
@@ -214,6 +228,20 @@ document.addEventListener("DOMContentLoaded", () => {
             cart.push({ id: id, quantity: 1 }); 
         }
         localStorage.setItem('divino_cart', JSON.stringify(cart));
+
+        // Google Analytics: Add to cart la click pe butonul de produs
+        if (typeof gtag === 'function') {
+            gtag('event', 'add_to_cart', {
+                currency: 'RON',
+                value: price,
+                items: [{
+                    item_id: id,
+                    item_name: name,
+                    price: price,
+                    quantity: 1
+                }]
+            });
+        }
         
         if (btnElement) {
             btnElement.classList.add('spin-green');
@@ -389,7 +417,29 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (checkoutBtn && checkoutModal) {
         checkoutBtn.addEventListener('click', () => {
-            if (!checkoutBtn.disabled) { document.getElementById('cart-sidebar').classList.remove('active'); checkoutModal.classList.add('show'); }
+            if (!checkoutBtn.disabled) { 
+                document.getElementById('cart-sidebar').classList.remove('active'); 
+                checkoutModal.classList.add('show'); 
+
+                // Google Analytics: Begin checkout (pornire proces finalizare comandă)
+                if (typeof gtag === 'function') {
+                    let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+                    let items = cart.map(i => {
+                        const dbItem = window.dbProductsList ? window.dbProductsList.find(p => p.id === i.id) : null;
+                        return {
+                            item_id: i.id,
+                            item_name: dbItem ? dbItem.name : i.id,
+                            price: dbItem ? dbItem.price : 0,
+                            quantity: i.quantity
+                        };
+                    });
+                    gtag('event', 'begin_checkout', {
+                        currency: 'RON',
+                        value: window.currentOrderTotal || 0,
+                        items: items
+                    });
+                }
+            }
         });
     }
     
@@ -411,12 +461,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
             let orderItems = [];
+            let gaItems = [];
+
             cart.forEach(item => {
                 const dbItem = window.dbProductsList.find(p => p.id === item.id);
-                if (dbItem) { orderItems.push({ id: dbItem.id, name: dbItem.name, price: dbItem.price, quantity: item.quantity, is1plus1: (dbItem.onePlusOne === true || String(dbItem.onePlusOne).toLowerCase() === 'true') }); }
+                if (dbItem) { 
+                    orderItems.push({ 
+                        id: dbItem.id, 
+                        name: dbItem.name, 
+                        price: dbItem.price, 
+                        quantity: item.quantity, 
+                        is1plus1: (dbItem.onePlusOne === true || String(dbItem.onePlusOne).toLowerCase() === 'true') 
+                    }); 
+                    gaItems.push({
+                        item_id: dbItem.id,
+                        item_name: dbItem.name,
+                        price: dbItem.price,
+                        quantity: item.quantity
+                    });
+                }
             });
 
             const orderType = document.querySelector('input[name="order-type"]:checked').value;
+            const finalTotal = window.currentOrderTotal || 0;
             const orderData = {
                 customerName: document.getElementById('order-name').value.trim(),
                 customerPhone: document.getElementById('order-phone').value.trim(),
@@ -425,13 +492,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 paymentMethod: document.getElementById('order-payment').value,
                 notes: document.getElementById('order-notes').value.trim(),
                 items: orderItems,
-                totalPrice: window.currentOrderTotal || 0,
+                totalPrice: finalTotal,
                 status: 'new', 
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                await db.collection('orders').add(orderData);
+                const docRef = await db.collection('orders').add(orderData);
+
+                // Google Analytics: Purchase (conversie confirmată și înregistrată)
+                if (typeof gtag === 'function') {
+                    gtag('event', 'purchase', {
+                        transaction_id: docRef.id,
+                        value: finalTotal,
+                        currency: 'RON',
+                        tax: 0,
+                        shipping: (orderType === 'delivery') ? (window.DELIVERY_COST || 15) : 0,
+                        items: gaItems
+                    });
+                }
+
                 localStorage.removeItem('divino_cart');
                 window.dispatchEvent(new Event('cartUpdated'));
                 
