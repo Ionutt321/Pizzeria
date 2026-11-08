@@ -32,8 +32,12 @@
     </nav>
     <style>@media(max-width: 768px){ .hide-mobile { display:none; } .nav-links { display:none; } }</style>
 
-    <!-- Hero Doar cu Poza de Fundal (Fără textul "O nouă dimensiune...") -->
+    <!-- HERO RESTABILIT (Poza cu overlay închis + Textul focalizat) -->
     <section id="hero" class="hero">
+        <span class="hero-badge">Tradiție & Inovație</span>
+        <h1>O NOUĂ<br><span>DIMENSIUNE</span><br>A GUSTULUI</h1>
+        <p>Descoperă preparate artizanale, ingrediente premium și o atmosferă inconfundabilă.</p>
+        <a href="#meniu" class="btn-primary">Explorează Meniul</a>
     </section>
 
     <!-- Rollercoaster Produse Firebase -->
@@ -41,7 +45,7 @@
         <h2 class="rollercoaster-title">Specialitățile Noastre</h2>
         <div class="marquee-container">
             <div class="marquee-content" id="rollercoaster-track">
-                <p style="color:white; text-align:center; width:100%;">Se încarcă deliciile...</p>
+                <p style="text-align:center; width:100%; color: var(--dark);">Se încarcă deliciile...</p>
             </div>
         </div>
     </section>
@@ -73,7 +77,6 @@
             <h2>Comandă Rapid la Tine Acasă</h2>
             <p>Beneficiezi de 40% Reducere + 5% Prime prin platformele partenere.</p>
             <div class="delivery-buttons">
-                <!-- Modificare: Adăugate link-uri reale -->
                 <a href="https://glovoapp.com/ro/" target="_blank" class="del-btn glovo">Glovo</a>
                 <a href="https://wolt.com/ro/" target="_blank" class="del-btn wolt">Wolt</a>
                 <a href="https://food.bolt.eu/ro/" target="_blank" class="del-btn bolt">Bolt Food</a>
@@ -99,7 +102,6 @@
                 <h3>Abonare Newsletter</h3>
                 <p>Primești oferte exclusive și reducere la prima comandă.</p>
                 <form id="footer-form" class="footer-form">
-                    <!-- Modificare: Scoase parantezele (obligatoriu/opțional). Telefon și Email sunt required -->
                     <input type="text" id="foot-name" placeholder="Nume">
                     <input type="tel" id="foot-phone" placeholder="Telefon" required>
                     <input type="email" id="foot-email" placeholder="E-mail" required>
@@ -133,9 +135,7 @@
             <h2>Coșul dvs.</h2>
             <button id="close-cart" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--dark); transition:0.2s;"><i class="fas fa-times"></i></button>
         </div>
-        <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:12px; text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:700; display:none; border-bottom:1px solid var(--border);">
-            Calculăm livrarea...
-        </div>
+        <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:12px; text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:700; display:none; border-bottom:1px solid var(--border);"></div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-footer">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
@@ -153,7 +153,6 @@
             <h2>Primește 10% Reducere!</h2>
             <p>Abonează-te și primești pe loc o reducere sau desert la prima comandă.</p>
             <form id="popup-form">
-                <!-- Modificare: Fix același format ca și în footer -->
                 <input type="text" id="sub-name" placeholder="Nume">
                 <input type="tel" id="sub-phone" placeholder="Telefon" required>
                 <input type="email" id="sub-email" placeholder="E-mail" required>
@@ -165,12 +164,10 @@
     <script src="script.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <script>
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('intro-loader').classList.add('hidden');
-                // Se asigură că pop-up-ul apare doar pentru clienții noi
                 if (!localStorage.getItem('newsletter_shown')) {
                     setTimeout(() => { document.getElementById('newsletter-popup').classList.add('show'); }, 3000);
                 }
@@ -211,7 +208,6 @@
             const gridKebab = document.getElementById('menu-grid-kebab');
             const gridPizza = document.getElementById('menu-grid-pizza');
             const track = document.getElementById('rollercoaster-track');
-            
             if(!gridKebab || !gridPizza) return;
 
             gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
@@ -219,9 +215,7 @@
             window.dbProductsList = [];
 
             snapshot.forEach(doc => {
-                const p = doc.data();
-                p.id = doc.id;
-                window.dbProductsList.push(p);
+                const p = doc.data(); p.id = doc.id; window.dbProductsList.push(p);
                 
                 rcHTML += `
                     <div class="mini-card" onclick="document.getElementById('meniu').scrollIntoView({behavior: 'smooth'})">
@@ -244,10 +238,7 @@
 
                 const cardHTML = `
                     <div class="menu-card">
-                        <div class="card-img">
-                            <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
-                            ${badgeHTML}
-                        </div>
+                        <div class="card-img"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}">${badgeHTML}</div>
                         <div class="card-info">
                             <div>
                                 <h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; font-family:'Plus Jakarta Sans', sans-serif; text-transform:none;">${p.weight || ''}</span></h3>
@@ -260,11 +251,9 @@
                         </div>
                     </div>
                 `;
-
                 if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
                 else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
-
             if (track) track.innerHTML = rcHTML + rcHTML;
             if (typeof syncMenuButtons === 'function') syncMenuButtons();
         });
@@ -281,14 +270,8 @@
                 btn.disabled = false; btn.textContent = 'Eroare. Reîncearcă!';
             }
         }
-
-        document.getElementById('popup-form').addEventListener('submit', (e) => {
-            e.preventDefault(); submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value);
-        });
-
-        document.getElementById('footer-form').addEventListener('submit', (e) => {
-            e.preventDefault(); submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value);
-        });
+        document.getElementById('popup-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value); });
+        document.getElementById('footer-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value); });
     </script>
 </body>
 </html>
