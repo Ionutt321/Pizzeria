@@ -234,7 +234,10 @@
             if (document.getElementById('pin-input').value === ADMIN_PIN) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-                loadSettings(); listenProducts(); listenSubscribers();
+                loadSettings(); 
+                listenProducts(); 
+                listenSubscribers();
+                listenOrders(); // APELĂM FUNCȚIA NOUĂ DE COMENZI
             } else {
                 document.getElementById('auth-err').style.display = 'block';
                 document.getElementById('pin-input').value = '';
@@ -272,7 +275,128 @@
             reader.readAsDataURL(file);
         });
 
-        // Încărcarea Setărilor Logistice
+        // -----------------------------------------------------
+        // NOU: LOGICA DE ASCULTARE ȘI AFIȘARE A COMENZILOR LIVE
+        // -----------------------------------------------------
+        function listenOrders() {
+            // Ascultăm colecția 'orders', ordonate de la cea mai nouă la cea mai veche
+            db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                const container = document.getElementById('orders-container');
+                const countBadge = document.getElementById('live-orders-count');
+                
+                let activeOrdersCount = 0;
+                let htmlContent = '';
+
+                if (snapshot.empty) { 
+                    container.innerHTML = '<p style="color:#94a3b8; font-weight:600;">Nu aveți nicio comandă în acest moment.</p>'; 
+                    countBadge.textContent = "0";
+                    return; 
+                }
+
+                snapshot.forEach(doc => {
+                    const order = doc.data();
+                    const id = doc.id;
+                    const time = order.createdAt ? order.createdAt.toDate().toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : 'Acum';
+                    
+                    // Contorizăm doar comenzile care NU sunt finalizate
+                    if (order.status !== 'completed') {
+                        activeOrdersCount++;
+                    }
+
+                    // Culori și texte dinamice în funcție de status
+                    let statusClass = '';
+                    let statusText = 'Comandă Nouă';
+                    let actionButtons = `
+                        <button class="btn-order btn-accept" onclick="updateOrderStatus('${id}', 'accepted')"><i class="fas fa-check"></i> Acceptă</button>
+                        <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
+                    `;
+
+                    if (order.status === 'accepted') {
+                        statusClass = 'status-accepted';
+                        statusText = 'În Preparare';
+                        actionButtons = `
+                            <button class="btn-order btn-print" onclick="printOrder('${id}')"><i class="fas fa-print"></i> Printează</button>
+                            <button class="btn-order btn-accept" style="background:#0284c7;" onclick="updateOrderStatus('${id}', 'completed')"><i class="fas fa-motorcycle"></i> Trimite (Finalizată)</button>
+                        `;
+                    } else if (order.status === 'completed') {
+                        statusClass = 'status-completed';
+                        statusText = 'Comandă Finalizată';
+                        actionButtons = `<p style="text-align:center; width:100%; color:#64748b; font-weight:600; font-size:0.9rem;"><i class="fas fa-check-double"></i> Finalizată</p>`;
+                    }
+
+                    // Generare lista produse pentru card
+                    let itemsHtml = order.items.map(item => `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px dashed #e2e8f0; padding-bottom:4px;">
+                            <span><strong>${item.quantity}x</strong> ${item.name} ${item.is1plus1 ? '<span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">(1+1)</span>' : ''}</span>
+                            <span>${(item.price * item.quantity).toFixed(2)} lei</span>
+                        </div>
+                    `).join('');
+
+                    const orderTypeBadge = order.orderType === 'delivery' 
+                        ? '<span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-motorcycle"></i> LIVRARE</span>' 
+                        : '<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;"><i class="fas fa-walking"></i> RIDICARE</span>';
+
+                    htmlContent += `
+                        <div class="order-card ${statusClass}">
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-id">#${id.slice(-5).toUpperCase()}</div>
+                                    <div class="order-time"><i class="far fa-clock"></i> ${time} - <span style="font-weight:600;">${statusText}</span></div>
+                                </div>
+                                <div>${orderTypeBadge}</div>
+                            </div>
+                            
+                            <div class="order-details">
+                                <p><i class="fas fa-user" style="width:20px; color:#94a3b8;"></i> <strong>${order.customerName}</strong></p>
+                                <p><i class="fas fa-phone-alt" style="width:20px; color:#94a3b8;"></i> <a href="tel:${order.customerPhone}" style="color:var(--primary); text-decoration:none;"><strong>${order.customerPhone}</strong></a></p>
+                                ${order.orderType === 'delivery' ? `<p><i class="fas fa-map-marker-alt" style="width:20px; color:#94a3b8;"></i> ${order.address}</p>` : ''}
+                                <p style="margin-top:5px;"><i class="fas fa-wallet" style="width:20px; color:#94a3b8;"></i> Plată: <strong>${order.paymentMethod}</strong></p>
+                            </div>
+
+                            <div class="order-items">
+                                ${itemsHtml}
+                                <div style="display:flex; justify-content:space-between; margin-top:10px; font-weight:800; font-size:1.1rem; color:var(--dark);">
+                                    <span>TOTAL:</span>
+                                    <span>${order.totalPrice.toFixed(2)} lei</span>
+                                </div>
+                            </div>
+
+                            ${order.notes ? `
+                                <div style="background:#fee2e2; border-left:4px solid var(--danger); padding:8px 12px; border-radius:4px; margin-bottom:15px; font-size:0.9rem;">
+                                    <strong><i class="fas fa-exclamation-triangle"></i> Mențiuni client:</strong><br>
+                                    ${order.notes}
+                                </div>
+                            ` : ''}
+
+                            <div class="order-actions">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = htmlContent;
+                countBadge.textContent = activeOrdersCount;
+                
+                // Opțional: Redare sunet dacă e comandă nouă
+                if (activeOrdersCount > 0) {
+                    // console.log("Ai comenzi noi de procesat!");
+                }
+            });
+        }
+
+        window.updateOrderStatus = function(id, status) {
+            db.collection('orders').doc(id).update({
+                status: status
+            });
+        };
+
+        window.printOrder = function(id) {
+            alert(`Sistemul se conectează la imprimanta termică pentru comanda #${id.slice(-5).toUpperCase()}... (Funcționalitate în dezvoltare pt. conectare ESC/POS)`);
+            window.print(); // Deschide meniul standard de printare al browserului
+        };
+        // -----------------------------------------------------
+
         function loadSettings() {
             db.collection('settings').doc('general').onSnapshot(doc => {
                 if (doc.exists) {
@@ -289,7 +413,6 @@
         }
         document.getElementById('store-toggle').addEventListener('change', (e) => { db.collection('settings').doc('general').set({ isOpen: e.target.checked }, { merge: true }); });
         
-        // Salvarea Setărilor Logistice
         window.saveSettings = function() {
             db.collection('settings').doc('general').set({ 
                 freeDeliveryThreshold: Number(document.getElementById('setting-free-delivery').value),
@@ -439,6 +562,6 @@
             link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `abonati_divino.csv`; link.click();
         };
-    </script>
+           </script>
 </body>
 </html>
