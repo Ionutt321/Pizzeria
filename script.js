@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
+    // 1. Efect Navbar la scroll
     const navbar = document.getElementById('main-nav');
     window.addEventListener('scroll', () => {
         if (navbar) {
@@ -8,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // 2. Chatbot AI Toggle
     const chatWidget = document.getElementById('chatbot-widget');
     const chatHeader = document.getElementById('chat-toggle');
     const chatIcon = document.getElementById('chat-icon');
@@ -19,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // 3. Chatbot AI Logică (Trimite către Vercel)
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send');
     const chatLogs = document.getElementById('chat-logs');
@@ -66,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (chatSendBtn) chatSendBtn.addEventListener('click', sendChatMessage);
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
 
+    // 4. Sidebar Coș Lateral
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
     const btnOpenCart = document.getElementById('cart-icon-btn');
@@ -75,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCloseCart) btnCloseCart.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
     if (cartOverlay) cartOverlay.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
 
-    // Funcția care scoate produsele fantezie din coș dacă nu mai sunt în DB
+    // 5. Validare Coș (Curăță produsele șterse din baza de date)
     window.validateCart = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         let validCart = [];
@@ -87,10 +91,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (exists) validCart.push(item);
                 else changed = true;
             });
-            if (changed) localStorage.setItem('divino_cart', JSON.stringify(validCart));
+            if (changed) {
+                localStorage.setItem('divino_cart', JSON.stringify(validCart));
+                window.dispatchEvent(new Event('cartUpdated')); 
+            }
         }
     };
 
+    // 6. Gestiune Cantitate (+ / -)
     window.changeQtyDB = function(id, change) {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const index = cart.findIndex(i => i.id === id);
@@ -102,11 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 7. Adăugare Produs
     window.addToCartDB = function(id, name, price, is1plus1, btnElement) {
         if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
         
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
-        cart.push({ id: id, quantity: 1 }); // Salvăm strict ID-ul și cantitatea
+        cart.push({ id: id, quantity: 1 }); 
         localStorage.setItem('divino_cart', JSON.stringify(cart));
         
         if (btnElement) {
@@ -124,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 8. Sincronizare Butoane din Meniu cu Coșul (Afișează - 1 + dacă e deja în coș)
     window.syncMenuButtons = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         if (window.dbProductsList) {
@@ -151,13 +161,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 9. Actualizare UI Coș + Bon Fiscal HoReCa
     window.updateCartUI = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const container = document.getElementById('cart-items');
         
         let totalItems = 0;
-        let subtotalOriginal = 0; // Preț întreg (fără reducerea pe produs)
-        let subtotalDiscounted = 0; // Preț redus (de vânzare actual)
+        let subtotalOriginal = 0; 
+        let subtotalDiscounted = 0; 
         
         if (container) {
             container.innerHTML = '';
@@ -166,7 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 cart.forEach((item) => {
                     const dbItem = window.dbProductsList ? window.dbProductsList.find(p => p.id === item.id) : null;
-                    
                     if (dbItem) {
                         totalItems += item.quantity;
                         const itemPrice = dbItem.price;
@@ -206,21 +216,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // Calcul Costuri Livrare și Total
+        // Citirea regulilor de livrare setate în Admin
         const deliveryCost = window.DELIVERY_COST !== undefined ? parseFloat(window.DELIVERY_COST) : 15;
         const threshold = window.FREE_DELIVERY_THRESHOLD !== undefined ? parseFloat(window.FREE_DELIVERY_THRESHOLD) : 100;
+        const minOrder = window.MIN_ORDER !== undefined ? parseFloat(window.MIN_ORDER) : 50;
+        const packTax = window.PACKAGING_TAX !== undefined ? parseFloat(window.PACKAGING_TAX) : 2.5;
         
         let finalDelivery = deliveryCost;
         let deliverySavings = 0;
+        let totalPackaging = packTax * totalItems; 
         
         if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
-            finalDelivery = 0;
+            finalDelivery = 0; 
             deliverySavings = deliveryCost;
         } else if (subtotalDiscounted === 0) {
-            finalDelivery = 0; // Coș gol
+            finalDelivery = 0; 
+            totalPackaging = 0;
         }
         
-        const totalToPay = subtotalDiscounted + finalDelivery;
+        const totalToPay = subtotalDiscounted + finalDelivery + totalPackaging;
         const productSavings = subtotalOriginal - subtotalDiscounted;
         const totalSavings = productSavings + deliverySavings;
         
@@ -243,45 +257,57 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Randează tot bonul detaliat în footer-ul coșului
+        // Randarea Bonului Fiscal
         const totalsContainer = document.getElementById('cart-totals-area');
         if (totalsContainer) {
-            totalsContainer.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
-                    <span>Subtotal produse:</span>
-                    <span>${subtotalOriginal.toFixed(2)} lei</span>
-                </div>
-                ${productSavings > 0 ? `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:var(--danger); font-weight:bold;">
-                    <span>Reduceri produse:</span>
-                    <span>-${productSavings.toFixed(2)} lei</span>
-                </div>
-                ` : ''}
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
-                    <span>Cost livrare:</span>
-                    <span style="${finalDelivery === 0 && subtotalDiscounted > 0 ? 'text-decoration:line-through; color:var(--success); font-weight:bold;' : ''}">${deliveryCost.toFixed(2)} lei</span>
-                </div>
-                ${totalSavings > 0 ? `
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.95rem; color:var(--success); font-weight:800; border-bottom:1px solid var(--border); padding-bottom:10px;">
-                    <span>Total economisit:</span>
-                    <span>${totalSavings.toFixed(2)} lei</span>
-                </div>
-                ` : '<div style="border-bottom:1px solid var(--border); margin-bottom:15px;"></div>'}
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:700; font-size:1.1rem; color:var(--dark);">Total de plată:</span>
-                    <span style="font-size:1.8rem; font-weight:800; font-family:'Cinzel', serif; color:var(--dark);">${totalToPay.toFixed(2)} lei</span>
-                </div>
-            `;
+            if (subtotalDiscounted > 0) {
+                totalsContainer.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
+                        <span>Subtotal produse:</span><span>${subtotalOriginal.toFixed(2)} lei</span>
+                    </div>
+                    ${productSavings > 0 ? `<div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:var(--danger); font-weight:bold;"><span>Reduceri produse:</span><span>-${productSavings.toFixed(2)} lei</span></div>` : ''}
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
+                        <span>Taxă ambalaje (${totalItems} buc):</span><span>${totalPackaging.toFixed(2)} lei</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
+                        <span>Cost livrare:</span><span style="${finalDelivery === 0 ? 'text-decoration:line-through; color:var(--success); font-weight:bold;' : ''}">${deliveryCost.toFixed(2)} lei</span>
+                    </div>
+                    ${totalSavings > 0 ? `<div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px; color:var(--success); font-weight:800;"><span>Total economisit:</span><span>${totalSavings.toFixed(2)} lei</span></div>` : '<div style="border-bottom:1px solid var(--border); margin-bottom:15px;"></div>'}
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:700; font-size:1.1rem; color:var(--dark);">Total de plată:</span>
+                        <span style="font-size:1.8rem; font-weight:800; font-family:'Cinzel', serif; color:var(--dark);">${totalToPay.toFixed(2)} lei</span>
+                    </div>
+                `;
+            } else {
+                totalsContainer.innerHTML = '';
+            }
+        }
+
+        // Blocare checkout dacă nu se atinge comanda minimă
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            if (subtotalDiscounted > 0 && subtotalDiscounted < minOrder) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.opacity = '0.5';
+                checkoutBtn.textContent = `Comandă minimă: ${minOrder} lei`;
+            } else {
+                checkoutBtn.disabled = false;
+                checkoutBtn.style.opacity = '1';
+                checkoutBtn.textContent = 'Finalizați comanda';
+            }
         }
     };
 
     window.addEventListener('cartUpdated', () => { 
+        if (typeof validateCart === 'function') validateCart();
         if (typeof updateCartUI === 'function') updateCartUI(); 
         if (typeof syncMenuButtons === 'function') syncMenuButtons();
     });
     
     updateCartUI();
 
+    // 10. Pop-up Newsletter
     const popup = document.getElementById('newsletter-popup');
     const closePopupBtn = document.getElementById('close-popup');
     if (closePopupBtn) {
