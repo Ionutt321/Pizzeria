@@ -38,11 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
         try {
-            // Trimitem CĂTRE AI lista de produse CU TOATE OFERTELE
+            // Trimitem CĂTRE AI lista de produse STRICT cu pretul final, fara sa il mai derutam cu procente matematice
             const availableProducts = window.dbProductsList.map(p => {
-                let desc = `${p.name} - ${p.price.toFixed(2)} lei`;
+                let desc = `${p.name} - Preț: ${p.price.toFixed(2)} lei`;
                 if(p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') desc += ' [PROMO: 1+1 GRATIS]';
-                if(p.discountPercent > 0) desc += ` [REDUCERE ${p.discountPercent}%]`;
                 return desc;
             }).join('; ');
 
@@ -293,7 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
-            // Aici blocam plata daca e in afara orelor
             if (typeof window.storeIsOpen !== 'undefined' && !window.storeIsOpen) {
                 checkoutBtn.disabled = true; checkoutBtn.style.opacity = '0.5'; checkoutBtn.textContent = 'Suntem Închiși';
             } else if (subtotalDiscounted > 0 && subtotalDiscounted < minOrder) {
@@ -311,6 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof updateCartUI === 'function') updateCartUI(); 
         if (typeof syncMenuButtons === 'function') syncMenuButtons();
     });
+    
+    updateCartUI();
 
     const popup = document.getElementById('newsletter-popup');
     const closePopupBtn = document.getElementById('close-popup');
