@@ -31,11 +31,9 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        /* Meniu de Navigare Tab-uri */
         .admin-nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-        .tab-nav-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #64748b; font-family: inherit; font-size: 0.95rem; }
+        .tab-nav-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; }
         .tab-nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
         .tab-section { display: none; }
         .tab-section.active { display: block; }
 
@@ -69,11 +67,9 @@
         .btn-action.delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .btn-action.toggle:hover { background: var(--success); color: white; border-color: var(--success); }
 
-        /* Tabel Abonați */
         .subscribers-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .subscribers-table th, .subscribers-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
         .subscribers-table th { background: #f1f5f9; color: #475569; font-weight: 700; }
-        .subscribers-table tr:hover { background: #f8fafc; }
     </style>
 </head>
 <body>
@@ -103,13 +99,11 @@
             </div>
         </header>
 
-        <!-- Butoane Navigare Tab-uri -->
         <div class="admin-nav-tabs">
             <button class="tab-nav-btn active" onclick="switchAdminTab('menu-tab', this)"><i class="fas fa-utensils"></i> Meniu & Magazin</button>
             <button class="tab-nav-btn" onclick="switchAdminTab('subs-tab', this)"><i class="fas fa-users"></i> Abonați (<span id="sub-badge-count">0</span>)</button>
         </div>
 
-        <!-- TAB 1: Meniu & Setări -->
         <div id="menu-tab" class="tab-section active">
             <div class="admin-grid">
                 <div class="left-column">
@@ -139,9 +133,18 @@
                                         <option value="pizza">Pizza Artizanală</option>
                                     </select>
                                 </div>
+                                <!-- AICI AM ADAUGAT DROPDOWN-UL PENTRU GRAMAJ -->
                                 <div class="form-group">
-                                    <label>Gramaj</label>
-                                    <input type="text" id="p-weight" placeholder="ex: 450g" required>
+                                    <label>Cantitate / Volum</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="number" id="p-weight-val" placeholder="ex: 450" required style="flex:1;">
+                                        <select id="p-weight-unit" style="width: 70px;">
+                                            <option value="g">g</option>
+                                            <option value="ml">ml</option>
+                                            <option value="kg">kg</option>
+                                            <option value="l">l</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -189,7 +192,6 @@
             </div>
         </div>
 
-        <!-- TAB 2: Abonați Newsletter & Lead-uri -->
         <div id="subs-tab" class="tab-section">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -199,17 +201,10 @@
                     </div>
                     <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel (CSV)</button>
                 </div>
-
                 <div style="overflow-x:auto;">
                     <table class="subscribers-table">
                         <thead>
-                            <tr>
-                                <th>Nume</th>
-                                <th>Telefon</th>
-                                <th>Email</th>
-                                <th>Data Înscrierii</th>
-                                <th>Acțiuni</th>
-                            </tr>
+                            <tr><th>Nume</th><th>Telefon</th><th>Email</th><th>Data Înscrierii</th><th>Acțiuni</th></tr>
                         </thead>
                         <tbody id="subs-table-body">
                             <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Se încarcă abonații...</td></tr>
@@ -224,14 +219,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA",
-            authDomain: "pizeria-61550.firebaseapp.com",
-            projectId: "pizeria-61550",
-            storageBucket: "pizeria-61550.firebasestorage.app",
-            messagingSenderId: "655046868435",
-            appId: "1:655046868435:web:b9a0815d10e38e4f1dc326"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -240,9 +228,7 @@
             if (document.getElementById('pin-input').value === ADMIN_PIN) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-                loadSettings();
-                listenProducts();
-                listenSubscribers();
+                loadSettings(); listenProducts(); listenSubscribers();
             } else {
                 document.getElementById('auth-err').style.display = 'block';
                 document.getElementById('pin-input').value = '';
@@ -251,7 +237,6 @@
         document.getElementById('btn-login').addEventListener('click', checkPin);
         document.getElementById('pin-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPin(); });
 
-        // Schimbare Tab-uri Admin
         window.switchAdminTab = function(tabId, btn) {
             document.querySelectorAll('.tab-section').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
@@ -259,7 +244,6 @@
             btn.classList.add('active');
         };
 
-        // Procesare imagine
         let currentBase64Image = "falafel.jpg";
         document.getElementById('p-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -269,12 +253,10 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
                     let width = img.width, height = img.height;
-                    if (width > MAX_WIDTH) { height = (height * MAX_WIDTH) / width; width = MAX_WIDTH; }
+                    if (width > 800) { height = (height * 800) / width; width = 800; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
                     document.getElementById('p-preview').src = currentBase64Image;
                     document.getElementById('p-preview').style.display = 'block';
@@ -284,7 +266,6 @@
             reader.readAsDataURL(file);
         });
 
-        // Setări Status și Livrare
         function loadSettings() {
             db.collection('settings').doc('general').onSnapshot(doc => {
                 if (doc.exists) {
@@ -295,16 +276,13 @@
                 }
             });
         }
-        document.getElementById('store-toggle').addEventListener('change', (e) => {
-            db.collection('settings').doc('general').set({ isOpen: e.target.checked }, { merge: true });
-        });
+        document.getElementById('store-toggle').addEventListener('change', (e) => { db.collection('settings').doc('general').set({ isOpen: e.target.checked }, { merge: true }); });
         window.saveSettings = function() {
             const val = Number(document.getElementById('setting-free-delivery').value);
             db.collection('settings').doc('general').set({ freeDeliveryThreshold: val }, { merge: true });
             alert("Pragul de livrare gratuită a fost salvat!");
         };
 
-        // Salvare / Editare Produse
         let editingProductId = null;
         const addForm = document.getElementById('add-product-form');
         const submitBtn = document.getElementById('btn-submit-form');
@@ -315,10 +293,21 @@
                 const p = doc.data();
                 document.getElementById('p-name').value = p.name;
                 document.getElementById('p-cat').value = p.category;
-                document.getElementById('p-weight').value = p.weight || '';
+                
+                // Setare dropdown cantitate corectă la editare
+                if (p.weight) {
+                    let match = String(p.weight).match(/^([\d.]+)\s*([a-zA-Z]+)$/);
+                    if (match) {
+                        document.getElementById('p-weight-val').value = match[1];
+                        document.getElementById('p-weight-unit').value = match[2];
+                    } else {
+                        document.getElementById('p-weight-val').value = p.weight.replace(/[^\d.-]/g, '');
+                    }
+                }
+                
                 document.getElementById('p-price').value = p.originalPrice || p.price;
                 document.getElementById('p-discount').value = p.discountPercent || 0;
-                document.getElementById('p-1plus1').checked = p.onePlusOne || false;
+                document.getElementById('p-1plus1').checked = p.onePlusOne === true || p.onePlusOne === 'true';
                 document.getElementById('p-badge').value = p.badge || '';
                 document.getElementById('p-desc').value = p.description;
                 currentBase64Image = p.image;
@@ -335,9 +324,7 @@
         };
 
         window.cancelEdit = function() {
-            editingProductId = null;
-            addForm.reset();
-            currentBase64Image = "falafel.jpg";
+            editingProductId = null; addForm.reset(); currentBase64Image = "falafel.jpg";
             document.getElementById('p-preview').style.display = 'none';
             document.getElementById('form-title').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--primary);"></i> Adaugă Produs Nou';
             submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvează în Meniu';
@@ -350,11 +337,14 @@
             const basePrice = parseFloat(document.getElementById('p-price').value);
             const discount = parseFloat(document.getElementById('p-discount').value) || 0;
             const finalPrice = basePrice - (basePrice * discount / 100);
+            
+            // Combinare valoare cu unitate de masura (ex: 450 + g = 450g)
+            const weightFinal = document.getElementById('p-weight-val').value.trim() + document.getElementById('p-weight-unit').value;
 
             const productData = {
                 name: document.getElementById('p-name').value.trim(),
                 category: document.getElementById('p-cat').value,
-                weight: document.getElementById('p-weight').value.trim(),
+                weight: weightFinal,
                 originalPrice: basePrice,
                 price: finalPrice,
                 discountPercent: discount,
@@ -366,16 +356,11 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            if (editingProductId) {
-                await db.collection('products').doc(editingProductId).update(productData);
-            } else {
-                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                await db.collection('products').add(productData);
-            }
+            if (editingProductId) await db.collection('products').doc(editingProductId).update(productData);
+            else { productData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('products').add(productData); }
             cancelEdit();
         });
 
-        // Randare Produse
         function listenProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const container = document.getElementById('products-container');
@@ -385,7 +370,7 @@
                 snapshot.forEach(doc => {
                     const p = doc.data();
                     const badges = [];
-                    if(p.onePlusOne) badges.push(`<span class="product-badge badge-red">1+1</span>`);
+                    if(p.onePlusOne === true || p.onePlusOne === 'true') badges.push(`<span class="product-badge badge-red">1+1</span>`);
                     if(p.discountPercent > 0) badges.push(`<span class="product-badge badge-red">-${p.discountPercent}%</span>`);
                     if(p.badge) badges.push(`<span class="product-badge">${p.badge}</span>`);
 
@@ -408,37 +393,24 @@
             });
         }
 
-        // Randare Abonați & Export CSV
         let subscribersList = [];
         function listenSubscribers() {
             db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
                 const tbody = document.getElementById('subs-table-body');
                 document.getElementById('sub-badge-count').textContent = snapshot.size;
                 subscribersList = [];
-
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>';
-                    return;
-                }
-
+                if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">Nu există abonați încă.</td></tr>'; return; }
                 tbody.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const sub = doc.data();
-                    const id = doc.id;
+                    const sub = doc.data(); const id = doc.id;
                     const date = sub.subscribedAt ? sub.subscribedAt.toDate().toLocaleDateString('ro-RO') : 'N/A';
                     subscribersList.push({ Nume: sub.name, Telefon: sub.phone, Email: sub.email, Data: date });
-
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${sub.name || 'Anonim'}</strong></td>
                             <td><a href="tel:${sub.phone}" style="color:var(--primary); text-decoration:none;"><i class="fas fa-phone-alt"></i> ${sub.phone}</a></td>
-                            <td><a href="mailto:${sub.email}" style="color:#0284c7; text-decoration:none;"><i class="fas fa-envelope"></i> ${sub.email}</a></td>
-                            <td>${date}</td>
-                            <td>
-                                <button class="btn-action delete" title="Șterge" onclick="if(confirm('Ștergi acest abonat?')) db.collection('subscribers').doc('${id}').delete()">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
+                            <td>${sub.email}</td><td>${date}</td>
+                            <td><button class="btn-action delete" onclick="if(confirm('Ștergi abonatul?')) db.collection('subscribers').doc('${id}').delete()"><i class="fas fa-trash"></i></button></td>
                         </tr>
                     `;
                 });
@@ -446,16 +418,12 @@
         }
 
         window.exportSubscribersCSV = function() {
-            if (subscribersList.length === 0) return alert("Nu există date de exportat!");
+            if (subscribersList.length === 0) return alert("Nu există date!");
             let csv = "Nume,Telefon,Email,Data Inscriere\n";
-            subscribersList.forEach(row => {
-                csv += `"${row.Nume}","${row.Telefon}","${row.Email}","${row.Data}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            subscribersList.forEach(row => { csv += `"${row.Nume}","${row.Telefon}","${row.Email}","${row.Data}"\n`; });
             const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `abonati_divino_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `abonati_divino.csv`; link.click();
         };
     </script>
 </body>
