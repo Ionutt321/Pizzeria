@@ -6,6 +6,11 @@
     <title>Di'vino | Experiență Culinară Premium</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .footer-schedule { margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: #cbd5e1; }
+        .footer-schedule div { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .footer-schedule .today { font-weight: bold; color: white; }
+    </style>
 </head>
 <body>
 
@@ -15,7 +20,7 @@
     </div>
 
     <div id="store-closed-banner" style="display: none; background: #ef4444; color: white; text-align: center; padding: 12px; font-weight: bold; position: fixed; top: 0; width: 100%; z-index: 2000; font-family: 'Plus Jakarta Sans', sans-serif;">
-        <i class="fas fa-exclamation-circle"></i> Momentan suntem închiși. Nu putem prelua comenzi noi.
+        <i class="fas fa-exclamation-circle"></i> Momentan suntem închiși. Te așteptăm în timpul programului de funcționare!
     </div>
 
     <!-- Navbar -->
@@ -93,10 +98,14 @@
             </div>
             <div class="footer-col">
                 <h3>Contact & Program</h3>
-                <p><i class="fas fa-clock" style="color:var(--primary); width:25px;"></i> 10:00 - 23:00</p>
                 <p><i class="fas fa-map-marker-alt" style="color:var(--primary); width:25px;"></i> Str. Republicii nr. 10</p>
                 <p><i class="fas fa-phone-alt" style="color:var(--primary); width:25px;"></i> 0700 000 000</p>
                 <p><i class="fas fa-envelope" style="color:var(--primary); width:25px;"></i> contact@divino.ro</p>
+                
+                <!-- Container pentru programul generat dinamic din Admin -->
+                <div class="footer-schedule" id="footer-schedule-container">
+                    <p style="font-size:0.8rem; font-style:italic;">Se încarcă programul...</p>
+                </div>
             </div>
             <div class="footer-col">
                 <h3>Abonare Newsletter</h3>
@@ -138,10 +147,54 @@
         <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:12px; text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:700; display:none; border-bottom:1px solid var(--border);"></div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-footer">
-            <div id="cart-totals-area" style="margin-bottom: 20px;">
-                <!-- Bonul fiscal detaliat generat de script.js va apărea aici -->
-            </div>
+            <div id="cart-totals-area" style="margin-bottom: 20px;"></div>
             <button id="checkout-btn" class="btn-primary" style="width: 100%;">Finalizați comanda</button>
+        </div>
+    </div>
+
+    <!-- Pop-up Finalizare Comandă (Checkout) -->
+    <div class="popup-overlay" id="checkout-modal">
+        <div class="popup-box" style="max-width: 500px; text-align: left; padding: 30px;">
+            <button class="close-popup" id="close-checkout">&times;</button>
+            <h2 style="margin-bottom: 20px; text-align: center; color: var(--primary);">Finalizare Comandă</h2>
+            <form id="checkout-form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Nume și Prenume *</label>
+                    <input type="text" id="order-name" required placeholder="Numele tău complet" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Telefon *</label>
+                    <input type="tel" id="order-phone" required placeholder="07XX XXX XXX" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de preluare *</label>
+                    <div style="display: flex; gap: 15px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="order-type" value="delivery" checked id="radio-delivery"> Livrare
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="order-type" value="takeaway" id="radio-takeaway"> Ridicare personală
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" id="address-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Adresă completă de livrare *</label>
+                    <textarea id="order-address" required placeholder="Strada, număr, bloc, scară, etaj, apartament, interfon..." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block;">Metodă de plată *</label>
+                    <select id="order-payment" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit;">
+                        <option value="Cash">Cash (Numerar la livrare/ridicare)</option>
+                        <option value="Card">Card Bancar (POS la locație/curier)</option>
+                        <option value="Edenred">Card Tichete de Masă (DOAR Edenred)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Mențiuni bucătărie (Opțional)</label>
+                    <textarea id="order-notes" placeholder="Ex: Fără ceapă, sosul separat, etc." rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: none; font-family: inherit;"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="btn-submit-order" style="width: 100%; border-radius: 12px; font-size: 1.1rem;">Trimite Comanda Ferma</button>
+            </form>
         </div>
     </div>
 
@@ -186,23 +239,71 @@
 
         window.FREE_DELIVERY_THRESHOLD = 100;
         window.DELIVERY_COST = 15;
+        window.MIN_ORDER = 50;
+        window.PACKAGING_TAX = 2.5;
         window.storeIsOpen = true;
         window.dbProductsList = [];
 
+        function checkSchedule(schedule) {
+            if (!schedule) return true;
+            const daysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const now = new Date();
+            const currentDayString = daysMap[now.getDay()];
+            const todaysSchedule = schedule[currentDayString];
+
+            const roDays = { mon: "Luni", tue: "Marți", wed: "Miercuri", thu: "Joi", fri: "Vineri", sat: "Sâmbătă", sun: "Duminică" };
+            let footerHtml = '';
+            for(let key of daysMap.slice(1).concat(['sun'])) {
+                const isToday = (key === currentDayString) ? 'class="today"' : '';
+                const hoursText = schedule[key] ? schedule[key] : 'Închis';
+                footerHtml += `<div ${isToday}><span>${roDays[key]}</span><span>${hoursText}</span></div>`;
+            }
+            const footerContainer = document.getElementById('footer-schedule-container');
+            if (footerContainer) footerContainer.innerHTML = footerHtml;
+
+            if (!todaysSchedule || todaysSchedule.toLowerCase().includes('inchis') || todaysSchedule.toLowerCase().includes('închis')) return false;
+            
+            const times = todaysSchedule.split('-');
+            if (times.length !== 2) return true;
+
+            const startStr = times[0].trim().split(':');
+            const endStr = times[1].trim().split(':');
+            if(startStr.length !== 2 || endStr.length !== 2) return true;
+
+            const startMinutes = parseInt(startStr[0]) * 60 + parseInt(startStr[1]);
+            const endMinutes = parseInt(endStr[0]) * 60 + parseInt(endStr[1]);
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            if (endMinutes >= startMinutes) {
+                return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+            } else {
+                return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+            }
+        }
+
         db.collection('settings').doc('general').onSnapshot(doc => {
             if (doc.exists) {
-                window.FREE_DELIVERY_THRESHOLD = doc.data().freeDeliveryThreshold || 100;
-                window.DELIVERY_COST = doc.data().deliveryCost !== undefined ? doc.data().deliveryCost : 15;
-                window.storeIsOpen = doc.data().isOpen ?? true;
+                const data = doc.data();
+                window.FREE_DELIVERY_THRESHOLD = data.freeDeliveryThreshold !== undefined ? data.freeDeliveryThreshold : 100;
+                window.DELIVERY_COST = data.deliveryCost !== undefined ? data.deliveryCost : 15;
+                window.MIN_ORDER = data.minOrder !== undefined ? data.minOrder : 50;
+                window.PACKAGING_TAX = data.packagingTax !== undefined ? data.packagingTax : 2.5;
+                
+                const isAutomaticallyOpen = checkSchedule(data.schedule);
+                window.storeIsOpen = isAutomaticallyOpen;
                 
                 const closedBanner = document.getElementById('store-closed-banner');
                 const checkoutBtn = document.getElementById('checkout-btn');
                 if (closedBanner && checkoutBtn) {
                     closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
-                    checkoutBtn.style.opacity = window.storeIsOpen ? '1' : '0.5';
-                    checkoutBtn.textContent = window.storeIsOpen ? 'Finalizați comanda' : 'Magazin Închis';
+                    if(!window.storeIsOpen){
+                        checkoutBtn.style.opacity = '0.5';
+                        checkoutBtn.textContent = 'Suntem Închiși';
+                        checkoutBtn.disabled = true;
+                    } else {
+                        if (typeof updateCartUI === 'function') updateCartUI();
+                    }
                 }
-                if (typeof updateCartUI === 'function') updateCartUI();
             }
         });
 
@@ -261,7 +362,6 @@
             
             if (track) track.innerHTML = rcHTML + rcHTML;
             
-            // După ce se încarcă noile produse, validăm coșul (ștergem produsele fantomă)
             if (typeof validateCart === 'function') validateCart();
             if (typeof syncMenuButtons === 'function') syncMenuButtons();
             if (typeof updateCartUI === 'function') updateCartUI();
