@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // Navbar Scroll Effect
     const navbar = document.getElementById('main-nav');
     window.addEventListener('scroll', () => {
         if (navbar) {
@@ -9,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Chatbot Toggle
     const chatWidget = document.getElementById('chatbot-widget');
     const chatHeader = document.getElementById('chat-toggle');
     const chatIcon = document.getElementById('chat-icon');
@@ -21,33 +19,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
-    // LOGICA AI CHATBOT CONECTAT LA VERCEL
-    // ==========================================
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send');
     const chatLogs = document.getElementById('chat-logs');
-    let messageHistory = []; // Istoricul discutiei
+    let messageHistory = []; 
 
     async function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
         
-        // 1. Afisam mesajul utilizatorului
         chatLogs.innerHTML += `<div class="msg user">${text}</div>`;
         chatInput.value = '';
-        chatLogs.scrollTop = chatLogs.scrollHeight; // scroll jos
+        chatLogs.scrollTop = chatLogs.scrollHeight; 
 
-        // 2. Salvam in istoric
         messageHistory.push({ role: "user", content: text });
 
-        // 3. Indicator de incarcare
         const loadingId = 'load-' + Date.now();
         chatLogs.innerHTML += `<div id="${loadingId}" class="msg bot" style="color:#64748b;"><i class="fas fa-ellipsis-h fa-fade"></i> Se procesează...</div>`;
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
         try {
-            // 4. Trimitem catre Vercel (api/chat.js)
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -55,11 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await response.json();
             
-            // Stergem loader-ul
             document.getElementById(loadingId).remove();
             
             if (data.reply) {
-                // Afisam raspunsul AI-ului (interpretam line breaks)
                 chatLogs.innerHTML += `<div class="msg bot">${data.reply.replace(/\n/g, '<br>')}</div>`;
                 messageHistory.push({ role: "assistant", content: data.reply });
             } else {
@@ -75,10 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (chatSendBtn) chatSendBtn.addEventListener('click', sendChatMessage);
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
-    // ==========================================
 
-
-    // Coș Lateral Toggle
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
     const btnOpenCart = document.getElementById('cart-icon-btn');
@@ -88,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCloseCart) btnCloseCart.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
     if (cartOverlay) cartOverlay.addEventListener('click', () => { cartSidebar.classList.remove('active'); cartOverlay.classList.remove('active'); });
 
-    // Functie Universala de Schimbare Cantitate (+ / -)
     window.changeQtyDB = function(id, change) {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const index = cart.findIndex(i => i.id === id);
@@ -100,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Adaugare Produs cu Animatie rotativa
     window.addToCartDB = function(id, name, price, is1plus1, btnElement) {
         if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
         
@@ -108,12 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
         cart.push({ id: id, name: name, price: parseFloat(price), quantity: 1, is1plus1: is1plus1 === 'true' });
         localStorage.setItem('divino_cart', JSON.stringify(cart));
         
-        // Animatia Verde
         if (btnElement) {
             btnElement.classList.add('spin-green');
             btnElement.innerHTML = '<i class="fas fa-check"></i>';
             setTimeout(() => {
-                window.dispatchEvent(new Event('cartUpdated')); // Dupa 600ms, il transformam in [-] 1 [+]
+                window.dispatchEvent(new Event('cartUpdated'));
             }, 600);
         } else {
              window.dispatchEvent(new Event('cartUpdated'));
@@ -126,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Injectarea [-] [+] in interiorul cardului (Fara a reincarca imaginea)
     window.syncMenuButtons = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         if (window.dbProductsList) {
@@ -154,7 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Randare Coș Lateral
     window.updateCartUI = function() {
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
         const container = document.getElementById('cart-items');
@@ -204,7 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Asculta modificarile globale din site si refoloseste logica de update UI
     window.addEventListener('cartUpdated', () => { 
         if (typeof updateCartUI === 'function') updateCartUI(); 
         if (typeof syncMenuButtons === 'function') syncMenuButtons();
@@ -212,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     updateCartUI();
 
-    // Pop-up Manual Newsletter
     const popup = document.getElementById('newsletter-popup');
     const closePopupBtn = document.getElementById('close-popup');
     if (closePopupBtn) {
