@@ -1,11 +1,9 @@
 export default async function handler(req, res) {
-    // Permitem accesul frontend-ului la acest API
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Doar cereri POST sunt permise' });
 
     try {
         let body = req.body;
@@ -17,13 +15,16 @@ export default async function handler(req, res) {
         const currentMenu = body.currentMenu || "Meniu indisponibil.";
         const storeRules = body.storeRules || "Reguli indisponibile.";
 
-        // Preia cheia GEMINI din Vercel
+        // Preia cheia din Vercel
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) return res.status(500).json({ error: "Cheia GEMINI_API_KEY lipsește din Vercel." });
+        
+        if (!apiKey) {
+            // Trimitem eroarea pe ecran ca să o vezi!
+            return res.status(200).json({ reply: "⚠️ EROARE VERCEL: Nu ai setat GEMINI_API_KEY în variabilele de mediu sau ai uitat să dai Redeploy din tab-ul Deployments." });
+        }
 
-        const PHONE_NUMBER = "40700000000"; // Înlocuiește cu numărul tău real
+        const PHONE_NUMBER = "40700000000"; // Pune numărul tău aici
 
-        // Instrucțiunile stricte pentru Gemini
         const systemPrompt = `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi prietenos și scurt în română.
 INTERZIS: Nu folosi caractere speciale precum steluțe (**) sau diez (#) sub nicio formă. Scrie doar text simplu.
 
@@ -50,40 +51,34 @@ BUTON WHATSAPP:
 Când ai toate datele finale, generează butonul:
 <a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`;
 
-        // Formatăm mesajele pentru formatul specific cerut de Gemini
         const geminiMessages = rawMessages.map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: m.content }]
         }));
 
-        // Structura payload-ului pentru REST API Gemini
         const payload = {
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: geminiMessages,
-            generationConfig: {
-                temperature: 0.2 // Setăm creativitatea la un nivel foarte mic ca să fie strict și calculat
-            }
+            generationConfig: { temperature: 0.2 }
         };
 
-        // Apelăm endpoint-ul Google
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
         const data = await response.json();
         
         if (!response.ok) {
-            return res.status(500).json({ error: data.error?.message || "Eroare la API-ul Google" });
+            // Trimitem eroarea exactă de la Google pe ecran
+            return res.status(200).json({ reply: `⚠️ EROARE GOOGLE: ${data.error?.message || 'Eroare necunoscută'}` });
         }
 
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Eroare generare răspuns AI.";
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Nu am putut genera un răspuns.";
         return res.status(200).json({ reply });
 
     } catch (error) {
-        return res.status(500).json({ error: `Eroare internă backend: ${error.message}` });
+        return res.status(200).json({ reply: `⚠️ EROARE DE COD FRONTEND/BACKEND: ${error.message}` });
     }
 }
