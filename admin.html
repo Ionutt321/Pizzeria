@@ -108,14 +108,18 @@
             <div class="admin-grid">
                 <div class="left-column">
                     <div class="card">
-                        <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Generale</h2>
-                        <div class="form-group">
-                            <label>Prag Livrare Gratuită (RON)</label>
-                            <div style="display:flex; gap:10px;">
+                        <h2><i class="fas fa-truck" style="color: var(--primary);"></i> Setări Livrare</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Prag Livrare Gratuită</label>
                                 <input type="number" id="setting-free-delivery" value="100">
-                                <button class="btn-submit" style="margin:0; width:auto; padding:0 20px;" onclick="saveSettings()">Aplică</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Cost Livrare (RON)</label>
+                                <input type="number" id="setting-delivery-cost" value="15">
                             </div>
                         </div>
+                        <button class="btn-submit" onclick="saveSettings()">Salvează Setări Livrare</button>
                     </div>
 
                     <div class="card">
@@ -133,7 +137,6 @@
                                         <option value="pizza">Pizza Artizanală</option>
                                     </select>
                                 </div>
-                                <!-- AICI AM ADAUGAT DROPDOWN-UL PENTRU GRAMAJ -->
                                 <div class="form-group">
                                     <label>Cantitate / Volum</label>
                                     <div style="display: flex; gap: 5px;">
@@ -273,14 +276,20 @@
                     document.getElementById('store-toggle').checked = data.isOpen ?? true;
                     document.getElementById('store-status-text').textContent = (data.isOpen ?? true) ? 'Magazin Deschis' : 'Magazin Închis';
                     document.getElementById('setting-free-delivery').value = data.freeDeliveryThreshold || 100;
+                    document.getElementById('setting-delivery-cost').value = data.deliveryCost !== undefined ? data.deliveryCost : 15;
                 }
             });
         }
         document.getElementById('store-toggle').addEventListener('change', (e) => { db.collection('settings').doc('general').set({ isOpen: e.target.checked }, { merge: true }); });
+        
         window.saveSettings = function() {
-            const val = Number(document.getElementById('setting-free-delivery').value);
-            db.collection('settings').doc('general').set({ freeDeliveryThreshold: val }, { merge: true });
-            alert("Pragul de livrare gratuită a fost salvat!");
+            const freeThreshold = Number(document.getElementById('setting-free-delivery').value);
+            const devCost = Number(document.getElementById('setting-delivery-cost').value);
+            db.collection('settings').doc('general').set({ 
+                freeDeliveryThreshold: freeThreshold,
+                deliveryCost: devCost
+            }, { merge: true });
+            alert("Setările de livrare au fost salvate!");
         };
 
         let editingProductId = null;
@@ -294,7 +303,6 @@
                 document.getElementById('p-name').value = p.name;
                 document.getElementById('p-cat').value = p.category;
                 
-                // Setare dropdown cantitate corectă la editare
                 if (p.weight) {
                     let match = String(p.weight).match(/^([\d.]+)\s*([a-zA-Z]+)$/);
                     if (match) {
@@ -337,8 +345,6 @@
             const basePrice = parseFloat(document.getElementById('p-price').value);
             const discount = parseFloat(document.getElementById('p-discount').value) || 0;
             const finalPrice = basePrice - (basePrice * discount / 100);
-            
-            // Combinare valoare cu unitate de masura (ex: 450 + g = 450g)
             const weightFinal = document.getElementById('p-weight-val').value.trim() + document.getElementById('p-weight-unit').value;
 
             const productData = {
