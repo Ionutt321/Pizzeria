@@ -32,7 +32,7 @@
     </nav>
     <style>@media(max-width: 768px){ .hide-mobile { display:none; } .nav-links { display:none; } }</style>
 
-    <!-- HERO RESTABILIT (Poza cu overlay închis + Textul focalizat) -->
+    <!-- HERO RESTABILIT -->
     <section id="hero" class="hero">
         <span class="hero-badge">Tradiție & Inovație</span>
         <h1>O NOUĂ<br><span>DIMENSIUNE</span><br>A GUSTULUI</h1>
@@ -84,7 +84,7 @@
         </div>
     </section>
 
-    <!-- Footer cu Formular pt Admin -->
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col">
@@ -138,15 +138,14 @@
         <div id="free-delivery-msg" style="background:#e0f2fe; color:#0369a1; padding:12px; text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:700; display:none; border-bottom:1px solid var(--border);"></div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-footer">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <span style="font-weight:700; font-family:'Plus Jakarta Sans', sans-serif; font-size:1.1rem;">Total estimat:</span>
-                <span id="cart-total-price" style="font-size:1.8rem; font-weight:800; font-family:'Cinzel', serif; color:var(--dark);">0,00 lei</span>
+            <div id="cart-totals-area" style="margin-bottom: 20px;">
+                <!-- Bonul fiscal detaliat generat de script.js va apărea aici -->
             </div>
             <button id="checkout-btn" class="btn-primary" style="width: 100%;">Finalizați comanda</button>
         </div>
     </div>
 
-    <!-- Pop-up Newsletter Intrare -->
+    <!-- Pop-up Newsletter -->
     <div class="popup-overlay" id="newsletter-popup">
         <div class="popup-box">
             <button class="close-popup" id="close-popup">&times;</button>
@@ -186,13 +185,16 @@
         const db = firebase.firestore();
 
         window.FREE_DELIVERY_THRESHOLD = 100;
+        window.DELIVERY_COST = 15;
         window.storeIsOpen = true;
         window.dbProductsList = [];
 
         db.collection('settings').doc('general').onSnapshot(doc => {
             if (doc.exists) {
                 window.FREE_DELIVERY_THRESHOLD = doc.data().freeDeliveryThreshold || 100;
+                window.DELIVERY_COST = doc.data().deliveryCost !== undefined ? doc.data().deliveryCost : 15;
                 window.storeIsOpen = doc.data().isOpen ?? true;
+                
                 const closedBanner = document.getElementById('store-closed-banner');
                 const checkoutBtn = document.getElementById('checkout-btn');
                 if (closedBanner && checkoutBtn) {
@@ -227,14 +229,12 @@
                     </div>
                 `;
 
-                // LOGICA REPARATĂ: Dacă există discount > 0, arată prețul tăiat vechi + prețul nou roșu. Altfel, doar prețul normal.
                 const hasDiscount = parseFloat(p.discountPercent) > 0;
                 const priceDisplay = hasDiscount 
                     ? `<s style="color:#94a3b8; font-size:1.1rem; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` 
                     : `<span class="price">${p.price.toFixed(2)} lei</span>`;
                 
                 let badgesArr = [];
-                // Asigurăm evaluarea booleană indiferent cum o dă baza de date
                 const is1Plus1 = (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true');
                 if (is1Plus1) badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
                 if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
@@ -258,8 +258,13 @@
                 if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
                 else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
+            
             if (track) track.innerHTML = rcHTML + rcHTML;
+            
+            // După ce se încarcă noile produse, validăm coșul (ștergem produsele fantomă)
+            if (typeof validateCart === 'function') validateCart();
             if (typeof syncMenuButtons === 'function') syncMenuButtons();
+            if (typeof updateCartUI === 'function') updateCartUI();
         });
 
         async function submitNewsletter(form, nume, phone, email) {
