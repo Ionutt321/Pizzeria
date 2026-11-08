@@ -7,8 +7,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        #checkout-modal .form-group input:focus, #checkout-modal .form-group textarea:focus, #checkout-modal .form-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(194,65,12,0.1); }
+        #checkout-modal .form-group input:focus, #checkout-modal .form-group textarea:focus, #checkout-modal .form-group select:focus {
+            border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(194,65,12,0.1);
+        }
         input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; }
+        
         .footer-schedule { margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: #cbd5e1; }
         .footer-schedule div { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .footer-schedule .today { font-weight: bold; color: white; }
@@ -186,9 +189,8 @@
             const jsDaysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
             const currentDayString = jsDaysMap[now.getDay()];
 
-            if (!schedule) {
-                if (footerContainer) footerContainer.innerHTML = '<p style="font-size:0.9rem;">Programul nu a fost setat.</p>';
-                return true; 
+            if (!schedule || Object.keys(schedule).length === 0) {
+                schedule = { mon: '10:00 - 23:00', tue: '10:00 - 23:00', wed: '10:00 - 23:00', thu: '10:00 - 23:00', fri: '10:00 - 23:00', sat: '10:00 - 23:00', sun: '10:00 - 23:00' };
             }
 
             let footerHtml = '';
@@ -233,7 +235,6 @@
                 const closedBanner = document.getElementById('store-closed-banner');
                 if (closedBanner) closedBanner.style.display = window.storeIsOpen ? 'none' : 'block';
                 
-                // Forțăm coșul să se actualizeze când se schimbă statusul (închis/deschis)
                 window.dispatchEvent(new Event('cartUpdated'));
             }
         });
@@ -255,11 +256,32 @@
                 const priceDisplay = hasDiscount ? `<s style="color:#94a3b8; font-size:1.1rem; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` : `<span class="price">${p.price.toFixed(2)} lei</span>`;
                 
                 let badgesArr = [];
+                // Afișăm separat etichetele pentru a putea apărea mai multe odată
+                if (hasDiscount) badgesArr.push(`<span class="badge-custom" style="background:#fee2e2; color:#b91c1c;">-${p.discountPercent}%</span>`);
                 if (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
                 if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
-                const badgeHTML = badgesArr.length > 0 ? `<div class="badges-container">${badgesArr.join('')}</div>` : '';
+                
+                // Div container pentru multiple etichete deasupra imaginii
+                const badgeHTML = badgesArr.length > 0 ? `<div style="position:absolute; top:10px; right:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-end;">${badgesArr.join('')}</div>` : '';
 
-                const cardHTML = `<div class="menu-card"><div class="card-img"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}">${badgeHTML}</div><div class="card-info"><div><h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; text-transform:none;">${p.weight || ''}</span></h3><p>${p.description}</p></div><div class="card-bottom"><div>${priceDisplay}</div><div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div></div></div></div>`;
+                const cardHTML = `
+                <div class="menu-card">
+                    <div class="card-img" style="position:relative;">
+                        <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
+                        ${badgeHTML}
+                    </div>
+                    <div class="card-info">
+                        <div>
+                            <h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; text-transform:none;">${p.weight || ''}</span></h3>
+                            <p>${p.description}</p>
+                        </div>
+                        <div class="card-bottom">
+                            <div>${priceDisplay}</div>
+                            <div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div>
+                        </div>
+                    </div>
+                </div>`;
+                
                 if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
                 else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
             });
