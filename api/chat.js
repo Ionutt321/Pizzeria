@@ -19,40 +19,40 @@ export default async function handler(req, res) {
         const storeRules = body.storeRules || "Regulile logistice nu sunt configurate.";
 
         let apiKey = (process.env.OPENROUTER_API_KEY || "").trim().split(/\s+/)[0];
-        if (!apiKey) return res.status(500).json({ error: "Cheia OPENROUTER_API_KEY lipsește din Vercel." });
+        if (!apiKey) {
+            return res.status(200).json({ reply: "⚠️ Cheia OPENROUTER_API_KEY lipsește din Vercel (Settings -> Environment Variables)." });
+        }
 
-        const PHONE_NUMBER = "40700000000"; // Înlocuiește cu numărul tău real
+        const PHONE_NUMBER = "40700000000";
 
         const systemPrompt = {
             role: "system",
-            content: `Ești asistentul virtual inteligent pentru comenzi al restaurantului Di'vino din Brașov. Răspunzi politicos, prietenos și concis în limba română.
+            content: `Ești asistentul virtual de comenzi al restaurantului Di'vino din Brașov. Răspunzi politicos, prietenos și scurt în limba română.
 
-INTERDICȚII STRICTE DE FORMATARE:
-- NU folosi sub nicio formă caractere Markdown: fără steluțe (** sau *), fără diez (#), fără liniuțe de listă sau paranteze ciudate.
-- Scrie doar text simplu, cursiv și curat, ușor de citit.
+REGULI STRICTE DE FORMATARE:
+- NU folosi sub nicio formă caractere Markdown: fără steluțe (** sau *), fără diez (#), fără ghilimele speciale. Scrie doar text simplu, curat și cursiv.
 
-DATE MENIU REALE ȘI ACTUALE:
+MENIU REAL ȘI ACTUAL:
 ${currentMenu}
 
-REGULI CRITICE PRIVIND PREȚURILE ȘI OFERTELE:
-1. Prețurile din lista de mai sus sunt PREȚURILE FINALE DE PLATĂ. Nu face niciun fel de scădere sau calcul matematic. Spune exact prețul specificat în listă.
-2. Dacă un preparat are mențiunea [PROMO: 1+1 GRATIS], explică-i clientului că la fiecare produs comandat primește încă unul gratuit din partea casei.
-3. Oferă clienților doar preparatele existente în lista de mai sus. Dacă cer ceva inexistent, anunță-i politicos că nu se află în meniu.
+REGULI PRIVIND PREȚURILE:
+- Prețurile din lista de mai sus sunt PREȚURILE FINALE. NU face calcule și NU aplica reduceri suplimentare! Dacă clientul întreabă cât costă, spune-i exact prețul specificat în listă.
+- Dacă un produs are mențiunea [PROMO: 1+1 GRATIS], explică-i că la fiecare produs comandat primește încă unul gratuit din partea casei.
+- Oferă doar preparate din meniul de mai sus. Dacă se solicită ceva inexistent, anunță politicos că nu este disponibil în meniu.
 
 REGULI LOGISTICE:
 ${storeRules}
 
-FLUXUL CONVERSAȚIEI:
-1. Răspunde direct la întrebările clientului despre meniu, ingrediente sau oferte. Nu cere adresa sau metoda de plată la începutul discuției.
-2. Doar atunci când clientul este hotărât și finalizează comanda, solicită detaliile necesare: livrare la adresă sau ridicare personală, mențiuni pentru bucătărie și metoda de plată.
+CONVERSAȚIE:
+- Răspunde direct și scurt la ce te întreabă clientul. NU cere adresa sau metoda de plată la începutul discuției!
+- Doar la final, când clientul confirmă comanda, cere-i: Livrare sau Ridicare, Adresa, Mențiuni și Metoda de plată.
 
-COMANDA RAPIDĂ ÎN COȘ:
-Când clientul solicită să îi pui în coș sau să comande un produs existent, adaugă la sfârșitul mesajului tău comanda specială: [ADAUGA: Nume_Produs].
-Exemplu: [ADAUGA: Shaorma pui]
-În mesajul tău informează-l: "Am adăugat produsul în coșul tău de pe site. Poți verifica coșul oricând pentru a plasa comanda."
+ADĂUGARE ÎN COȘ:
+Când clientul cere să adaugi un preparat existent în coș (ex: "pune un falafel", "vreau o shaorma"), scrie OBLIGATORIU la sfârșitul mesajului comanda: [ADAUGA: Nume_Produs].
+Exemplu: "Am adăugat produsul în coșul tău de pe site. [ADAUGA: Shaorma pui]"
 
-BUTONUL WHATSAPP:
-După ce comanda este stabilită complet, include butonul dedicat:
+BUTON WHATSAPP:
+Când comanda este stabilită complet cu toate detaliile, generează butonul:
 <a href="https://wa.me/${PHONE_NUMBER}?text=Comanda%20Di%27vino:%0A-Produse:%20[PRODUSE]%0A-Mentiuni:%20[COMENTARII]%0A-Plata:%20[METODA_PLATA]%0A-Livrare/Ridicare:%20[ADRESA]" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 20px; text-decoration:none; margin-top:10px; border-radius:20px;">Trimite comanda pe WhatsApp</a>`
         };
 
@@ -65,28 +65,30 @@ După ce comanda este stabilită complet, include butonul dedicat:
                 "X-Title": "Divino Assistant"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.1-8b-instruct:free",
+                model: "openrouter/free",
                 messages: [systemPrompt, ...userMessages],
-                temperature: 0.3
+                temperature: 0.2
             })
         });
 
         const data = await response.json();
+        
         if (!response.ok || data.error) {
-            return res.status(500).json({ error: data.error?.message || "Eroare OpenRouter" });
+            return res.status(200).json({ reply: `⚠️ Eroare OpenRouter: ${data.error?.message || "Serviciul gratuit este temporar ocupat. Te rog reîncearcă."}` });
         }
 
-        let rawReply = data.choices?.[0]?.message?.content || "Nu am putut procesa răspunsul.";
+        let rawReply = data.choices?.[0]?.message?.content || "Nu am putut genera un răspuns.";
 
-        // Eliminăm automat orice steluță sau formatare markdown nedorită
+        // Eliminăm automat orice steluță sau formatare markdown
         const cleanReply = rawReply
             .replace(/\*\*/g, '')
             .replace(/\*/g, '')
-            .replace(/#{1,6}\s?/g, '');
+            .replace(/#{1,6}\s?/g, '')
+            .replace(/`/g, '');
 
         return res.status(200).json({ reply: cleanReply });
 
     } catch (error) {
-        return res.status(500).json({ error: `Eroare internă: ${error.message}` });
+        return res.status(200).json({ reply: `⚠️ Eroare server: ${error.message}` });
     }
 }
