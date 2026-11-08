@@ -39,19 +39,59 @@ document.addEventListener("DOMContentLoaded", () => {
         chatLogs.scrollTop = chatLogs.scrollHeight;
 
         try {
+            // Trimitem CĂTRE Vercel și lista curentă de produse din DB, ca AI-ul să știe prețurile și produsele REALE (să nu mai adauge Diavola dacă e ștearsă)
+            const availableProducts = window.dbProductsList.map(p => `${p.name} - ${p.price} lei`).join(', ');
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages: messageHistory })
+                body: JSON.stringify({ 
+                    messages: messageHistory,
+                    currentMenu: availableProducts
+                })
             });
             const data = await response.json();
             
             document.getElementById(loadingId).remove();
             
             if (data.reply) {
-                let botReply = data.reply.replace(/\n/g, '<br>');
+                let botReply = data.reply;
+                let addedItems = [];
+
+                // Verificăm dacă AI-ul vrea să adauge ceva
+                const addRegex = /\[ADAUGA:\s*(.+?)\]/gi;
+                let match;
+                
+                while ((match = addRegex.exec(botReply)) !== null) {
+                    let itemName = match[1].trim().toLowerCase();
+                    if (window.dbProductsList) {
+                        let foundProduct = window.dbProductsList.find(p => p.name.toLowerCase().includes(itemName));
+                        if (foundProduct) {
+                            let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
+                            
+                            // Aici am corectat bug-ul cu dublurile:
+                            let existingItem = cart.find(i => i.id === foundProduct.id);
+                            if(existingItem) {
+                                existingItem.quantity += 1;
+                            } else {
+                                cart.push({ id: foundProduct.id, quantity: 1 });
+                            }
+                            
+                            localStorage.setItem('divino_cart', JSON.stringify(cart));
+                            addedItems.push(foundProduct.name);
+                        }
+                    }
+                }
+
+                botReply = botReply.replace(/\[ADAUGA:\s*(.+?)\]/gi, '').trim().replace(/\n/g, '<br>');
+
+                if (addedItems.length > 0) {
+                    botReply += `<br><br><div style="color:var(--success); font-weight:bold; font-size: 0.9rem;"><i class="fas fa-check-circle"></i> S-au adăugat în coș: ${addedItems.join(', ')}.</div>`;
+                    window.dispatchEvent(new Event('cartUpdated')); 
+                }
+
                 chatLogs.innerHTML += `<div class="msg bot">${botReply}</div>`;
-                messageHistory.push({ role: "assistant", content: data.reply }); 
+                messageHistory.push({ role: "assistant", content: botReply }); 
             } else {
                 chatLogs.innerHTML += `<div class="msg bot" style="color:red;">Eroare de la asistent. Încearcă din nou.</div>`;
             }
@@ -108,10 +148,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof storeIsOpen !== 'undefined' && !storeIsOpen) return alert("Magazinul este momentan închis!");
         
         let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
-        cart.push({ id: id, quantity: 1 }); 
+        
+        // Nu mai facem push orb. Verificăm dacă există produsul.
+        let existingItem = cart.find(i => i.id === id);
+        if(existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ id: id, quantity: 1 }); 
+        }
+        
         localStorage.setItem('divino_cart', JSON.stringify(cart));
         
         if (btnElement) {
+            // Animația funcționează ACUM DOAR pe butonul efectiv la care am dat click
             btnElement.classList.add('spin-green');
             btnElement.innerHTML = '<i class="fas fa-check"></i>';
             setTimeout(() => { window.dispatchEvent(new Event('cartUpdated')); }, 600);
@@ -216,19 +265,25 @@ document.addEventListener("DOMContentLoaded", () => {
         let deliverySavings = 0;
         let totalPackaging = packTax * totalItems; 
         
-        if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
-            finalDelivery = 0; 
-            deliverySavings = deliveryCost;
-        } else if (subtotalDiscounted === 0) {
-            finalDelivery = 0; 
-            totalPackaging = 0;
+        const orderTypeInput = document.querySelector('input[name="order-type"]:checked');
+        const isTakeaway = orderTypeInput && orderTypeInput.value === 'takeaway';
+
+        if (isTakeaway) {
+            finalDelivery = 0; deliverySavings = 0;
+        } else {
+            if (subtotalDiscounted >= threshold && subtotalDiscounted > 0) {
+                finalDelivery = 0; 
+                deliverySavings = deliveryCost;
+            } else if (subtotalDiscounted === 0) {
+                finalDelivery = 0; 
+                totalPackaging = 0;
+            }
         }
         
         const totalToPay = subtotalDiscounted + finalDelivery + totalPackaging;
         const productSavings = subtotalOriginal - subtotalDiscounted;
         const totalSavings = productSavings + deliverySavings;
         
-        // Salvăm totalul curent pentru a-l folosi la finalizare
         window.currentOrderTotal = totalToPay;
         
         const countEl = document.getElementById('cart-count');
@@ -236,17 +291,23 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const msgArea = document.getElementById('free-delivery-msg');
         if (msgArea) {
-            const diff = threshold - subtotalDiscounted;
-            if (subtotalDiscounted === 0) { 
-                msgArea.style.display = 'none'; 
-            } else if (diff > 0) { 
+            if (isTakeaway) {
                 msgArea.style.display = 'block';
-                msgArea.innerHTML = `Mai adaugă <strong>${diff.toFixed(2)} lei</strong> pt. livrare gratuită!`; 
-                msgArea.style.background = '#e0f2fe'; msgArea.style.color = '#0369a1'; 
-            } else { 
-                msgArea.style.display = 'block';
-                msgArea.innerHTML = `🎉 <strong>Livrare gratuită</strong>! Ai economisit ${deliveryCost.toFixed(2)} lei.`; 
-                msgArea.style.background = '#dcfce7'; msgArea.style.color = '#166534'; 
+                msgArea.innerHTML = `Livrăm gratuit pentru ridicare personală!`; 
+                msgArea.style.background = '#fef3c7'; msgArea.style.color = '#b45309'; 
+            } else {
+                const diff = threshold - subtotalDiscounted;
+                if (subtotalDiscounted === 0) { 
+                    msgArea.style.display = 'none'; 
+                } else if (diff > 0) { 
+                    msgArea.style.display = 'block';
+                    msgArea.innerHTML = `Mai adaugă <strong>${diff.toFixed(2)} lei</strong> pt. livrare gratuită!`; 
+                    msgArea.style.background = '#e0f2fe'; msgArea.style.color = '#0369a1'; 
+                } else { 
+                    msgArea.style.display = 'block';
+                    msgArea.innerHTML = `🎉 <strong>Livrare gratuită</strong>! Ai economisit ${deliveryCost.toFixed(2)} lei.`; 
+                    msgArea.style.background = '#dcfce7'; msgArea.style.color = '#166534'; 
+                }
             }
         }
 
@@ -261,9 +322,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
                         <span>Taxă ambalaje (${totalItems} buc):</span><span>${totalPackaging.toFixed(2)} lei</span>
                     </div>
+                    ${!isTakeaway ? `
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color:#64748b;">
                         <span>Cost livrare:</span><span style="${finalDelivery === 0 ? 'text-decoration:line-through; color:var(--success); font-weight:bold;' : ''}">${deliveryCost.toFixed(2)} lei</span>
                     </div>
+                    ` : ''}
                     ${totalSavings > 0 ? `<div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px; color:var(--success); font-weight:800;"><span>Total economisit:</span><span>${totalSavings.toFixed(2)} lei</span></div>` : '<div style="border-bottom:1px solid var(--border); margin-bottom:15px;"></div>'}
                     
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -312,7 +375,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- LOGICA DE FINALIZARE COMANDĂ (CHECKOUT) ---
     const checkoutBtn = document.getElementById('checkout-btn');
     const checkoutModal = document.getElementById('checkout-modal');
     const closeCheckoutBtn = document.getElementById('close-checkout');
@@ -335,21 +397,19 @@ document.addEventListener("DOMContentLoaded", () => {
         closeCheckoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             checkoutModal.classList.remove('show');
-            document.getElementById('cart-sidebar').classList.add('active'); // Redeschide coșul dacă anulează
+            document.getElementById('cart-sidebar').classList.add('active'); 
         });
     }
 
-    // Ascunde/Arată câmpul de adresă în funcție de tipul comenzii
     if (radioDelivery && radioTakeaway) {
         radioDelivery.addEventListener('change', () => {
             addressGroup.style.display = 'block';
             orderAddress.required = true;
-            window.dispatchEvent(new Event('cartUpdated')); // Recalculează cu livrare
+            window.dispatchEvent(new Event('cartUpdated')); 
         });
         radioTakeaway.addEventListener('change', () => {
             addressGroup.style.display = 'none';
             orderAddress.required = false;
-            // Dacă e ridicare personală, forțăm costul de livrare la 0 în background temporar
             window.dispatchEvent(new Event('cartUpdated'));
         });
     }
@@ -364,7 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let cart = JSON.parse(localStorage.getItem('divino_cart')) || [];
             
-            // Construim lista detaliată a produselor din coș
             let orderItems = [];
             cart.forEach(item => {
                 const dbItem = window.dbProductsList.find(p => p.id === item.id);
@@ -379,7 +438,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // Colectăm datele clientului
             const orderData = {
                 customerName: document.getElementById('order-name').value.trim(),
                 customerPhone: document.getElementById('order-phone').value.trim(),
@@ -389,19 +447,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 notes: document.getElementById('order-notes').value.trim(),
                 items: orderItems,
                 totalPrice: window.currentOrderTotal || 0,
-                status: 'new', // Statusul inițial în Admin
+                status: 'new', 
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                // Trimitem în Firebase
                 await db.collection('orders').add(orderData);
                 
-                // Golim coșul
                 localStorage.removeItem('divino_cart');
                 window.dispatchEvent(new Event('cartUpdated'));
                 
-                // Mesaj de succes
                 checkoutForm.innerHTML = `
                     <div style="text-align:center; padding: 20px 0;">
                         <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success); margin-bottom:15px;"></i>
