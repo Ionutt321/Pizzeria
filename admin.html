@@ -130,6 +130,11 @@
         .ranking-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         .ranking-table th, .ranking-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
         .ranking-table th { background: #f8fafc; font-weight: 700; color: #475569; font-size: 0.8rem; text-transform: uppercase; }
+        
+        /* Newsletter / Email Marketing */
+        .email-builder { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .email-builder input, .email-builder textarea { border-color: var(--border); }
+        .email-builder input:focus, .email-builder textarea:focus { border-color: var(--info); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
     </style>
 </head>
 <body>
@@ -175,7 +180,6 @@
             <div class="card">
                 <h2><i class="fas fa-wallet" style="color: var(--primary);"></i> Performanță Vânzări & Eficiență Bucătărie</h2>
                 
-                <!-- Filtrare Calendar & Granularitate -->
                 <div class="filter-bar">
                     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                         <div class="filter-group">
@@ -209,7 +213,6 @@
                     </div>
                 </div>
 
-                <!-- KPI Cards -->
                 <div class="kpi-grid">
                     <div class="kpi-card" style="border-left: 4px solid var(--success);">
                         <p><i class="fas fa-coins"></i> Încasări Nete (Valide)</p>
@@ -236,7 +239,6 @@
                     </div>
                 </div>
 
-                <!-- Grafice: Trend Vânzări & Ore de Vârf -->
                 <div class="reports-layout">
                     <div class="chart-box">
                         <h3 style="font-size:1.05rem; margin-bottom:15px; color:#334155;"><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Evoluție Vânzări în Perioada Selectată</h3>
@@ -252,7 +254,6 @@
                     </div>
                 </div>
 
-                <!-- Tabele: Best-sellers & Comenzi Anulate -->
                 <div class="reports-layout">
                     <div class="chart-box">
                         <h3 style="font-size:1.05rem; margin-bottom:15px; color:#334155;"><i class="fas fa-crown" style="color:#eab308;"></i> Top Preparate Vândute (Best-Sellers)</h3>
@@ -324,11 +325,39 @@
             </div>
         </div>
 
-        <!-- TAB 4: CRM ABONAȚI -->
+        <!-- TAB 4: CRM ABONAȚI & NEWSLETTER -->
         <div id="subs-tab" class="tab-section">
             <div class="card">
+                
+                <!-- Secțiunea de Newsletter (Nouă) -->
+                <div class="email-builder">
+                    <h2 style="font-size:1.15rem; margin-bottom:15px; color:var(--info);"><i class="fas fa-paper-plane"></i> Campanii Email (Newsletter)</h2>
+                    <p style="font-size:0.85rem; color:#64748b; margin-bottom:20px;">Trimite o ofertă, o reducere sau o noutate către toți abonații tăi. (Ex: "Rămâi în casă, aducem noi pizza! 15% Reducere azi.")</p>
+                    
+                    <form id="newsletter-form">
+                        <div class="form-group">
+                            <label>Subiect Email (Atrăgător)</label>
+                            <input type="text" id="nl-subject" placeholder="Ex: Surpriză de Vineri de la Di'vino 🍕" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Imagine Banner (Link URL - Opțional)</label>
+                            <input type="url" id="nl-image" placeholder="https://site.ro/poza-oferta.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Mesajul tău</label>
+                            <textarea id="nl-body" rows="4" placeholder="Scrie aici mesajul campaniei..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-send-nl" style="background:var(--info);">
+                            <i class="fas fa-envelope"></i> Trimite la toți abonații
+                        </button>
+                        <p id="nl-status" style="margin-top:10px; font-size:0.85rem; font-weight:700; text-align:center;"></p>
+                    </form>
+                </div>
+
+                <hr style="border:none; border-top:1px solid var(--border); margin: 30px 0;">
+
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div><h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Listă Abonați & Lead-uri (<span id="sub-badge-count">0</span>)</h2></div>
+                    <div><h2><i class="fas fa-address-book" style="color: var(--primary);"></i> Baza de Date Abonați (<span id="sub-badge-count">0</span>)</h2></div>
                     <button class="btn-export" onclick="exportSubscribersCSV()"><i class="fas fa-file-csv"></i> Descarcă Excel</button>
                 </div>
                 <div style="overflow-x:auto;">
@@ -960,7 +989,11 @@
             });
         }
 
+        // ==========================================
+        // CRM ABONAȚI & NEWSLETTER SENDER
+        // ==========================================
         let subscribersList = [];
+        
         function listenSubscribers() {
             db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
                 const tbody = document.getElementById('subs-table-body'); 
@@ -978,11 +1011,64 @@
         }
         
         window.exportSubscribersCSV = function() {
-            if (subscribersList.length === 0) return alert("Nu există date!");
+            if (subscribersList.length === 0) return alert("Nu există date pentru export!");
             let csv = "Nume,Telefon,Email,Data Inscriere\n";
             subscribersList.forEach(row => { csv += `"${row.Nume}","${row.Telefon}","${row.Email}","${row.Data}"\n`; });
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `abonati_divino.csv`; link.click();
         };
+
+        // Trimitere Newsletter Către API-ul Vercel
+        const nlForm = document.getElementById('newsletter-form');
+        if (nlForm) {
+            nlForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (subscribersList.length === 0) {
+                    alert("Nu ai niciun abonat în baza de date la care să trimiți email-ul.");
+                    return;
+                }
+
+                if (!confirm(`Ești sigur că vrei să trimiți acest email către toți cei ${subscribersList.length} abonați?`)) return;
+
+                const btn = document.getElementById('btn-send-nl');
+                const statusTxt = document.getElementById('nl-status');
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se trimite mass-email...';
+                statusTxt.style.color = '#64748b';
+                statusTxt.textContent = 'Procesăm baza de date și contactăm serverul de mail...';
+
+                const subject = document.getElementById('nl-subject').value.trim();
+                const image = document.getElementById('nl-image').value.trim();
+                const body = document.getElementById('nl-body').value.trim();
+                const emails = subscribersList.map(s => s.Email).filter(e => e && e.includes('@'));
+
+                try {
+                    const res = await fetch('/api/send-newsletter', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subject, image, body, emails })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (res.ok) {
+                        statusTxt.style.color = 'var(--success)';
+                        statusTxt.innerHTML = `<i class="fas fa-check-circle"></i> Campania a fost trimisă cu succes către ${emails.length} adrese valide!`;
+                        nlForm.reset();
+                    } else {
+                        statusTxt.style.color = 'var(--danger)';
+                        statusTxt.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Eroare: ${data.error || 'Serverul de mail nu a răspuns.'}`;
+                    }
+                } catch (error) {
+                    statusTxt.style.color = 'var(--danger)';
+                    statusTxt.innerHTML = `<i class="fas fa-wifi"></i> Eroare de rețea. Nu s-a putut conecta la API.`;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-envelope"></i> Trimite la toți abonații';
+                }
+            });
+        }
     </script>
 </body>
 </html>
