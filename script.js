@@ -529,4 +529,75 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // --- LOGICĂ NOUĂ: NEWSLETTER + VERIFICARE DUBLURI ÎN FIREBASE ---
+    async function submitNewsletter(form, nume, phone, email) {
+        const btn = form.querySelector('button'); 
+        btn.disabled = true; 
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se verifică...';
+        
+        try {
+            // Verificare de dubluri în baza de date
+            const phoneCheck = await db.collection('subscribers').where('phone', '==', phone).get();
+            const emailCheck = await db.collection('subscribers').where('email', '==', email).get();
+
+            if (!phoneCheck.empty || !emailCheck.empty) {
+                alert("Acest număr de telefon sau email a fost deja folosit pentru a revendica reducerea. Nu poți beneficia de ea de două ori.");
+                btn.disabled = false;
+                btn.textContent = 'Abonează-te';
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se trimite...';
+
+            await db.collection('subscribers').add({ 
+                name: nume || 'Anonim', 
+                phone: phone, 
+                email: email, 
+                gdprAccepted: true,
+                subscribedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+
+            const clientName = nume ? nume.trim() : 'prietene';
+            const welcomeSubject = "Bun venit la Di'vino! Ai 10% Reducere la prima comandă 🍕";
+            const welcomeBody = `Salut, ${clientName}!\n\nÎți mulțumim că te-ai abonat la noutățile Di'vino!\n\nAșa cum am promis, iată codul tău de 10% REDUCERE pentru prima comandă:\n\n👉 COD: DIVINO10 👈\n\nIntrodu acest cod în câmpul de „Mențiuni bucătărie” la finalizarea comenzii pe site sau comunică-l telefonic dispecerului.\n\nTe așteptăm cu drag!`;
+
+            fetch('/api/send-newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: welcomeSubject, body: welcomeBody, emails: [email] })
+            }).catch(err => console.error("Eroare mail:", err));
+
+            // Afișează mesajul de succes scurt
+            form.innerHTML = '<h3 style="color:#10b981; margin: 15px 0; text-align:center;"><i class="fas fa-check-circle"></i> Mulțumim!</h3>';
+            localStorage.setItem('newsletter_shown', 'true'); 
+            setTimeout(() => { 
+                const pop = document.getElementById('newsletter-popup');
+                if (pop) pop.classList.remove('show'); 
+            }, 3000);
+            
+        } catch(err) { 
+            console.error("Eroare abonare:", err);
+            btn.disabled = false; 
+            btn.textContent = 'Eroare. Reîncearcă!'; 
+        }
+    }
+
+    const popForm = document.getElementById('popup-form');
+    if(popForm) {
+        popForm.addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            if(!document.getElementById('pop-gdpr').checked) { alert("Te rugăm să accepți termenii GDPR."); return; }
+            submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value); 
+        });
+    }
+
+    const footForm = document.getElementById('footer-form');
+    if(footForm) {
+        footForm.addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            if(!document.getElementById('foot-gdpr').checked) { alert("Te rugăm să accepți termenii GDPR."); return; }
+            submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value); 
+        });
+    }
 });
