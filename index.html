@@ -26,7 +26,7 @@
         .footer-schedule div { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .footer-schedule .today { font-weight: bold; color: white; }
 
-        /* Stil bara magazin închis - fixată sus, fără suprapunere peste navbar */
+        /* Bara magazin închis - fixată sus, fără suprapunere peste navbar */
         #store-closed-banner {
             display: none;
             background: #ef4444;
@@ -48,6 +48,12 @@
         #main-nav {
             transition: top 0.2s ease;
         }
+        
+        /* Stil GDPR */
+        .gdpr-checkbox { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; margin-bottom: 15px; text-align: left; }
+        .gdpr-checkbox input { margin-top: 3px; accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+        .gdpr-checkbox label { font-size: 0.75rem; color: #64748b; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.3; cursor: pointer; }
+        .footer-form .gdpr-checkbox label { color: #cbd5e1; }
     </style>
 </head>
 <body>
@@ -129,6 +135,10 @@
                     <input type="text" id="foot-name" placeholder="Nume">
                     <input type="tel" id="foot-phone" placeholder="Telefon" required>
                     <input type="email" id="foot-email" placeholder="E-mail" required>
+                    <div class="gdpr-checkbox">
+                        <input type="checkbox" id="foot-gdpr" required>
+                        <label for="foot-gdpr">Sunt de acord cu prelucrarea datelor cu caracter personal în scop de marketing (GDPR) și abonarea la newsletter.</label>
+                    </div>
                     <button type="submit" class="btn-primary" style="width: 100%; border-radius: 12px; margin-top:5px;">Abonează-te</button>
                 </form>
             </div>
@@ -185,6 +195,10 @@
                 <input type="text" id="sub-name" placeholder="Nume">
                 <input type="tel" id="sub-phone" placeholder="Telefon" required>
                 <input type="email" id="sub-email" placeholder="E-mail" required>
+                <div class="gdpr-checkbox">
+                    <input type="checkbox" id="pop-gdpr" required>
+                    <label for="pop-gdpr">Sunt de acord cu prelucrarea datelor cu caracter personal în scop de marketing (GDPR) și abonarea la newsletter.</label>
+                </div>
                 <button type="submit" class="btn-primary" style="width: 100%; border-radius: 12px; margin-top:10px;">Revendică Oferta</button>
             </form>
         </div>
@@ -255,7 +269,6 @@
             }
         }
 
-        // Calculează poziția barei și coboară meniul automat fără suprapunere
         function updateStoreBannerPosition() {
             const closedBanner = document.getElementById('store-closed-banner');
             const mainNav = document.getElementById('main-nav');
@@ -343,13 +356,29 @@
         async function submitNewsletter(form, nume, phone, email) {
             const btn = form.querySelector('button'); btn.disabled = true; btn.innerHTML = 'Se trimite...';
             try {
-                await db.collection('subscribers').add({ name: nume || 'Anonim', phone: phone, email: email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                form.innerHTML = '<h3 style="color:#10b981; margin: 15px 0;"><i class="fas fa-check-circle"></i> Mulțumim!</h3>';
-                localStorage.setItem('newsletter_shown', 'true'); setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 2500);
+                await db.collection('subscribers').add({ 
+                    name: nume || 'Anonim', 
+                    phone: phone, 
+                    email: email, 
+                    gdprAccepted: true,
+                    subscribedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+                form.innerHTML = '<h3 style="color:#10b981; margin: 15px 0; text-align:center;"><i class="fas fa-check-circle"></i> Mulțumim! Verifică-ți mailul pt. reducere.</h3>';
+                localStorage.setItem('newsletter_shown', 'true'); setTimeout(() => { document.getElementById('newsletter-popup').classList.remove('show'); }, 3000);
             } catch(err) { btn.disabled = false; btn.textContent = 'Eroare. Reîncearcă!'; }
         }
-        document.getElementById('popup-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value); });
-        document.getElementById('footer-form').addEventListener('submit', (e) => { e.preventDefault(); submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value); });
+        
+        document.getElementById('popup-form').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            if(!document.getElementById('pop-gdpr').checked) { alert("Te rugăm să accepți termenii GDPR."); return; }
+            submitNewsletter(e.target, document.getElementById('sub-name').value, document.getElementById('sub-phone').value, document.getElementById('sub-email').value); 
+        });
+        
+        document.getElementById('footer-form').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            if(!document.getElementById('foot-gdpr').checked) { alert("Te rugăm să accepți termenii GDPR."); return; }
+            submitNewsletter(e.target, document.getElementById('foot-name').value, document.getElementById('foot-phone').value, document.getElementById('foot-email').value); 
+        });
     </script>
 </body>
 </html>
