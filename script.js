@@ -536,10 +536,13 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true; 
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se verifică...';
         
+        const cleanPhone = phone.trim();
+        const cleanEmail = email.trim().toLowerCase();
+
         try {
             // Verificare de dubluri în baza de date
-            const phoneCheck = await db.collection('subscribers').where('phone', '==', phone).get();
-            const emailCheck = await db.collection('subscribers').where('email', '==', email).get();
+            const phoneCheck = await db.collection('subscribers').where('phone', '==', cleanPhone).get();
+            const emailCheck = await db.collection('subscribers').where('email', '==', cleanEmail).get();
 
             if (!phoneCheck.empty || !emailCheck.empty) {
                 alert("Acest număr de telefon sau email a fost deja folosit pentru a revendica reducerea. Nu poți beneficia de ea de două ori.");
@@ -550,22 +553,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se trimite...';
 
-            await db.collection('subscribers').add({ 
-                name: nume || 'Anonim', 
-                phone: phone, 
-                email: email, 
+            // Salvare cu ID unic = telefon (garantează zero duplicate structurale în Firebase)
+            await db.collection('subscribers').doc(cleanPhone).set({ 
+                name: nume ? nume.trim() : 'Anonim', 
+                phone: cleanPhone, 
+                email: cleanEmail, 
                 gdprAccepted: true,
                 subscribedAt: firebase.firestore.FieldValue.serverTimestamp() 
             });
 
             const clientName = nume ? nume.trim() : 'prietene';
             const welcomeSubject = "Bun venit la Di'vino! Ai 10% Reducere la prima comandă 🍕";
-            const welcomeBody = `Salut, ${clientName}!\n\nÎți mulțumim că te-ai abonat la noutățile Di'vino!\n\nAșa cum am promis, iată codul tău de 10% REDUCERE pentru prima comandă:\n\n👉 COD: DIVINO10 👈\n\nIntrodu acest cod în câmpul de „Mențiuni bucătărie” la finalizarea comenzii pe site sau comunică-l telefonic dispecerului.\n\nTe așteptăm cu drag!`;
+            const welcomeBody = `Salut, ${clientName}!\n\nÎți mulțumim că te-ai abonat la noutățile Di'vino!\n\nAșa cum am promis, iată codul tău de 10% REDUCERE pentru prima comandă:\n\n👉 COD: DIVINO10 👈\n\nIntrodu acest cod în câmpul de „Mențiuni bucătărie” la finalizarea comenzii pe site sau comunică-l telefonic dispecerului nostru.\n\nPoftă bună și te așteptăm cu drag!\nEchipa Di'vino`;
 
             fetch('/api/send-newsletter', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subject: welcomeSubject, body: welcomeBody, emails: [email] })
+                body: JSON.stringify({ subject: welcomeSubject, body: welcomeBody, emails: [cleanEmail] })
             }).catch(err => console.error("Eroare mail:", err));
 
             // Afișează mesajul de succes scurt
