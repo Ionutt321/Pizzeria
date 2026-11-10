@@ -133,6 +133,7 @@
                 <p>Primești oferte exclusive și reducere la prima comandă.</p>
                 <form id="footer-form" class="footer-form">
                     <input type="text" id="foot-name" placeholder="Nume">
+                    <!-- S-a adăugat validarea pentru doar 10 cifre -->
                     <input type="tel" id="foot-phone" placeholder="Telefon" required pattern="[0-9]{10}" title="Introdu exact 10 cifre (ex: 0712345678)">
                     <input type="email" id="foot-email" placeholder="E-mail" required>
                     <div class="gdpr-checkbox">
@@ -204,8 +205,154 @@
         </div>
     </div>
 
+    <script src="script.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('intro-loader').classList.add('hidden');
+                if (!localStorage.getItem('newsletter_shown')) { setTimeout(() => { document.getElementById('newsletter-popup').classList.add('show'); }, 3000); }
+            }, 1200);
+        });
+
+        window.switchTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active'); document.getElementById(tabId).classList.add('active');
+        };
+
+        const firebaseConfig = { apiKey: "AIzaSyChCuAExNMLcxRoXTFVPElOJ9dynYgVGjA", authDomain: "pizeria-61550.firebaseapp.com", projectId: "pizeria-61550", storageBucket: "pizeria-61550.firebasestorage.app", messagingSenderId: "655046868435", appId: "1:655046868435:web:b9a0815d10e38e4f1dc326" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        window.FREE_DELIVERY_THRESHOLD = 100; window.DELIVERY_COST = 15; window.MIN_ORDER = 50; window.PACKAGING_TAX = 2.5; window.storeIsOpen = true; window.dbProductsList = [];
+        
+        function checkSchedule(schedule) {
+            const footerContainer = document.getElementById('footer-schedule-container');
+            const displayOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            const roDays = { mon: "Luni", tue: "Marți", wed: "Miercuri", thu: "Joi", fri: "Vineri", sat: "Sâmbătă", sun: "Duminică" };
+            
+            const now = new Date();
+            const jsDaysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const currentDayString = jsDaysMap[now.getDay()];
+
+            if (!schedule || Object.keys(schedule).length === 0) {
+                schedule = { mon: '10:00 - 23:00', tue: '10:00 - 23:00', wed: '10:00 - 23:00', thu: '10:00 - 23:00', fri: '10:00 - 23:00', sat: '10:00 - 23:00', sun: '10:00 - 23:00' };
+            }
+
+            let footerHtml = '';
+            for(let key of displayOrder) {
+                const isToday = (key === currentDayString) ? 'class="today"' : '';
+                const hoursText = schedule[key] ? schedule[key] : 'Închis';
+                footerHtml += `<div ${isToday}><span>${roDays[key]}</span><span>${hoursText}</span></div>`;
+            }
+            if (footerContainer) footerContainer.innerHTML = footerHtml;
+
+            const todaysSchedule = schedule[currentDayString];
+            if (!todaysSchedule || todaysSchedule.toLowerCase().includes('inchis') || todaysSchedule.toLowerCase().includes('închis')) return false;
+            
+            const times = todaysSchedule.split('-');
+            if (times.length !== 2) return true;
+
+            const startStr = times[0].trim().split(':');
+            const endStr = times[1].trim().split(':');
+            if(startStr.length !== 2 || endStr.length !== 2) return true;
+
+            const startMinutes = parseInt(startStr[0]) * 60 + parseInt(startStr[1]);
+            const endMinutes = parseInt(endStr[0]) * 60 + parseInt(endStr[1]);
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            if (endMinutes >= startMinutes) {
+                return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+            } else {
+                return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+            }
+        }
+
+        function updateStoreBannerPosition() {
+            const closedBanner = document.getElementById('store-closed-banner');
+            const mainNav = document.getElementById('main-nav');
+            if (!closedBanner || !mainNav) return;
+
+            if (!window.storeIsOpen) {
+                closedBanner.style.display = 'block';
+                const bannerHeight = closedBanner.offsetHeight || 42;
+                mainNav.style.top = bannerHeight + 'px';
+                document.body.style.paddingTop = bannerHeight + 'px';
+            } else {
+                closedBanner.style.display = 'none';
+                mainNav.style.top = '0px';
+                document.body.style.paddingTop = '0px';
+            }
+        }
+
+        window.addEventListener('resize', updateStoreBannerPosition);
+
+        db.collection('settings').doc('general').onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                window.FREE_DELIVERY_THRESHOLD = data.freeDeliveryThreshold !== undefined ? data.freeDeliveryThreshold : 100;
+                window.DELIVERY_COST = data.deliveryCost !== undefined ? data.deliveryCost : 15;
+                window.MIN_ORDER = data.minOrder !== undefined ? data.minOrder : 50;
+                window.PACKAGING_TAX = data.packagingTax !== undefined ? data.packagingTax : 2.5;
+                
+                window.storeIsOpen = checkSchedule(data.schedule);
+                updateStoreBannerPosition();
+                
+                window.dispatchEvent(new Event('cartUpdated'));
+            }
+        });
+
+        db.collection('products').where('active', '==', true).onSnapshot(snapshot => {
+            const gridKebab = document.getElementById('menu-grid-kebab');
+            const gridPizza = document.getElementById('menu-grid-pizza');
+            const track = document.getElementById('rollercoaster-track');
+            if(!gridKebab || !gridPizza) return;
+
+            gridKebab.innerHTML = ''; gridPizza.innerHTML = '';
+            let rcHTML = ''; window.dbProductsList = [];
+
+            snapshot.forEach(doc => {
+                const p = doc.data(); p.id = doc.id; window.dbProductsList.push(p);
+                rcHTML += `<div class="mini-card" onclick="document.getElementById('meniu').scrollIntoView({behavior: 'smooth'})"><img src="${p.image || 'falafel.jpg'}" alt="${p.name}"><div class="mini-card-info"><h3>${p.name}</h3><span>${p.price.toFixed(2)} lei</span></div></div>`;
+                
+                const hasDiscount = parseFloat(p.discountPercent) > 0;
+                const priceDisplay = hasDiscount ? `<s style="color:#94a3b8; font-size:1.1rem; font-weight:600; margin-right:5px;">${parseFloat(p.originalPrice).toFixed(2)}</s> <span class="price" style="color:var(--danger); font-size: 1.6rem; font-weight: 800;">${p.price.toFixed(2)} lei</span>` : `<span class="price">${p.price.toFixed(2)} lei</span>`;
+                
+                let badgesArr = [];
+                if (hasDiscount) badgesArr.push(`<span class="badge-custom" style="background:#fee2e2; color:#b91c1c;">-${p.discountPercent}%</span>`);
+                if (p.onePlusOne === true || String(p.onePlusOne).toLowerCase() === 'true') badgesArr.push(`<span class="badge-1plus1">1+1 Gratis</span>`);
+                if (p.badge) badgesArr.push(`<span class="badge-custom">${p.badge}</span>`);
+                
+                const badgeHTML = badgesArr.length > 0 ? `<div style="position:absolute; top:10px; right:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-end;">${badgesArr.join('')}</div>` : '';
+
+                const cardHTML = `
+                <div class="menu-card">
+                    <div class="card-img" style="position:relative;">
+                        <img src="${p.image || 'falafel.jpg'}" alt="${p.name}">
+                        ${badgeHTML}
+                    </div>
+                    <div class="card-info">
+                        <div>
+                            <h3>${p.name} <span style="font-size:0.85rem; color:#94a3b8; font-weight:600; text-transform:none;">${p.weight || ''}</span></h3>
+                            <p>${p.description}</p>
+                        </div>
+                        <div class="card-bottom">
+                            <div>${priceDisplay}</div>
+                            <div id="action-btn-${p.id}" style="min-width:44px; display:flex; justify-content:flex-end;"></div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                if (p.category === 'pizza') gridPizza.insertAdjacentHTML('beforeend', cardHTML);
+                else gridKebab.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            if (track) track.innerHTML = rcHTML + rcHTML;
+            if (typeof validateCart === 'function') validateCart();
+            if (typeof syncMenuButtons === 'function') syncMenuButtons();
+            if (typeof updateCartUI === 'function') updateCartUI();
+        });
+    </script>
 </body>
 </html>
